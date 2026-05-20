@@ -6,6 +6,7 @@
     <title>사랑하는 나의 우주에게 ⭐</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </head>
 <body>
 
@@ -18,7 +19,9 @@
     </div>
 
     <div id="stars-container"></div>
-    <div id="snow-container"></div> <div id="wrap">
+    <div id="snow-container"></div>
+
+    <div id="wrap">
         <header>
             <h1>사랑하는 나의 우주에게 ⭐</h1>
             <div class="controls">
@@ -43,8 +46,7 @@
             </div>
         </div>
 
-        <main id="post-list">
-            </main>
+        <main id="post-list"></main>
 
         <div class="pagination">
             <button class="page-btn" onclick="prevPage()"><i class="fa-solid fa-chevron-left"></i> 이전</button>
