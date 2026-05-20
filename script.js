@@ -1,4 +1,4 @@
-// 기본 탑재 데이터 (답장 보관용 replies 배열 확장)
+// 기본 탑재 데이터
 const defaultPosts = [
   { title: "첫 번째 우주의 기록", author: "은하 관리인", date: "2026-05-20 12:00", content: "여기는 아주 조용하고 평화로운 나만의 우주입니다.", pinned: false, replies: [] },
   { title: "겨울 밤바다의 소리", author: "여행자", date: "2026-01-15 23:45", content: "차가운 파도가 하얗게 부서지는 소리가 들려옵니다.", pinned: false, replies: [] },
@@ -20,7 +20,13 @@ let searchQuery = '';
 let isAdminMode = false;
 let adminName = ''; 
 
-let activePostIndexForReply = null; // 현재 답장을 쓰거나 확인중인 글의 인덱스
+// 📬 편지함(우체통) 내부 제어 전용 상태 변수들
+let activePostIndexForReply = null;
+let mailboxFilteredReplies = [];
+let mailboxCurrentPage = 1;
+const mailboxRepliesPerPage = 3; // 3개씩 끊어 넘기기 규칙 적용
+let mailboxSearchQuery = '';
+let mailboxSelectedDate = '';
 
 function startSnowingEffect() {
     const container = document.getElementById('snow-container');
@@ -38,7 +44,6 @@ function startSnowingEffect() {
     }
 }
 
-// 초기화 구동 및 로그인 절차 제어 커널
 document.addEventListener("DOMContentLoaded", function() {
     startSnowingEffect();
 
@@ -48,11 +53,11 @@ document.addEventListener("DOMContentLoaded", function() {
             const passwordInput = prompt("🔒 관리자 시스템 보안 인증\n비밀번호를 입력해 주세요:");
             if (passwordInput === "0416haeunashi0416!*!26") {
                 
-                const nameInput = prompt("✍️ 우주에 새겨질 관리자 이름을 입력해 주세요:");
+                const nameInput = prompt("✍️ 우주에 새겨질 기록자 이름을 입력해 주세요:");
                 if(nameInput && nameInput.trim() !== "") {
                     adminName = nameInput.trim();
                 } else {
-                    adminName = "무명 관리인"; 
+                    adminName = "빛의 기록자"; 
                 }
 
                 isAdminMode = true;
@@ -61,10 +66,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 const sheet = window.document.styleSheets[0];
                 sheet.insertRule('.admin-card-controls { display: flex !important; }', sheet.cssRules.length);
                 
-                alert(`🔓 인증 성공. 반갑습니다, ${adminName}님.`);
+                alert(`별빛 인증 성공! ${adminName}님, 빛의 우주선에 오신 것을 환영해요!.`);
                 applyFilters(); 
             } else {
-                alert("❌ 비밀번호가 일치하지 않습니다.");
+                alert("비밀번호가 일치하지 않아요.. 다시 확인해주세요!");
                 window.location.href = window.location.pathname; 
             }
         }, 200);
@@ -107,7 +112,6 @@ function applyFilters() {
     renderPosts();
 }
 
-// 피드 빌더 (답장 단추 vs 편지지 아이콘 분기 로직 탑재)
 function renderPosts() {
     const start = (currentPage - 1) * postsPerPage;
     const end = start + postsPerPage;
@@ -118,7 +122,7 @@ function renderPosts() {
     container.innerHTML = '';
 
     if (pagedPosts.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#718096; padding: 50px 0;">조건에 맞는 기록을 찾을 수 없습니다.</p>';
+        container.innerHTML = '<p style="text-align:center; color:#718096; padding: 50px 0;">별빛의 기록을 찾을 수 없습니다..ㅜ</p>';
         return;
     }
 
@@ -128,19 +132,16 @@ function renderPosts() {
         const authorDisplay = post.author ? post.author : "알 수 없음"; 
         const replyCount = post.replies ? post.replies.length : 0;
 
-        // 📬 모드에 따른 답장 UI 분기처리
         let replyButtonHTML = '';
         if (isAdminMode) {
-            // 관리자: 답장 보내기 버튼이 없고 대신 답장을 확인하는 [편지지 아이콘] 등장
             replyButtonHTML = `
-                <button class="mailbox-view-btn" onclick="openMailboxModal(${originalIndex})">
+                <button class="winter-btn mailbox-view-btn" onclick="openMailboxModal(${originalIndex})">
                     <i class="fa-solid fa-envelope-open-text"></i> 편지함 (${replyCount})
                 </button>
             `;
         } else {
-            // 방문자: [답장 보내기] 버튼 제공
             replyButtonHTML = `
-                <button class="visitor-reply-btn" onclick="openReplyModal(${originalIndex})">
+                <button class="winter-btn visitor-reply-btn" onclick="openReplyModal(${originalIndex})">
                     <i class="fa-solid fa-paper-plane"></i> 답장 보내기
                 </button>
             `;
@@ -180,7 +181,7 @@ function renderPosts() {
 }
 
 /* ==========================================
-   📬 방문자용 답장 프로세서 구동부
+   📬 방문자용 답장 입력 파트
    ========================================== */
 function openReplyModal(index) {
     activePostIndexForReply = index;
@@ -206,7 +207,6 @@ function submitReply() {
         myPosts[activePostIndexForReply].replies = [];
     }
 
-    // 답장 저장
     myPosts[activePostIndexForReply].replies.push({
         writer: author,
         text: content.replace(/\n/g, '<br>'),
@@ -215,58 +215,140 @@ function submitReply() {
 
     syncStorage();
     closeReplyModal();
-    alert("🚀 답장이 별빛을 타고 전송되었습니다!");
+    alert("답장이 별빛을 타고 전송되었습니다!");
     applyFilters();
 }
 
 /* ==========================================
-   📨 관리자 전용 우체통 열람 제어 모듈
+   📨 관리자용 우체통 코어 엔진 (검색/필터/3개씩 넘기기)
    ========================================== */
 function openMailboxModal(index) {
     activePostIndexForReply = index;
-    const post = myPosts[index];
-    document.getElementById('mailbox-target-title').innerText = `"${post.title}" 글에 도착한 편지`;
+    // 필터 데이터 초기화
+    mailboxSearchQuery = '';
+    mailboxSelectedDate = '';
+    mailboxCurrentPage = 1;
     
+    const searchInput = document.getElementById('mailbox-search');
+    const dateInput = document.getElementById('mailbox-date');
+    if(searchInput) searchInput.value = '';
+    if(dateInput) dateInput.value = '';
+
+    document.getElementById('mailbox-target-title').innerText = `"${myPosts[index].title}" 글에 도착한 편지`;
+    
+    filterMailbox();
+    document.getElementById('mailbox-modal').style.display = 'flex';
+}
+
+function filterMailbox() {
+    const searchVal = document.getElementById('mailbox-search').value.trim().toLowerCase();
+    const dateVal = document.getElementById('mailbox-date').value;
+    
+    const post = myPosts[activePostIndexForReply];
+    let baseReplies = post.replies ? [...post.replies] : [];
+    
+    // 원본 데이터의 진짜 고유 인덱스를 기억하기 위해 맵핑 변환 수행
+    let indexedReplies = baseReplies.map((r, idx) => ({ ...r, originalIndex: idx }));
+    
+    // 기본적으로 최신순 역순 정렬
+    indexedReplies.reverse();
+
+    // 조건별 필터링 분기
+    if (searchVal) {
+        indexedReplies = indexedReplies.filter(r => r.writer.toLowerCase().includes(searchVal));
+    }
+    if (dateVal) {
+        indexedReplies = indexedReplies.filter(r => r.date.substring(0, 10) === dateVal);
+    }
+
+    mailboxFilteredReplies = indexedReplies;
+    renderMailboxPosts();
+}
+
+function renderMailboxPosts() {
     const listContainer = document.getElementById('mailbox-list');
+    const pageZone = document.getElementById('mailbox-page-zone');
     listContainer.innerHTML = "";
 
-    const replies = post.replies || [];
-    if (replies.length === 0) {
-        listContainer.innerHTML = `<p style="text-align:center; color:#a0aec0; padding:30px 0;">아직 도착한 우주 편지가 없습니다.</p>`;
-    } else {
-        // 최신 답장이 위로 오도록 반대로 표시
-        [...replies].reverse().forEach((reply, revIdx) => {
-            // 거꾸로 돌렸으므로 실제 원본 인덱스 연산
-            const realReplyIndex = replies.length - 1 - revIdx;
-            
-            const item = document.createElement('div');
-            item.className = 'mailbox-item';
-            item.innerHTML = `
-                <div class="mailbox-item-meta">
-                    <span style="color:#F5E6C8; font-weight:bold;">✍️ ${reply.writer}</span>
-                    <span style="font-size:0.8rem; color:#718096;">${reply.date}</span>
-                </div>
-                <p class="mailbox-item-text">${reply.text}</p>
-                <button class="reply-delete-btn" onclick="deleteReply(${realReplyIndex})">편지 소멸</button>
-            `;
-            listContainer.appendChild(item);
-        });
+    const post = myPosts[activePostIndexForReply];
+    const rawTotalCount = post.replies ? post.replies.length : 0;
+
+    // 1. 답장 자체가 아예 없는 완전 공백 우체통 처리 규칙
+    if (rawTotalCount === 0) {
+        listContainer.innerHTML = `<p style="text-align:center; color:#e2e8f0; font-size:1.05rem; padding:40px 0; font-weight:bold; letter-spacing:0.5px;">☄️ 도착한 답장이 없어!</p>`;
+        pageZone.style.display = 'none';
+        return;
     }
-    document.getElementById('mailbox-modal').style.display = 'flex';
+
+    // 2. 답장은 존재하나 검색 결과가 맞지 않는 처리 규칙
+    if (mailboxFilteredReplies.length === 0) {
+        listContainer.innerHTML = `<p style="text-align:center; color:#a0aec0; padding:40px 0;">검색 조건에 맞는 편지가 없습니다.</p>`;
+        pageZone.style.display = 'none';
+        return;
+    }
+
+    // 3개씩 분할 페이징 슬라이싱 연산
+    pageZone.style.display = 'flex';
+    const start = (mailboxCurrentPage - 1) * mailboxRepliesPerPage;
+    const end = start + mailboxRepliesPerPage;
+    const pagedReplies = mailboxFilteredReplies.slice(start, end);
+
+    pagedReplies.forEach(reply => {
+        const item = document.createElement('div');
+        item.className = 'mailbox-item';
+        item.innerHTML = `
+            <div class="mailbox-item-meta">
+                <span style="color:#F5E6C8; font-weight:bold;">✍️ ${reply.writer}</span>
+                <span style="font-size:0.8rem; color:#718096;">${reply.date}</span>
+            </div>
+            <p class="mailbox-item-text">${reply.text}</p>
+            <button class="reply-delete-btn" onclick="deleteReply(${reply.originalIndex})">편지 소멸</button>
+        `;
+        listContainer.appendChild(item);
+    });
+
+    document.getElementById('mailbox-page-indicator').innerText = mailboxCurrentPage;
+}
+
+function prevMailboxPage() {
+    if (mailboxCurrentPage > 1) {
+        mailboxCurrentPage--;
+        renderMailboxPosts();
+    }
+}
+
+function nextMailboxPage() {
+    if (mailboxCurrentPage * mailboxRepliesPerPage < mailboxFilteredReplies.length) {
+        mailboxCurrentPage++;
+        renderMailboxPosts();
+    }
+}
+
+function resetMailboxFilter() {
+    document.getElementById('mailbox-search').value = '';
+    document.getElementById('mailbox-date').value = '';
+    mailboxCurrentPage = 1;
+    filterMailbox();
+}
+
+function deleteReply(originalIndex) {
+    if (confirm("이 답장 편지를 영구히 삭제하시겠습니까?")) {
+        myPosts[activePostIndexForReply].replies.splice(originalIndex, 1);
+        syncStorage();
+        
+        // 데이터가 유실되어 현재 페이지 범위를 초과할 때 안전 서라운딩 안전 제어
+        const maxPage = Math.ceil((myPosts[activePostIndexForReply].replies.length) / mailboxRepliesPerPage);
+        if (mailboxCurrentPage > maxPage && maxPage > 0) {
+            mailboxCurrentPage = maxPage;
+        }
+        
+        filterMailbox();
+        applyFilters();
+    }
 }
 
 function closeMailboxModal() {
     document.getElementById('mailbox-modal').style.display = 'none';
-}
-
-function deleteReply(replyIndex) {
-    if (confirm("이 답장 편지를 영구히 삭제하시겠습니까?")) {
-        myPosts[activePostIndexForReply].replies.splice(replyIndex, 1);
-        syncStorage();
-        // 편지함 내용 실시간 갱신
-        openMailboxModal(activePostIndexForReply);
-        applyFilters();
-    }
 }
 
 function syncStorage() {
@@ -306,7 +388,7 @@ function savePost() {
             date: autoDateTime, 
             content: cleanContent,
             pinned: false,
-            replies: [] // 새 글 생성 시에도 답장 리스트 빈 배열로 확보
+            replies: []
         });
         alert("빛나는 새로운 기록이 보존되었습니다.");
     }
@@ -326,7 +408,7 @@ function startEditPost(index) {
     document.getElementById('new-content').value = post.content.replace(/<br>/g, '\n');
     document.getElementById('edit-index').value = index;
 
-    document.getElementById('admin-panel-title').innerText = "우주의 기록 수정하기";
+    document.getElementById('admin-panel-title').innerText = "빛의 기록 수정하기";
     document.getElementById('admin-main-btn').innerHTML = '<i class="fa-solid fa-check"></i> 빛의 기록 수정 완료하기';
     
     window.scrollTo({ top: document.getElementById('admin-wrapper').offsetTop - 30, behavior: 'smooth' });
@@ -351,7 +433,7 @@ function clearAdminForm() {
     document.getElementById('new-title').value = "";
     document.getElementById('new-content').value = "";
     document.getElementById('edit-index').value = "";
-    document.getElementById('admin-panel-title').innerText = "새로운 우주의 기록";
+    document.getElementById('admin-panel-title').innerText = "새로운 빛의 기록";
     document.getElementById('admin-main-btn').innerHTML = '<i class="fa-solid fa-star"></i> 나의 우주에게 빛을 전하기';
 }
 
