@@ -508,64 +508,63 @@ html, body, .space-background {
    ✨ 이스터에그: 너는 나만의 빛나는 우주야 & 별 폭포 CSS
    ========================================== */
 
-/* 1. 팝업 메시지 상자 스타일 */
+/* ==========================================
+   ✨ 이스터에그: 깔끔한 단색 & 미니멀 문구 CSS
+   ========================================== */
+
+/* 1. 팝업 메시지 상자 (크기를 줄이고 투명도와 라인을 매끄럽게 정리) */
 .easter-message-box {
     position: fixed;
-    top: 35%;
+    top: 40%; /* 화면 중앙보다 살짝 위 */
     left: 50%;
-    transform: translate(-50%, -50%) scale(0.8);
-    background: rgba(10, 15, 30, 0.85);
-    color: #F5E6C8;
-    padding: 18px 35px;
-    border-radius: 20px;
-    font-size: 1.25rem;
-    font-weight: bold;
-    letter-spacing: 1px;
+    transform: translate(-50%, -50%) scale(0.95);
+    background: rgba(15, 20, 35, 0.9); /* 어두운 밤하늘색 배경 */
+    color: #F5E6C8; /* 따뜻한 단색 글자 */
+    padding: 12px 24px; /* 여백을 줄여 크기 축소 */
+    border-radius: 12px; /* 각진 느낌을 살린 깔끔한 곡률 */
+    font-size: 1.05rem; /* 기존보다 작고 단정한 글씨 크기 */
+    letter-spacing: 0.5px;
     text-align: center;
     white-space: nowrap;
-    box-shadow: 0 0 20px rgba(245, 230, 200, 0.3), 
-                inset 0 0 15px rgba(245, 230, 200, 0.2);
-    border: 2px solid #F5E6C8;
+    border: 1px solid rgba(245, 230, 200, 0.4); /* 얇고 은은한 단색 테두리 */
     z-index: 10000;
     opacity: 0;
     pointer-events: none;
-    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.4s ease-out;
 }
 
-/* 메시지가 활성화되었을 때 스르륵 나타나는 클래스 */
+/* 메시지 활성화 상태 (번쩍이는 불빛 효과 제거) */
 .easter-message-box.active {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
-    box-shadow: 0 0 30px rgba(245, 230, 200, 0.6), 
-                0 0 10px #F5E6C8;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); /* 차분한 기본 그림자 */
 }
 
-/* 2. 쏟아지는 이스터에그 개별 별빛 스타일 */
+/* 2. 쏟아지는 개별 별빛 (그라데이션과 필터 제거 후 깔끔한 단색화) */
 .falling-easter-star {
     position: absolute;
     top: -20px;
-    color: #fff;
+    color: #F5E6C8; /* 눈이 편안한 아이보리 단색으로 통일 */
     user-select: none;
     pointer-events: none;
     animation: fall-and-spin linear forwards;
-    filter: drop-shadow(0 0 5px currentColor);
 }
 
-/* 🎬 별빛이 떨어지며 좌우로 흔들리고 회전하는 애니메이션 */
+/* 🎬 별빛 낙하 애니메이션 */
 @keyframes fall-and-spin {
     0% {
         top: -20px;
         transform: translateX(0) rotate(0deg);
-        opacity: 1;
+        opacity: 0;
     }
     10% {
-        opacity: 1;
+        opacity: 0.8; /* 자연스러운 등장 */
     }
     90% {
-        opacity: 0.9;
+        opacity: 0.8;
     }
     100% {
-        top: 105vh; /* 화면 아래단 너머까지 낙하 */
+        top: 105vh;
         transform: translateX(var(--sway-distance)) rotate(var(--spin-angle));
         opacity: 0;
     }
