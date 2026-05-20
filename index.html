@@ -7,40 +7,31 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div id="loading-screen">
-        <div class="snowflakes" aria-hidden="true">
-            <div class="snowflake">❄</div><div class="snowflake">.</div>
-            <div class="snowflake">❄</div><div class="snowflake">.</div>
-            <div class="snowflake">❄</div><div class="snowflake">.</div>
-            <div class="snowflake">❄</div><div class="snowflake">.</div>
-            <div class="snowflake">❄</div><div class="snowflake">.</div>
-            <div class="snowflake">❄</div><div class="snowflake">.</div>
-        </div>
-        <div class="loading-text">밤바다에 별처럼 빛나는 이야기가 채워지고 있는 중~</div>
+        <div class="snow-container"></div>
+        <div class="loading-text">밤바다에 눈이 내리는 중...</div>
     </div>
+
+    <div id="stars-background"></div>
 
     <div id="wrap">
         <header>
             <h1>사랑하는 나의 우주에게 ⭐</h1>
-            
             <div class="controls">
-                <button onclick="setSort('newest')">최신순</button>
-                <button onclick="setSort('oldest')">오래된순</button>
-                <input type="date" id="date-picker" onchange="filterDate(this.value)">
-                <button onclick="resetFilter()">전체보기</button>
+                <button class="winter-btn" onclick="setSort('newest')">최신순</button>
+                <button class="winter-btn" onclick="setSort('oldest')">오래된순</button>
+                <input type="date" id="date-picker" class="winter-input" onchange="filterDate(this.value)">
+                <button class="winter-btn" onclick="resetFilter()">전체보기</button>
             </div>
         </header>
 
         <div id="admin-area" style="display: none;">
             <h3>✍️ 새로운 글 남기기 (관리자 전용)</h3>
-            <input type="text" id="new-title" placeholder="글 제목을 입력하세요">
+            <input type="text" id="new-title" placeholder="글 제목">
             <input type="date" id="new-date">
-            <textarea id="new-content" placeholder="이곳에 밤바다의 이야기를 적으세요..." rows="5"></textarea>
-            <button onclick="generateCode()" class="admin-btn">글 저장용 코드 생성하기</button>
-            
+            <textarea id="new-content" placeholder="우주에게 전할 이야기..." rows="5"></textarea>
+            <button onclick="generateCode()" class="winter-btn admin-active">저장용 코드 생성</button>
             <div id="code-output-box" style="display:none;">
-                <p>💡 아래 코드를 복사해서 <b>script.js</b>의 [myPosts] 안에 붙여넣으세요!</p>
                 <textarea id="code-output" readonly></textarea>
             </div>
         </div>
@@ -48,12 +39,11 @@
         <main id="post-list"></main>
 
         <div class="pagination">
-            <button onclick="prevPage()">이전</button>
+            <button class="page-btn" onclick="prevPage()">⟨ 이전</button>
             <span id="page-indicator">1</span>
-            <button onclick="nextPage()">다음</button>
+            <button class="page-btn" onclick="nextPage()">다음 ⟩</button>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
