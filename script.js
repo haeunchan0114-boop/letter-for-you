@@ -10,10 +10,6 @@ let adminName = '';
 
 let mailboxMode = 'global'; 
 let targetPostTitleForReply = ''; 
-let mailboxFilteredLetters = [];
-let mailboxCurrentPage = 1;
-const mailboxLettersPerPage = 3; 
-let currentMailboxTab = 'all';
 
 if (window.isAdminAuthenticated === undefined) {
     window.isAdminAuthenticated = false;
@@ -49,7 +45,7 @@ function startSnowingEffect() {
     }
 }
 
-// 키프레임 동적 엔진 생성 가드
+// 키프레임 가속 가드 생성
 try {
     const style = document.createElement('style');
     style.innerHTML = `@keyframes fall { to { transform: translateY(105vh); } }`;
@@ -150,10 +146,10 @@ function updateMailboxButtonUI() {
     if (!btn) return;
     if (isAdminMode) {
         btn.innerHTML = `<i class="fa-solid fa-envelope-open-text"></i> 별빛 우체통 (${globalLetters.length})`;
-        btn.className = "winter-btn admin-mailbox-theme";
+        btn.className = "winter-btn main-mailbox-trigger admin-mailbox-theme";
     } else {
         btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> 하은이에게 편지 쓰기`;
-        btn.className = "winter-btn visitor-mailbox-theme";
+        btn.className = "winter-btn main-mailbox-trigger visitor-mailbox-theme";
     }
 }
 
@@ -204,7 +200,7 @@ function applyFilters() {
 }
 
 /* ==========================================
-   🔒 [핵심 동적 렌더러] 잠금 및 가림막 기능 
+   🔒 [핵심 동적 렌더러] 잠금 가림막 전용 모듈
    ========================================== */
 function renderPosts() {
     const start = (currentPage - 1) * postsPerPage;
@@ -216,7 +212,7 @@ function renderPosts() {
     container.innerHTML = '';
 
     if (pagedPosts.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#718096; padding: 50px 0;">우주에 기록된 이야기가 없습니다.</p>';
+        container.innerHTML = '<p style="text-align:center; color:#7F8EA3; padding: 50px 0;">우주에 기록된 이야기가 없습니다.</p>';
         return;
     }
 
@@ -225,22 +221,22 @@ function renderPosts() {
         const authorDisplay = post.author ? post.author : "알 수 없음"; 
         const hasPassword = post.password && post.password.trim() !== "";
 
-        let displayContent = post.content;
+        let displayContent = `<p>${post.content}</p>`;
         let lockClass = "";
         let lockControlsHTML = "";
 
-        // 일반 유저용 패스워드 가드 연출 활성화
+        // 암호 가드 기능 연동
         if (hasPassword && !isAdminMode) {
             lockClass = "post-locked";
             displayContent = `
                 <div class="lock-container">
                     <span class="lock-text">
-                        <i class="fa-solid fa-lock" style="color:#f6ad55;"></i> 빛을 보려면 암호가 필요해!
+                        <i class="fa-solid fa-lock"></i> 빛을 보려면 암호가 필요해!
                     </span>
                 </div>`;
             
             lockControlsHTML = `
-                <div class="lock-btn-zone">
+                <div>
                     <button class="winter-btn lock-unlock-btn" onclick="unlockPost('${post.id}', '${post.password}')">
                         <i class="fa-solid fa-key"></i> 암호 입력하고 빛 확인하기
                     </button>
@@ -248,17 +244,16 @@ function renderPosts() {
             `;
         }
 
-        // 인증 성공 토글 확인 후 복구
         if (window[`unlocked_${post.id}`]) {
-            displayContent = post.content;
-            lockControlsHTML = `<div style="color:#48bb78; font-size:0.85rem; margin-top:14px; font-weight:bold;"><i class="fa-solid fa-lock-open"></i> 투명하게 밝혀진 기록입니다.</div>`;
+            displayContent = `<p>${post.content}</p>`;
+            lockControlsHTML = `<div style="color:#F5E6C8; font-size:0.85rem; margin-top:14px; font-weight:bold; padding-left:5px;"><i class="fa-solid fa-lock-open"></i> 투명하게 밝혀진 기록입니다.</div>`;
         }
 
         let replyBtnHTML = '';
         if (!isAdminMode && (!hasPassword || window[`unlocked_${post.id}`])) {
             replyBtnHTML = `
-                <div class="reply-zone" style="margin-top: 15px;">
-                    <button class="winter-btn card-reply-trigger-btn" style="background:rgba(99,179,237,0.1); border-color:rgba(99,179,237,0.3); color:#90cdf4;" onclick="openPostReplyModal('${post.title.replace(/'/g, "\\'")}')">
+                <div style="margin-top: 20px;">
+                    <button class="winter-btn" style="margin:0; background:rgba(245,230,200,0.05); border-color:rgba(245,230,200,0.3);" onclick="openPostReplyModal('${post.title.replace(/'/g, "\\'")}')">
                         <i class="fa-solid fa-reply"></i> 답장 보내기
                     </button>
                 </div>
@@ -271,13 +266,13 @@ function renderPosts() {
             <div class="post-date">
                 ${isPinned ? '<span class="pin-badge"><i class="fa-solid fa-thumbtack"></i> 고정됨</span> | ' : ''} 
                 <span class="author-tag">${authorDisplay}</span> | ${post.date}
-                ${hasPassword ? ' | <span style="color:#f6ad55; font-weight:500;"><i class="fa-solid fa-lock"></i> 비밀글</span>' : ''}
+                ${hasPassword ? ' | <span style="color:#F5E6C8; font-weight:500;"><i class="fa-solid fa-lock"></i> 비밀글</span>' : ''}
             </div>
             <h2 class="post-title">${post.title}</h2>
-            <div id="content-${post.id}" style="line-height:1.65; white-space:pre-wrap; color:#e2e8f0; font-size:0.98rem;">${displayContent}</div>
+            <div id="content-${post.id}" style="white-space:pre-wrap;">${displayContent}</div>
             
-                    ${lockControlsHTML}
-                    ${replyBtnHTML}
+            ${lockControlsHTML}
+            ${replyBtnHTML}
             
             <div class="admin-card-controls">
                 <button class="admin-mini-btn ${isPinned ? 'pin-active' : ''}" onclick="togglePin('${post.id}', ${isPinned})">
@@ -308,7 +303,7 @@ function unlockPost(postId, correctPassword) {
         window[`unlocked_${postId}`] = true; 
         renderPosts(); 
     } else {
-        alert("암호가 올바르지 않습니다. 빛이 완강히 거부합니다.");
+        alert("암호가 올바르지 않습니다.");
     }
 }
 
@@ -366,7 +361,7 @@ function submitLetterOrReply() {
 
 function getFormattedCurrentTime() {
     const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')} :${String(now.getMinutes()).padStart(2, '0')}`;
 }
 
 function savePost() {
@@ -393,7 +388,7 @@ function savePost() {
     }
 
     if (password !== "" && !/^\d{4}$/.test(password)) {
-        alert("비밀번호는 반드시 숫자 4자리 구조로 설정하셔야 합니다!");
+        alert("비밀번호는 숫자 4자리로 설정하셔야 합니다!");
         return;
     }
 
@@ -485,7 +480,7 @@ function applySavedOptimization() {
     }
 }
 
-// 마우스 이펙트 트레일 독립 기동
+// 특수기호 마우스 트레일 독립 구동 유닛
 (function() {
     const symbols = ['✦', '★', '✧', '•'];
     window.addEventListener('mousemove', (e) => {
