@@ -65,6 +65,9 @@ function listenToFirebase() {
         if (document.getElementById('noticeMailboxModal') && document.getElementById('noticeMailboxModal').classList.contains('active')) {
             renderNoticeMailboxWindow();
         }
+        if (document.getElementById('recentMailboxModal') && document.getElementById('recentMailboxModal').classList.contains('active')) {
+            renderRecentLettersWindow();
+        }
     });
 
     database.ref('global_letters').on('value', (snapshot) => {
@@ -89,6 +92,9 @@ function listenToFirebase() {
         }
         if (document.getElementById('secretMailboxModal').classList.contains('active')) {
             renderSecretMailboxWindow();
+        }
+        if (document.getElementById('recentMailboxModal') && document.getElementById('recentMailboxModal').classList.contains('active')) {
+            renderRecentLettersWindow();
         }
     });
 }
@@ -187,7 +193,7 @@ function toggleNoticeLetters() {
     renderNoticeMailboxWindow();
 }
 
-// 📢 공지사항 전체 모아보기 독립 창 렌더러 (비밀번호 해제 기능 추가 버전)
+// 📢 공지사항 전체 모아보기 독립 창 렌더러 (내부 잠금해제 포함)
 function renderNoticeMailboxWindow() {
     const container = document.getElementById('notice-letters-container');
     if (!container) return;
@@ -211,12 +217,10 @@ function renderNoticeMailboxWindow() {
             }
         }
 
-        // 잠금 상태 여부 확인 (관리자 모드이거나 이미 풀린 글은 패스)
         const isLocked = post.postPassword && !isAdminMode && !unlockedPostIds.includes(post.firebaseKey);
         let displayContent = "";
 
         if (isLocked) {
-            // 🔒 공지사항 창 내부 전용 비밀번호 입력 폼 생성
             displayContent = `
                 <div class="locked-zone" style="text-align:center; padding:12px; background:rgba(0,0,0,0.2); border-radius:10px; margin:10px 0;">
                     <p style="color:rgba(255,255,255,0.5); font-size:0.8rem; margin-bottom:8px;">🔒 비밀번호로 보호된 공지입니다.</p>
@@ -258,18 +262,18 @@ function renderNoticeMailboxWindow() {
     });
 }
 
-// 🔐 공지사항 전용 잠금 해제 처리 함수 (script.js 맨 아래나 적당한 곳에 추가해 주세요)
 function unlockNoticePost(firebaseKey, correctPassword) {
     const inputVal = document.getElementById(`notice-unlock-pw-${firebaseKey}`).value;
     if (inputVal === correctPassword) {
-        unlockedPostIds.push(firebaseKey); // 해제 목록에 키 저장
-        renderNoticeMailboxWindow();       // 공지사항 창 즉시 새로고침
-        renderPosts();                     // 뒤편 메인 피드도 동기화 새로고침
+        unlockedPostIds.push(firebaseKey);
+        renderNoticeMailboxWindow();       
+        renderPosts();                     
     } else {
         alert("비밀번호가 일치하지 않습니다.");
     }
 }
-// 🛠️ 사용자의 피드백을 수용하여 상단 자동 붉은 배너를 완전히 탈거한 렌더러 함수
+
+// 메인 게시판 피드 렌더러
 function renderPosts() {
     const feed = document.getElementById('posts-mailbox-feed');
     if(!feed) return;
@@ -377,7 +381,6 @@ function renderPosts() {
     renderPaginationControls(totalPages);
 }
 
-// ⚠️ 4개째를 추가로 채워 넣으려고 시도할 때만 경고창을 송출하도록 가공 완료
 function toggleMainNoticeStatus(firebaseKey, currentMainStatus) {
     if (!currentMainStatus) {
         const currentMainCount = publicPosts.filter(post => post.isPinned && post.isMainNotice).length;
@@ -486,13 +489,14 @@ function checkAdminPassword() {
     }
 }
 
+// 관리자 입장 완료
 function saveAdminProfile() {
     const nameInput = document.getElementById('admin-name-input').value.trim();
     currentAdminName = nameInput ? nameInput : "관리자";
     isAdminMode = true;
     
     closeModal('adminNameModal');
-    alert(`인증 성공!📨을 누르면 도착한 편지들을 읽을 수 있어!`);
+    alert(`인증 성공! 📨 버튼을 누르면 비밀 편지들을 읽을 수 있어!`);
     
     document.querySelector('.admin-entry-btn').innerText = `관리자 모드 (${currentAdminName})`;
     mergeAndRender();
@@ -702,4 +706,103 @@ function startDynamicShootingStars() {
         }, (randomDuration + randomDelay) * 1000);
 
     }, 3500); 
+}
+
+// 🆕 최근 글 모아보기 창 열기
+function toggleRecentLetters() {
+    openModal('recentMailboxModal');
+    renderRecentLettersWindow();
+}
+
+// 🆕 최근 글 5개 전용 렌더러 (비밀번호 해제 연계 탑재)
+function renderRecentLettersWindow() {
+    const container = document.getElementById('recent-letters-container');
+    if (!container) return;
+    container.innerHTML = "";
+
+    let allCombinedPosts = [...publicPosts, ...globalLetters];
+
+    if (allCombinedPosts.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.85rem;">우주에 새겨진 기록이 전혀 없습니다.</div>`;
+        return;
+    }
+
+    allCombinedPosts.sort((a, b) => {
+        const timeA = new Date(a.date).getTime() || 0;
+        const timeB = new Date(b.date).getTime() || 0;
+        if (timeB !== timeA) return timeB - timeA;
+        return b.id - a.id;
+    });
+
+    const recent5 = allCombinedPosts.slice(0, 5);
+
+    recent5.forEach(post => {
+        let formattedDate = post.date ? post.date.trim() : "";
+        if (/\d{4}-\d{2}-\d{2}\s\d{2}\s\d{2}/.test(formattedDate)) {
+            const parts = formattedDate.split(/\s+/);
+            if(parts.length >= 3) {
+                formattedDate = `${parts[0]} ${parts[1]}:${parts[2]}`;
+            }
+        }
+
+        let typeTag = "✉️ 편지";
+        if (post.nodeType === 'posts') {
+            typeTag = post.isPinned ? "📌 공지사항" : "📜 일반 기록";
+        }
+
+        const isLocked = post.postPassword && !isAdminMode && !unlockedPostIds.includes(post.firebaseKey);
+        let displayContent = "";
+
+        if (isLocked) {
+            displayContent = `
+                <div class="locked-zone" style="text-align:center; padding:12px; background:rgba(0,0,0,0.2); border-radius:10px; margin:10px 0;">
+                    <p style="color:rgba(255,255,255,0.5); font-size:0.8rem; margin-bottom:8px;">🔒 비밀번호로 보호된 기록입니다.</p>
+                    <div style="display:flex; gap:5px; justify-content:center;">
+                        <input type="password" id="recent-unlock-pw-${post.firebaseKey}" placeholder="비밀번호 입력" style="padding:4px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.05); color:#fff; font-size:0.8rem; width:120px; margin-bottom:0;">
+                        <button onclick="unlockRecentPost('${post.firebaseKey}', '${post.postPassword}')" style="padding:4px 10px; background:#FFE6BA; border:none; border-radius:6px; color:#0d0e2d; font-size:0.8rem; cursor:pointer; font-weight:bold;">해제</button>
+                    </div>
+                </div>
+            `;
+        } else {
+            displayContent = `<div class="mini-content">${post.content}</div>`;
+        }
+
+        const miniCard = document.createElement('div');
+        miniCard.className = 'secret-mini-card notice-mini-card';
+        if(post.isMainNotice) {
+            miniCard.style.borderLeft = "3px solid #FFE6BA";
+        }
+
+        miniCard.innerHTML = `
+            <div class="mini-meta" style="display:flex; justify-content:space-between; align-items:center;">
+                <span><b>[${typeTag}]</b> | 작성자: <b>${post.author}</b></span>
+            </div>
+            <div class="mini-title" style="color:${post.isMainNotice ? '#FFE6BA' : '#fff'};">${post.title}</div>
+            
+            ${displayContent}
+            
+            <div class="mini-center-date">— ${formattedDate} —</div>
+            <div class="mini-actions">
+                <button onclick="openReplyModal('${post.nodeType}', '${post.firebaseKey}')" ${isLocked ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>답장</button>
+                ${isAdminMode ? `
+                    ${post.nodeType === 'posts' ? `<button onclick="toggleMainNoticeStatus('${post.firebaseKey}', ${post.isMainNotice})">${post.isMainNotice ? '메인 해제' : '메인 지정'}</button>` : ''}
+                    <button onclick="openEditModal('${post.nodeType}', '${post.firebaseKey}')">수정</button>
+                ` : ''}
+            </div>
+        `;
+        container.appendChild(miniCard);
+    });
+}
+
+// 🔐 최근 글 창 전용 잠금 해제 처리 함수
+function unlockRecentPost(firebaseKey, correctPassword) {
+    const inputVal = document.getElementById(`recent-unlock-pw-${firebaseKey}`).value;
+    if (inputVal === correctPassword) {
+        unlockedPostIds.push(firebaseKey); 
+        renderRecentLettersWindow();       
+        renderPosts();                     
+        if (document.getElementById('noticeMailboxModal').classList.contains('active')) renderNoticeMailboxWindow(); 
+    } else {
+        alert("비밀번호가 일치하지 않습니다.");
+    }
 }
