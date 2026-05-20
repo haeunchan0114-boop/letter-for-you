@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나의 사랑하는 우주</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>나의 우주</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -44,9 +44,9 @@
             </button>
             
             <div id="admin-area" style="display: none;">
-                <h3 id="admin-panel-title" class="admin-title">새로운 우주 속 빛의 기록</h3>
+                <h3 id="admin-panel-title" class="admin-title">새로운 우주의 기록</h3>
                 <input type="hidden" id="edit-index">
-                <input type="text" id="new-title" class="admin-input" placeholder="기록의 제목을 적어주세요.">
+                <input type="text" id="new-title" class="admin-input" placeholder="빛의 기록의 제목을 적어주세요.">
                 <textarea id="new-content" class="admin-input" rows="6" placeholder="우주에 새길 이야기를 기록해 주세요."></textarea>
                 <div class="admin-btn-group">
                     <button class="admin-cancel-btn" id="admin-cancel-btn" onclick="clearAdminForm(); toggleAdminForm();">
@@ -87,21 +87,21 @@
         </div>
     </div> <div id="reply-modal" class="reply-modal-overlay" style="display: none;">
         <div class="reply-modal-content">
-            <h3>✉️ 하은이에게 편지 보내기</h3>
-            <p class="reply-target-info">하은이에게 전하고 싶은 이야기를 별빛에 실어 보내세요.</p>
+            <h3 id="modal-form-title">편지 보내기</h3>
+            <p id="modal-form-desc" class="reply-target-info"></p>
             <input type="text" id="reply-author" class="admin-input" placeholder="당신의 이름(닉네임)">
-            <textarea id="reply-content" class="admin-input" rows="5" placeholder="여기에 전하고 싶은 기록을 적어주세요..."></textarea>
+            <textarea id="reply-content" class="admin-input" rows="5" placeholder="여기에 당신의 하고싶은 말을 적어주세요..."></textarea>
             <div class="admin-btn-group">
                 <button class="winter-btn" style="flex: 1; margin: 0;" onclick="closeReplyModal()">닫기</button>
-                <button class="admin-submit-btn" style="flex: 2; padding: 11px;" onclick="submitGlobalLetter()">빛의 편지 전송하기</button>
+                <button class="admin-submit-btn" style="flex: 2; padding: 11px;" onclick="submitLetterOrReply()">보내기</button>
             </div>
         </div>
     </div>
 
     <div id="mailbox-modal" class="reply-modal-overlay" style="display: none;">
-        <div class="reply-modal-content" style="max-width: 520px; width: 95%;">
-            <h3>우주의 빛이 담긴 편지함</h3>
-            <p class="reply-target-info" style="color: #F5E6C8; margin-bottom: 15px;">방문자들이 보낸 모든 편지가 모이는 공간입니다.</p>
+        <div class="reply-modal-content" style="max-width: 540px; width: 95%;">
+            <h3>📬 빛이 모이는 우주 편지함</h3>
+            <p class="reply-target-info" style="color: #F5E6C8; margin-bottom: 15px;">나에게 온 편지와 게시글 답장이 실시간으로 모두 모이는 공간입니다.</p>
             
             <div class="mailbox-controls">
                 <input type="text" id="mailbox-search" class="winter-input" placeholder="작성자 검색..." oninput="filterMailbox()">
