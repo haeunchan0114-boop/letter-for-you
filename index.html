@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>우주 기록소</title>
+    <title>나의 사랑하는 우주에게</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -36,18 +36,31 @@
     </div>
 
     <div id="wrap">
-        <h1>우주 기록소</h1>
+        <h1>나의 사랑하는<br><span style="font-size: inherit; letter-spacing: inherit;">우주에게</span></h1>
 
-        <div class="controls">
-            <button id="global-mailbox-btn" onclick="handleMailboxClick()" class="winter-btn main-mailbox-trigger visitor-mailbox-theme">
+        <div class="main-console-box">
+            
+            <button id="opt-toggle-btn" onclick="toggleOptimization()" class="winter-btn opt-btn full-width-btn">
+                <i class="fa-solid fa-circle-notch"></i> 최적화 모드: OFF (애니메이션 켜짐)
+            </button>
+
+            <div class="triple-sort-group">
+                <button onclick="setSort('newest')" class="winter-btn sort-mini-btn">최신 순</button>
+                <button onclick="setSort('oldest')" class="winter-btn sort-mini-btn">오래된 순</button>
+                <button onclick="resetFilter()" class="winter-btn sort-mini-btn">초기화</button>
+            </div>
+
+            <div class="search-container">
+                <input type="text" id="search-input" class="winter-input search-input-field" placeholder="빛의 기록의 제목을 검색해보세요..." oninput="searchTitle(this.value)">
+            </div>
+
+            <button id="global-mailbox-btn" onclick="handleMailboxClick()" class="winter-btn main-mailbox-trigger visitor-mailbox-theme full-width-btn">
                 <i class="fa-solid fa-paper-plane"></i> 하은이에게 편지 쓰기
             </button>
-            <button id="opt-toggle-btn" onclick="toggleOptimization()" class="winter-btn opt-btn">
-                <i class="fa-solid fa-gauge-high"></i> 최적화 모드: OFF
-            </button>
+            
         </div>
 
-        <div id="admin-wrapper" style="display: none;">
+        <div id="admin-wrapper" style="display: none; margin-bottom: 35px;">
             <button id="admin-open-toggle" onclick="toggleAdminForm()" class="admin-write-toggle-btn">
                 <i class="fa-solid fa-pen-to-square"></i> 기록자 글쓰기 판넬 열기
             </button>
@@ -77,19 +90,6 @@
                     </button>
                 </div>
             </div>
-        </div>
-
-        <div class="search-container">
-            <div class="search-box">
-                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" id="search-input" class="winter-input search-input-field" placeholder="기록 제목 검색..." oninput="searchTitle(this.value)">
-            </div>
-        </div>
-
-        <div class="controls" style="margin-bottom: 25px;">
-            <button onclick="setSort('newest')" class="winter-btn">최신순</button>
-            <button onclick="setSort('oldest')" class="winter-btn">과거순</button>
-            <button onclick="resetFilter()" class="winter-btn" style="padding:11px 16px;"><i class="fa-solid fa-rotate-right"></i></button>
         </div>
 
         <div id="post-list"></div>
