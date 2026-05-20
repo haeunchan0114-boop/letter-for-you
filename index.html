@@ -10,9 +10,21 @@
 <body>
 
     <div class="space-background">
+        <div class="space-moon"></div>
+        
+        <div class="nebula-pink"></div>
+        <div class="nebula-blue"></div>
+
         <div class="aurora-green"></div>
         <div class="aurora-purple"></div>
+        
         <div class="star-universe"></div>
+        <div class="twinkle-stars">
+            <div class="star-bright star1">✦</div>
+            <div class="star-bright star2">✦</div>
+            <div class="star-bright star3">✦</div>
+            <div class="star-bright star4">✦</div>
+        </div>
         
         <div class="shooting-star"></div>
         <div class="shooting-star"></div>
@@ -73,3 +85,18 @@
         </div>
 
         <main id="post-list"></main>
+
+        <div class="pagination">
+            <button class="page-btn" onclick="prevPage()">
+                <i class="fa-solid fa-chevron-left"></i> 이전
+            </button>
+            <span id="page-indicator">1</span>
+            <button class="page-btn" onclick="nextPage()">
+                다음 <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
