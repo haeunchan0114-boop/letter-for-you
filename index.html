@@ -3,9 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나의 사랑하는 우주에게</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <title>Deep Space Mailbox</title>
+    <style>
+        /* [앞서 완성한 CSS 코드를 그대로 유지합니다] */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: #010205; color: #E2E8F0;
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            min-height: 100vh; overflow-x: hidden;
+        }
+
+        #wrap { max-width: 650px; margin: 0 auto; padding: 80px 20px; position: relative; z-index: 20; }
+
+        h1 { 
+            text-align: center; color: #F5E6C8; font-weight: normal; letter-spacing: 5px; margin-bottom: 50px;
+            text-shadow: 0 0 20px rgba(245, 230, 200, 0.7), 0 0 40px rgba(245, 230, 200, 0.3);
+        }
+
+        /* 🌌 애니메이션이 극대화된 딥 스페이스 시스템 */
+        .space-background {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -10; overflow: hidden; pointer-events: none;
+            background: linear-gradient(180deg, #010206 0%, #030717 25%, #061022 60%, #0c152b 100%);
+        }
+
+        .space-moon {
+            position: absolute; top: 10%; right: 12%; width: 75px; height: 75px;
+            border-radius: 50%; box-shadow: -14px 14px 0 0 #F5E6C8;
+            filter: drop-shadow(0 0 18px rgba(245, 230, 200, 0.55));
+            animation: moonFloat 9s ease-in-out infinite alternate;
+            opacity: 0.85;
+        }
+
+        /* 🌀 우주 성운 입체 회전 효과 */
+        .nebula-pink {
+            position: absolute; width: 650px; height: 650px; top: 15%; left: -15%;
+            background: radial-gradient(circle, rgba(219, 39, 119, 0.09) 0%, rgba(0,0,0,0) 70%);
+            filter: blur(65px); animation: nebulaRotate 45s linear infinite;
+        }
+        .nebula-blue {
+            position: absolute; width: 750px; height: 750px; bottom: 5%; right: -15%;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, rgba(0,0,0,0) 75%);
+            filter: blur(85px); animation: nebulaRotate 65s linear infinite reverse;
+        }
+        .nebula-purple {
+            position: absolute; width: 550px; height: 550px; top: -10%; right: 20%;
+            background: radial-gradient(circle, rgba(147, 51, 234, 0.06) 0%, rgba(0,0,0,0) 70%);
+            filter: blur(60px); animation: nebulaRotate 55s linear infinite;
+        }
+
+        /* 💚💜💙 오로라 광원 시스템 */
+        .aurora-green {
+            position: absolute; width: 200%; height: 75%; top: -25%; left: -50%;
+            background: radial-gradient(circle at 30% 20%, rgba(16, 185, 129, 0.28) 0%, rgba(16, 185, 129, 0.08) 35%, rgba(0, 0, 0, 0) 70%);
+            filter: blur(100px); mix-blend-mode: screen;
+            animation: auroraWave 16s ease-in-out infinite alternate, auroraPulse 8s ease-in-out infinite alternate;
+        }
+        .aurora-purple {
+            position: absolute; width: 180%; height: 65%; top: -20%; right: -40%;
+            background: radial-gradient(circle at 70% 30%, rgba(139, 92, 246, 0.25) 0%, rgba(139, 92, 246, 0.06) 40%, rgba(0, 0, 0, 0) 75%);
+            filter: blur(110px); mix-blend-mode: screen;
+            animation: auroraWave 22s ease-in-out infinite alternate-reverse, auroraPulse 11s ease-in-out infinite alternate-reverse;
+        }
+        .aurora-blue {
+            position: absolute; width: 160%; height: 60%; bottom: 15%; left: -30%;
+            background: radial-gradient(circle at 25% 75%, rgba(59, 130, 246, 0.18) 0%, rgba(59, 130, 246, 0.04) 30%, rgba(0, 0, 0, 0) 65%);
+            filter: blur(100px); mix-blend-mode: screen;
+            animation: auroraWave 28s ease-in-out infinite alternate, auroraPulse 9s ease-in-out infinite alternate-reverse;
+        }
+
+        /* ✨ 은하수 잔별 */
+        .star-universe {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(1.5px 1.5px at 150px 280px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 220px 140px, #e2e8f0, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 420px 390px, #f5e6c8, rgba(0,0,0,0)),
+                radial-gradient(1.2px 1.2px at 560px 190px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1.8px 1.8px at 680px 520px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 310px 610px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2.5px 2.5px at 250px 450px, #f5e6c8, rgba(0,0,0,0)),
+                radial-gradient(2.2px 2.2px at 820px 220px, #f5e6c8, rgba(0,0,0,0));
+            background-size: 450px 450px; opacity: 0.6; animation: starPulse 6s ease-in-out infinite;
+        }
+
+        /* ✦ 반짝이는 대형 포인트 별 */
+        .star-bright {
+            position: absolute; color: #FFFDF0; font-size: 14px; opacity: 0;
+            text-shadow: 0 0 8px #fff, 0 0 15px #F5E6C8;
+            animation: starTwinkle 4s ease-in-out infinite;
+        }
+        .star1 { top: 15%; left: 25%; animation-delay: 0s; } 
+        .star2 { top: 45%; right: 12%; animation-delay: 1.3s; font-size: 11px; }
+        .star3 { bottom: 35%; left: 8%; animation-delay: 2.5s; font-size: 16px; }
+        .star4 { top: 75%; right: 22%; animation-delay: 0.7s; }
+        .star5 { top: 28%; right: 35%; animation-delay: 1.9s; font-size: 13px; }
+        .star6 { bottom: 15%; right: 45%; animation-delay: 3.1s; font-size: 15px; }
+
+        /* 🌠 별똥별 애니메이션 시스템 */
+        .shooting-star {
+            position: absolute;
+            background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+            border-radius: 50%; opacity: 0;
+        }
+        .shooting-star:nth-child(1) { top: 5%; left: 30%; width: 4px; height: 4px; transform: rotate(-30deg); animation: shootingStarGlow 8s linear infinite; animation-delay: 0s; }
+        .shooting-star:nth-child(2) { top: 12%; left: 65%; width: 5px; height: 4px; transform: rotate(-35deg); animation: shootingStarGlow 11s linear infinite; animation-delay: 2.5s; }
+        .shooting-star:nth-child(3) { top: -2%; left: 45%; width: 3px; height: 3px; transform: rotate(-28deg); animation: shootingStarGlow 7s linear infinite; animation-delay: 4.5s; }
+        .shooting-star:nth-child(4) { top: 20%; left: 20%; width: 5px; height: 5px; transform: rotate(-40deg); animation: shootingStarGlow 13s linear infinite; animation-delay: 6s; }
+        .shooting-star:nth-child(5) { top: 2%; left: 85%; width: 4px; height: 4px; transform: rotate(-32deg); animation: shootingStarGlow 14s linear infinite; animation-delay: 1s; }
+        .shooting-star:nth-child(6) { top: 35%; left: 55%; width: 3px; height: 3px; transform: rotate(-35deg); animation: shootingStarGlow 9s linear infinite; animation-delay: 3.5s; }
+        .shooting-star:nth-child(7) { top: 50%; left: 25%; width: 4px; height: 4px; transform: rotate(-25deg); animation: shootingStarGlow 12s linear infinite; animation-delay: 7.5s; }
+
+        /* 키프레임 정의 */
+        @keyframes moonFloat { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(-8px) rotate(-3deg); } }
+        @keyframes nebulaRotate { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.08); } 100% { transform: rotate(360deg) scale(1); } }
+        @keyframes starPulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.8; } }
+        @keyframes starTwinkle { 0%, 100% { opacity: 0; transform: scale(0.6); } 50% { opacity: 0.95; transform: scale(1.1); } }
+        @keyframes auroraWave {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg) skewX(0deg); }
+            50% { transform: translate(-3%, 4%) scale(1.05) rotate(2deg) skewX(4deg); }
+            100% { transform: translate(2%, -3%) scale(0.95) rotate(-1.5deg) skewX(-3deg); }
+        }
+        @keyframes auroraPulse {
+            0% { opacity: 0.5; filter: blur(100px) brightness(0.9); }
+            50% { opacity: 0.85; filter: blur(85px) brightness(1.2); }
+            100% { opacity: 0.6; filter: blur(105px) brightness(0.95); }
+        }
+        @keyframes shootingStarGlow {
+            0% { transform: translateX(0) translateY(0) scale(0); opacity: 0; width: 0px; }
+            1.5% { opacity: 1; width: 110px; scale: 1; }
+            8% { transform: translateX(-420px) translateY(294px) scale(0.8); opacity: 0; width: 0px; }
+            100% { transform: translateX(-420px) translateY(294px) scale(0); opacity: 0; }
+        }
+
+        .snowflake { position: fixed; top: -20px; color: #ffffff; opacity: 0.35; user-select: none; pointer-events: none; z-index: 10; animation: snowDown linear infinite; }
+        @keyframes snowDown { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(105vh) rotate(360deg); } }
+
+        /* 글래스모피즘 포스트 카드 */
+        .post-card {
+            position: relative; background: rgba(4, 7, 19, 0.86); border: 1px solid rgba(255, 255, 255, 0.09); border-radius: 26px; padding: 45px 40px; margin-bottom: 35px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,255,255,0.02); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s;
+        }
+        .post-card.pinned { border: 1px solid rgba(245, 230, 200, 0.45); background: rgba(8, 13, 33, 0.92); box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), inset 0 0 25px rgba(245, 230, 200, 0.06); }
+        .post-card:hover { transform: translateY(-4px); border-color: rgba(245, 230, 200, 0.35); }
+        .post-date { color: #7F8EA3; font-size: 0.88rem; margin-bottom: 16px; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+        .author-tag { color: #F5E6C8; font-weight: bold; margin-right: 4px; }
+        .post-title { color: #F5E6C8; font-size: 1.5rem; margin: 0 0 16px 0; font-weight: normal; padding-right: 140px; line-height: 1.4; }
+        .post-card p { color: #E2E8F0; line-height: 1.85; margin: 0; font-size: 1.02rem; word-break: break-all; }
+
+        /* UI 제어 제어판 */
+        .winter-btn, .page-btn, .winter-input {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.16); color: #F5E6C8; padding: 11px 22px; border-radius: 25px; cursor: pointer; font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); margin: 5px;
+        }
+        .winter-btn:hover, .page-btn:hover { background: rgba(245, 230, 200, 0.2); border-color: #F5E6C8; box-shadow: 0 0 20px rgba(245, 230, 200, 0.4); transform: translateY(-2px); }
+        .controls { display: flex; justify-content: center; flex-wrap: wrap; margin-bottom: 15px; gap: 5px; }
+
+        /* 우체통 스크롤 시스템 */
+        .mailbox-scroll-area { max-height: 290px; overflow-y: auto; padding-right: 5px; margin-top: 5px; min-height: 120px; }
+        .mailbox-scroll-area::-webkit-scrollbar { width: 4px; }
+        .mailbox-scroll-area::-webkit-scrollbar-thumb { background: rgba(245, 230, 200, 0.25); border-radius: 10px; }
+
+        /* 모바일 락 및 하드웨어 가속 */
+        .space-background, .nebula-pink, .nebula-blue, .nebula-purple, .aurora-green, .aurora-purple, .aurora-blue, .star-universe {
+            -webkit-backface-visibility: hidden; backface-visibility: hidden; -webkit-transform: translate3d(0, 0, 0); transform: translate3d(0, 0, 0); will-change: transform;
+        }
+        .admin-input, .winter-input, textarea { -webkit-tap-highlight-color: transparent; }
+
+        /* ==========================================
+           ✨ 이스터에그 전용 스타일 상속 영역
+           ========================================== */
+        .easter-message-box {
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%) scale(0.95);
+            background: rgba(15, 20, 35, 0.9); color: #F5E6C8; padding: 12px 24px;
+            border-radius: 12px; font-size: 1.05rem; letter-spacing: 0.5px; text-align: center;
+            white-space: nowrap; border: 1px solid rgba(245, 230, 200, 0.4); z-index: 10000;
+            opacity: 0; pointer-events: none; transition: all 0.4s ease-out;
+        }
+        .easter-message-box.active { opacity: 1; transform: translate(-50%, -50%) scale(1); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); }
+
+        .falling-easter-star {
+            position: absolute; top: -20px; color: #F5E6C8; user-select: none; pointer-events: none; z-index: 9999;
+            animation: fall-and-spin linear forwards;
+        }
+        @keyframes fall-and-spin {
+            0% { top: -20px; transform: translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { top: 105vh; transform: translateX(var(--sway-distance)) rotate(var(--spin-angle)); opacity: 0; }
+        }
+
+        /* [실사풍 오로라 밤하늘 배경 레이어 구성] */
+        .space-background { position: fixed; top: 0; left: 0; width: 100%; height: 100% !important; background: linear-gradient(to bottom, #050515, #0a0b20) !important; overflow: hidden; z-index: -2; }
+        .space-background::before {
+            content: ''; position: absolute; top: -30%; left: -20%; width: 140%; height: 140%; filter: blur(100px); -webkit-filter: blur(100px); mix-blend-mode: screen;
+            background: radial-gradient(circle at 35% 40%, rgba(138, 79, 255, 0.35) 0%, transparent 65%), radial-gradient(circle at 70% 30%, rgba(45, 85, 255, 0.25) 0%, transparent 60%); opacity: 0.9; z-index: -1;
+        }
+
+        /* ⚡ 최적화 성능 고정 제어 필터 */
+        body.optimized .aurora-green, body.optimized .aurora-purple, body.optimized .aurora-blue, body.optimized .nebula-pink, body.optimized .nebula-blue, body.optimized .nebula-purple, body.optimized .space-background::before, body.optimized .shooting-star, body.optimized .star-universe, body.optimized .snowflake, body.optimized .falling-easter-star { display: none !important; animation: none !important; will-change: auto !important; }
+        body.optimized .space-background { background: linear-gradient(to bottom, #050515, #0a0b20) !important; animation: none !important; }
+        body.optimized .star-bright { animation: none !important; opacity: 0.3 !important; }
+        body.optimized .mailbox-scroll-area { scrollbar-width: none !important; -ms-overflow-style: none !important; }
+        body.optimized .mailbox-scroll-area::-webkit-scrollbar { display: none !important; }
+    </style>
 </head>
 <body>
 
@@ -14,7 +215,6 @@
         <div class="nebula-pink"></div>
         <div class="nebula-blue"></div>
         <div class="nebula-purple"></div>
-        
         <div class="aurora-green"></div>
         <div class="aurora-purple"></div>
         <div class="aurora-blue"></div>
@@ -26,127 +226,91 @@
         <div class="star-bright star4">✦</div>
         <div class="star-bright star5">✦</div>
         <div class="star-bright star6">✦</div>
-
-        <div class="shooting-star s-star1"></div>
-        <div class="shooting-star s-star2"></div>
-        <div class="shooting-star s-star3"></div>
-        <div class="shooting-star s-star4"></div>
-        <div class="shooting-star s-star5"></div>
-        <div class="shooting-star s-star6"></div>
-        <div class="shooting-star s-star7"></div>
     </div>
+
+    <div id="easter-stars-container"></div>
+    <div id="easter-message" class="easter-message-box">🌌 신비로운 우주의 경계를 허물었습니다.</div>
 
     <div id="wrap">
-        <h1>나의 사랑하는<br><span style="font-size: inherit; letter-spacing: inherit;">우주에게</span></h1>
+        <h1>ORBIT BOX</h1>
 
-        <div class="main-console-box">
-            
-            <button id="opt-toggle-btn" onclick="toggleOptimization()" class="winter-btn opt-btn" style="width: 100%; margin: 5px 0 12px 0;">
-                <i class="fa-solid fa-circle-notch"></i> 최적화 모드: OFF (애니메이션 켜짐)
-            </button>
-
-            <div class="controls" style="margin-bottom: 12px;">
-                <button onclick="setSort('newest')" class="winter-btn">최신 순</button>
-                <button onclick="setSort('oldest')" class="winter-btn">오래된 순</button>
-                <button onclick="resetFilter()" class="winter-btn">초기화</button>
-            </div>
-
-            <div class="search-container">
-                <div class="search-box">
-                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                    <input type="text" id="search-input" class="winter-input search-input-field" placeholder="빛의 기록의 제목을 검색해보세요..." oninput="searchTitle(this.value)">
-                </div>
-            </div>
-
-            <button id="global-mailbox-btn" onclick="handleMailboxClick()" class="winter-btn main-mailbox-trigger visitor-mailbox-theme" style="width: 100%; margin: 10px 0 0 0;">
-                <i class="fa-solid fa-paper-plane"></i> 하은이에게 편지 쓰기
-            </button>
-            
+        <div class="controls">
+            <button class="winter-btn opt-btn" onclick="toggleOptimization()">⚡ 최적화 모드 토글</button>
+            <button class="winter-btn" onclick="triggerEasterEgg(event)">✨ 이스터에그 수동 발동</button>
         </div>
 
-        <div id="admin-wrapper" style="display: none;">
-            <button id="admin-open-toggle" onclick="toggleAdminForm()" class="admin-write-toggle-btn">
-                <i class="fa-solid fa-pen-to-square"></i> 기록자 글쓰기 판넬 열기
-            </button>
+        <div class="post-card pinned">
+            <div class="post-date"><span class="author-tag">SYSTEM</span> • 안내 게시글</div>
+            <h2 class="post-title">우주 우체통에 오신 것을 환영합니다</h2>
+            <p>배경 화면의 빈 공간이나 상단의 버튼을 클릭하면 감성적인 이스터에그 잔별 시스템이 활성화됩니다.</p>
+        </div>
+    </div>
 
-            <div id="admin-area" style="display: none;">
-                <h3 id="admin-panel-title" class="admin-title"><i class="fa-solid fa-feather"></i> 우주에 새로운 빛의 기록 남기기</h3>
-                <input type="hidden" id="edit-id">
+    <script>
+        // 1. 최적화 성능 모드 제어 스위치 함수
+        function toggleOptimization() {
+            document.body.classList.toggle('optimized');
+            const btn = document.querySelector('.opt-btn');
+            if(document.body.classList.contains('optimized')) {
+                btn.innerText = "⚡ 일반 모드로 전환";
+            } else {
+                btn.innerText = "⚡ 최적화 모드 토글";
+            }
+        }
+
+        // 2. 이스터에그 완벽 연동 핵심 함수
+        function triggerEasterEgg(event) {
+            // 최적화 모드가 켜져있을 경우 연산 낭비를 막기위해 리턴
+            if (document.body.classList.contains('optimized')) return;
+
+            // [A] 미니멀 문구 상자 알림 활성화 
+            const messageBox = document.getElementById('easter-message');
+            messageBox.classList.add('active');
+            
+            // 2.5초 후 문구 스르륵 자동 초기화 제거
+            setTimeout(() => {
+                messageBox.classList.remove('active');
+            }, 2500);
+
+            // [B] 이스터에그 낙하용 파티클 별(Star) 동적 생성
+            const container = document.getElementById('easter-stars-container');
+            
+            // 한 번 클릭할 때마다 3개의 잔별 생성 후 투하
+            for (let i = 0; i < 3; i++) {
+                const star = document.createElement('div');
+                star.className = 'falling-easter-star';
+                star.innerText = ['✦', '✧', '★', '*'][Math.floor(Math.random() * 4)]; // 다양한 별 모양 무작위 배정
                 
-                <div style="margin-bottom: 16px;">
-                    <input type="text" id="new-title" class="admin-input" placeholder="기록할 제목을 입력하세요.">
-                </div>
+                // 마우스나 버튼 클릭 좌표 기반 또는 완전 랜덤 가로축 분산 설정
+                const startLeft = event.clientX ? (event.clientX + (Math.random() * 60 - 30)) : (Math.random() * window.innerWidth);
+                star.style.left = startLeft + 'px';
+                star.style.fontSize = (Math.random() * 10 + 10) + 'px'; // 10px ~ 20px 무작위 크기
+                
+                // CSS 키프레임 내부 변수(--sway-distance, --spin-angle) 동적 주입 시스템
+                const sway = (Math.random() * 200 - 100) + 'px';
+                const angle = (Math.random() * 720 - 360) + 'deg';
+                star.style.setProperty('--sway-distance', sway);
+                star.style.setProperty('--spin-angle', angle);
+                
+                // 낙하 속도 제어
+                star.style.animationDuration = (Math.random() * 2 + 3) + 's'; // 3초~5초 사이로 랜덤 낙하
+                
+                container.appendChild(star);
+                
+                // 애니메이션이 끝나 화면 밖으로 나가면 메모리 확보를 위해 DOM 소멸 처리
+                star.addEventListener('animationend', () => {
+                    star.remove();
+                });
+            }
+        }
 
-                <div style="margin-bottom: 16px;">
-                    <input type="password" id="new-password" class="admin-input" maxlength="4" 
-                           oninput="this.value = this.value.replace(/[^0-9]/g, '');" 
-                           placeholder="🔒 숫자 4자리 암호 설정 (비워두면 일반 공개글)">
-                </div>
-
-                <div style="margin-bottom: 20px;">
-                    <textarea id="new-content" class="admin-input" rows="7" placeholder="우주 너머에 남길 문장들을 입력하세요."></textarea>
-                </div>
-
-                <div class="admin-btn-group">
-                    <button onclick="toggleAdminForm()" class="admin-cancel-btn" style="flex:1;">취소</button>
-                    <button id="admin-main-btn" onclick="savePost()" class="admin-submit-btn" style="flex:2;">
-                        <i class="fa-solid fa-feather"></i> 기록 새겨넣기
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="feed-utility-bar">
-            <span class="feed-title-sub"><i class="fa-solid fa-stars"></i> 빛의 기록들</span>
-            <a href="#" onclick="enterAdminMode(event)" class="admin-gate-link"><i class="fa-solid fa-gear"></i> 관리자 페이지로 가기</a>
-        </div>
-
-        <div id="post-list"></div>
-
-        <div class="pagination">
-            <button onclick="prevPage()" class="page-btn"><i class="fa-solid fa-chevron-left"></i></button>
-            <span id="page-indicator">1</span>
-            <button onclick="nextPage()" class="page-btn"><i class="fa-solid fa-chevron-right"></i></button>
-        </div>
-    </div>
-
-    <div id="reply-modal" class="reply-modal-overlay" style="display: none;">
-        <div class="reply-modal-content" style="max-width: 440px; width: 90%;">
-            <h3 id="modal-form-title">하은이에게 편지 보내기</h3>
-            <p id="modal-form-desc" class="reply-target-info"></p>
-            
-            <div id="mailbox-admin-view" style="display: none; margin-bottom: 15px;">
-                <div class="mailbox-controls">
-                    <input type="text" id="mailbox-search" class="winter-input" placeholder="작성자 검색..." oninput="filterMailbox()">
-                </div>
-                <div id="mailbox-letters-list" class="mailbox-scroll-area"></div>
-                <div class="mailbox-pagination">
-                    <button onclick="moveMailboxPage(-1)" class="mailbox-page-btn">이전</button>
-                    <span id="mailbox-page-indicator">1 / 1</span>
-                    <button onclick="moveMailboxPage(1)" class="mailbox-page-btn">다음</button>
-                </div>
-            </div>
-
-            <div id="mailbox-user-form">
-                <div style="margin-top: 15px; margin-bottom: 12px;">
-                    <input type="text" id="reply-author" class="admin-input" placeholder="보내는 이 이름" style="margin-bottom:0;">
-                </div>
-                <div style="margin-bottom: 18px;">
-                    <textarea id="reply-content" class="admin-input" rows="5" placeholder="마음을 실어 보낼 이야기를 채워주세요." style="margin-bottom:0;"></textarea>
-                </div>
-            </div>
-
-            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
-                <button onclick="closeReplyModal()" class="winter-btn" style="margin:0; background:rgba(255,255,255,0.1);">닫기</button>
-                <button id="reply-submit-btn" onclick="submitLetterOrReply()" class="winter-btn" style="margin:0; background:rgba(245,230,200,0.2); border-color:#F5E6C8; color:#F5E6C8; font-weight:bold;">전송하기</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="snow-container"></div>
-    <div id="easter-stars-container"></div>
-    <div id="easter-egg-message" class="easter-message-box">🌌 우주의 별들이 당신을 축복합니다 🌌</div>
-
-    <script type="module" src="script.js"></script>
+        // [C] 이스터에그 접근성 극대화를 위해 화면 빈공간(body)을 누르면 상시 자동 발동되도록 이벤트 매핑 추가
+        document.body.addEventListener('click', (e) => {
+            // 버튼이나 입력 창을 직접 클릭한 경우는 제외하고 순수 바탕화면을 타격할 때만 발동
+            if(e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                triggerEasterEgg(e);
+            }
+        });
+    </script>
 </body>
 </html>
