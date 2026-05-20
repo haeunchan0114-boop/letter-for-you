@@ -530,3 +530,57 @@ function toggleStarLetter(letterId, currentStarredStatus) {
         filterMailbox(); 
     }).catch((e) => console.error("즐겨찾기 실패:", e));
 }
+// [추가] 타이틀 클릭 시 이스터에그 발동 함수
+function triggerSpaceEasterEgg() {
+    const msgBox = document.getElementById('easter-egg-message');
+    const starContainer = document.getElementById('easter-stars-container');
+    if (!msgBox || !starContainer) return;
+
+    // 이미 작동 중이면 중복 실행 방지
+    if (msgBox.classList.contains('active')) return;
+
+    // 1. "너는 나만의 빛나는 우주야" 문구 등장
+    msgBox.classList.add('active');
+
+    // 3.5초 뒤에 문구 스르륵 사라지게 설정
+    setTimeout(() => {
+        msgBox.classList.remove('active');
+    }, 3500);
+
+    // 2. 파스텔톤 우주 별빛 쏟아지기 연출
+    const starShapes = ['✦', '★', '✨', '✧'];
+    const colors = ['#F5E6C8', '#FFD1DC', '#E2F0CB', '#BFFCC6', '#FFC6FF', '#9BF6FF', '#FFFFFC'];
+    const totalStars = 80; // 쏟아질 별의 개수
+
+    for (let i = 0; i < totalStars; i++) {
+        const star = document.createElement('div');
+        star.className = 'falling-easter-star';
+        
+        // 모양 및 색상 무작위 조합
+        star.innerHTML = starShapes[Math.floor(Math.random() * starShapes.length)];
+        star.style.color = colors[Math.floor(Math.random() * colors.length)];
+        
+        // 가로축 배치 및 크기 다채롭게 설정
+        star.style.left = Math.random() * 100 + 'vw';
+        star.style.fontSize = (Math.random() * 14 + 12) + 'px'; // 12px ~ 26px
+        
+        // 떨어지는 속도와 타이밍 분산 (체증 현상 방지)
+        const duration = Math.random() * 2 + 2; // 2초 ~ 4초 동안 떨어짐
+        const delay = Math.random() * 1.5;      // 최대 1.5초 안에서 엇박자로 출발
+        star.style.animationDuration = duration + 's';
+        star.style.animationDelay = delay + 's';
+
+        // CSS 변수를 이용해 떨어질 때의 회전각과 좌우 흔들림 거리 주입
+        const sway = (Math.random() * 160 - 80) + 'px'; // 좌우로 -80px ~ 80px 흔들림
+        const spin = (Math.random() * 720 - 360) + 'deg'; // 회전 각도
+        star.style.setProperty('--sway-distance', sway);
+        star.style.setProperty('--spin-angle', spin);
+
+        starContainer.appendChild(star);
+
+        // 애니메이션이 끝나 화면 밖으로 나간 별 객체는 메모리 보호를 위해 즉시 자동 삭제
+        setTimeout(() => {
+            star.remove();
+        }, (duration + delay) * 1000);
+    }
+}
