@@ -56,6 +56,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // 관리자 인증 처리 로직 함수화 (비밀번호창 미작동 문제 원천 해결)
+// 관리자 인증 처리 로직 (비밀번호 창 연속 팝업 버그 완전 해결 버전)
 function checkAdminAuthentication() {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('mode') === 'sea') {
@@ -74,7 +75,13 @@ function checkAdminAuthentication() {
                     sheet.insertRule('.admin-card-controls { display: flex !important; }', sheet.cssRules.length);
                 } catch(e) { console.log(e); }
                 
+                // [개선] 인증 성공 메시지 팝업
                 alert(`인증 성공. 반갑습니다, ${adminName}님.`);
+
+                // [핵심 해결책] 주소창의 ?mode=sea를 새로고침 없이 즉시 지워버려서 비번창이 다시 뜨는 현상을 원천 차단합니다.
+                const cleanURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                window.history.replaceState({ path: cleanURL }, '', cleanURL);
+
                 updateMailboxButtonUI();
                 applyFilters(); 
             } else {
@@ -83,7 +90,6 @@ function checkAdminAuthentication() {
             }
         }, 300);
     } else {
-        // 비관리자 일반 모드일 때 버튼 문구 디폴트 노출 보장
         updateMailboxButtonUI();
     }
 }
