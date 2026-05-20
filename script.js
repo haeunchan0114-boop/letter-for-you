@@ -144,16 +144,30 @@ function handleMailboxClick() {
     }
 }
 
+// [수정] 관리자 창 토글 함수 (비밀번호 딱 '한 번'만 확인하도록 고정)
 function toggleAdminForm() {
-    const form = document.getElementById('admin-area');
+    const adminArea = document.getElementById('admin-area');
+    const adminWrapper = document.getElementById('admin-wrapper');
     const toggleBtn = document.getElementById('admin-open-toggle');
-    if (!form || !toggleBtn) return;
-    if (form.style.display === 'none') {
-        form.style.display = 'block';
-        toggleBtn.style.display = 'none';
+
+    if (!adminArea) return;
+
+    // 현재 관리자 창이 닫혀있을 때만 비밀번호를 물어봅니다.
+    if (adminArea.style.display === 'none') {
+        const password = prompt("관리자 비밀번호를 입력해주세요:");
+        
+        // 비밀번호가 맞을 때 (여기에 기존에 사용하시던 비밀번호를 적어주세요)
+        if (password === "여기에지정할비밀번호") { 
+            adminArea.style.display = 'block';
+            if (toggleBtn) toggleBtn.style.display = 'none'; // 입력창 열리면 버튼은 숨김
+        } else if (password !== null) {
+            // 취소 버튼을 누른 게 아니라 틀린 번호를 입력했을 때만 경고창
+            alert("비밀번호가 올바르지 않습니다.");
+        }
     } else {
-        form.style.display = 'none';
-        toggleBtn.style.display = 'block';
+        // 이미 열려있는 상태에서 취소/닫기를 누르면 비번 안 묻고 바로 닫기
+        adminArea.style.display = 'none';
+        if (toggleBtn) toggleBtn.style.display = 'block';
     }
 }
 
