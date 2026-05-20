@@ -283,9 +283,22 @@ function submitLetterOrReply() {
 
 function openMailboxModal() {
     mailboxCurrentPage = 1;
+    currentMailboxTab = 'all'; // 전체 탭으로 초기화
+    
+    // 탭 버튼 UI 불빛 초기화
+    const btnAll = document.getElementById('tab-all');
+    const btnStarred = document.getElementById('tab-starred');
+    if (btnAll && btnStarred) {
+        btnAll.style.background = 'rgba(255,255,255,0.15)';
+        btnAll.style.fontWeight = 'bold';
+        btnStarred.style.background = 'none';
+        btnStarred.style.fontWeight = 'normal';
+    }
+
     document.getElementById('mailbox-search').value = '';
     document.getElementById('mailbox-date').value = '';
-    filterMailbox();
+    
+    filterMailbox(); // 여기서 확실하게 리스트와 별표 버튼을 그려줍니다.
     document.getElementById('mailbox-modal').style.display = 'flex';
 }
 
