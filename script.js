@@ -68,30 +68,33 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function initFirebaseListeners() {
-    const localData = localStorage.getItem('myUniversePosts');
-    if (localData) {
-        try {
-            const parsedLocal = JSON.parse(localData);
-            const userRealPosts = parsedLocal.filter(p => p.title && p.content);
-            
-            if (userRealPosts.length > 0) {
-                userRealPosts.forEach(post => {
-                    const newPostRef = window.fbPush(window.fbRef(window.fbDB, 'posts'));
-                    window.fbSet(newPostRef, {
-                        title: post.title,
-                        author: post.author || "기록자",
-                        date: post.date || getFormattedCurrentTime(),
-                        content: post.content,
-                        pinned: post.pinned || false
-                    });
-                });
-                localStorage.removeItem('myUniversePosts');
-                console.log("기존 로컬 글이 Firebase로 안전하게 복사되었습니다.");
-            }
-        } catch(e) {
-            console.error("로컬 글 복사 중 오류 발생:", e);
+    // 꼬임 방지를 위해 과거 로컬스토리지 임시 이관 로직을 자르고 
+    // 파이어베이스 본 데이터베이스만 실시간으로 정확하게 동기화합니다.
+    window.fbOnValue(window.fbRef(window.fbDB, 'posts'), (snapshot) => {
+        const data = snapshot.val();
+        myPosts = [];
+        if (data) {
+            Object.keys(data).forEach(key => {
+                myPosts.push({ id: key, ...data[key] });
+            });
         }
-    }
+        applyFilters();
+    });
+
+    window.fbOnValue(window.fbRef(window.fbDB, 'global_letters'), (snapshot) => {
+        const data = snapshot.val();
+        globalLetters = [];
+        if (data) {
+            Object.keys(data).forEach(key => {
+                globalLetters.push({ id: key, ...data[key] });
+            });
+        }
+        updateMailboxButtonUI();
+        if (document.getElementById('mailbox-modal').style.display === 'flex') {
+            filterMailbox();
+        }
+    });
+}
 
     const localLetters = localStorage.getItem('myUniverseLetters');
     if (localLetters) {
