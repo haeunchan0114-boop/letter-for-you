@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const passwordInput = prompt("기록자 시스템 보안 인증! \n비밀번호를 입력해 주세요:");
             if (passwordInput === "0416haeunashi0416!*!26") {
                 
-                const nameInput = prompt("✍️ 우주에 새겨질 빛의 기록자 이름을 입력해 주세요:");
+                const nameInput = prompt("우주에 새겨질 빛의 기록자 이름을 입력해 주세요:");
                 if(nameInput && nameInput.trim() !== "") {
                     adminName = nameInput.trim();
                 } else {
@@ -91,7 +91,7 @@ function updateMailboxButtonUI() {
         btn.innerHTML = `<i class="fa-solid fa-envelope-open-text"></i> 📬 별빛 우체통 (${globalLetters.length})`;
         btn.className = "winter-btn main-mailbox-trigger admin-mailbox-theme";
     } else {
-        btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> ✉️ 하은이에게 편지 쓰기`;
+        btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> 하은이에게 편지 쓰기!`;
         btn.className = "winter-btn main-mailbox-trigger visitor-mailbox-theme";
     }
 }
