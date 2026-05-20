@@ -145,29 +145,43 @@ function handleMailboxClick() {
 }
 
 // [수정] 관리자 창 토글 함수 (비밀번호 딱 '한 번'만 확인하도록 고정)
+// [최종 진화형] 중복 실행을 원천 차단하는 관리자 토글 함수
+let isAdminChecking = false; // 중복 클릭 방어막 변수
+
 function toggleAdminForm() {
+    // 만약 이미 비번 창이 뜨고 있는 상태라면, 뒤이어 들어오는 두 번째 실행은 즉시 무시합니다.
+    if (isAdminChecking) return;
+
     const adminArea = document.getElementById('admin-area');
     const adminWrapper = document.getElementById('admin-wrapper');
     const toggleBtn = document.getElementById('admin-open-toggle');
 
     if (!adminArea) return;
 
-    // 현재 관리자 창이 닫혀있을 때만 비밀번호를 물어봅니다.
+    // 현재 관리자 창이 닫혀있을 때만 비밀번호 검증
     if (adminArea.style.display === 'none') {
-        const password = prompt("관리자 비밀번호를 입력해주세요:");
-        
-        // 비밀번호가 맞을 때 (여기에 기존에 사용하시던 비밀번호를 적어주세요)
-        if (password === "여기에지정할비밀번호") { 
-            adminArea.style.display = 'block';
-            if (toggleBtn) toggleBtn.style.display = 'none'; // 입력창 열리면 버튼은 숨김
-        } else if (password !== null) {
-            // 취소 버튼을 누른 게 아니라 틀린 번호를 입력했을 때만 경고창
-            alert("비밀번호가 올바르지 않습니다.");
-        }
+        isAdminChecking = true; // 방어막 가동 (두 번째 터치 차단)
+
+        // 브라우저가 프롬프트를 띄우는 타이밍을 아주 미세하게 늦추어 중복 이벤트를 한 번 더 걸러줍니다.
+        setTimeout(() => {
+            const password = prompt("관리자 비밀번호를 입력해주세요:");
+            
+            // 지정할 비밀번호를 아래 "여기에지정할비밀번호" 칸에 적어주세요.
+            if (password === "여기에지정할비밀번호") { 
+                adminArea.style.display = 'block';
+                if (toggleBtn) toggleBtn.style.display = 'none';
+            } else if (password !== null) {
+                alert("비밀번호가 올바르지 않습니다.");
+            }
+
+            isAdminChecking = false; // 검증이 끝났으므로 방어막 해제
+        }, 50);
+
     } else {
         // 이미 열려있는 상태에서 취소/닫기를 누르면 비번 안 묻고 바로 닫기
         adminArea.style.display = 'none';
         if (toggleBtn) toggleBtn.style.display = 'block';
+        isAdminChecking = false;
     }
 }
 
