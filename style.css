@@ -55,15 +55,12 @@ button.btn-base:hover { background: rgba(255, 255, 255, 0.12); border-color: rgb
 .triple-row .btn-base { padding: 11px 10px; font-size: 0.9rem; }
 .triple-row .btn-base.active { background: rgba(255, 230, 186, 0.2); border-color: #FFE6BA; color: #FFE6BA; }
 
-/* 검색 및 필터 박스 행 */
-.filter-row { display: flex; gap: 10px; width: 100%; }
-.filter-row input, .filter-row select { 
-    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); 
-    color: #fff; padding: 10px; border-radius: 15px; font-size: 0.85rem; outline: none; 
+/* 필터 박스 행 (디자인 수정) */
+.filter-row { display: flex; width: 100%; }
+.filter-row select { 
+    width: 100%; background: #121438; border: 1px solid rgba(255, 255, 255, 0.15); 
+    color: #fff; padding: 12px; border-radius: 30px; font-size: 0.9rem; outline: none; text-align-last: center; cursor: pointer;
 }
-.filter-row input[type="date"] { flex: 1; text-align: center; }
-.filter-row input[type="text"] { flex: 1; }
-.filter-row select { background: #121438; padding: 0 10px; }
 
 .search-input { outline: none; text-align: center; color: #fff; }
 .search-input::placeholder { color: rgba(255, 255, 255, 0.3); font-size: 0.92rem; }
@@ -74,7 +71,6 @@ button.btn-base:hover { background: rgba(255, 255, 255, 0.12); border-color: rgb
 /* 📋 별빛 우체통 */
 .mailbox-container { width: 100%; display: flex; flex-direction: column; gap: 25px; position: relative; }
 #posts-mailbox-feed { width: 100%; display: flex; flex-direction: column; gap: 20px; }
-
 
 /* 관리자 창 가기 버튼 */
 .admin-entry-btn {
@@ -96,10 +92,8 @@ button.btn-base:hover { background: rgba(255, 255, 255, 0.12); border-color: rgb
 .post-meta .fav-btn { background: none; border: none; color: rgba(255,255,255,0.2); font-size: 1.1rem; cursor: pointer; }
 .post-meta .fav-btn.active { color: #FFE6BA; text-shadow: 0 0 8px #FFE6BA; }
 
-
 .post-title { color: #fff; font-size: 1.35rem; margin-bottom: 18px; font-weight: bold; }
 .post-content { color: #D1D5DB; line-height: 1.8; font-size: 0.98rem; white-space: pre-wrap; margin-bottom: 15px; }
-
 
 /* 카드 내부 액션 버튼 */
 .card-actions { display: flex; gap: 8px; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 12px; }
