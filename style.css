@@ -1,475 +1,284 @@
-/* ===================================================
-   🌌 우주 테마 기본 셋업 & 배경 애니메이션
-   =================================================== */
+/* 🌌 우주 감성을 담은 기본 초기화 및 배경 세팅 */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    font-family: 'Pretendard', -apple-system, sans-serif;
 }
 
 body {
-    background-color: #02020f;
-    color: #e2e8f0;
+    background: linear-gradient(135deg, #0d0e2d 0%, #16194b 50%, #0a0b1e 100%);
+    color: #ffffff;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
     overflow-x: hidden;
-    min-height: 100vh;
-}
-
-/* 움직이는 은하수 배경 효과 */
-.universe-bg {
     position: relative;
-    width: 100%;
-    min-height: 100vh;
-    background: radial-gradient(circle at 50% 50%, #0d0e2d 0%, #02020f 100%);
-    padding: 40px 20px;
 }
 
-/* ===================================================
-   📦 중앙 메인 레이아웃
-   =================================================== */
-.main-container {
+.wrapper {
+    width: 100%;
     max-width: 600px;
-    margin: 0 auto;
-    padding-bottom: 100px; /* 하단 고정 버튼 공간 */
+    padding: 30px 20px 100px 20px;
 }
 
-/* 상단 타이틀 헤더 */
-.main-header {
-    text-align: center;
-    margin-bottom: 40px;
-}
-
-.main-header h1 {
-    font-size: 2.2rem;
-    color: #fff;
-    letter-spacing: 4px;
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
-    cursor: pointer;
-    margin-bottom: 8px;
-    display: inline-block;
-}
-
-.main-header p {
-    font-size: 0.9rem;
-    color: #8a99ad;
-    letter-spacing: 1px;
-}
-
-/* ===================================================
-   📬 제어 패널 구역 (우체통 & 필터)
-   =================================================== */
-.mailbox-container {
-    width: 100%;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 24px;
-    padding: 25px;
-    margin-bottom: 30px;
-    position: relative;
-    backdrop-filter: blur(10px);
-}
-
-/* 관리자 진입 버튼 (우측 상단 얇은 텍스트 버튼) */
-.admin-entry-btn {
-    position: absolute;
-    top: -30px;
-    right: 5px;
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.3);
-    font-size: 0.8rem;
-    cursor: pointer;
-    text-decoration: underline;
-    transition: color 0.2s;
-}
-
-.admin-entry-btn:hover {
-    color: #ffe6ba;
-}
-
-/* 우체통 타이틀과 📨 아이콘 가로 정렬 라인 */
-.mailbox-header {
+header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    padding-bottom: 12px;
+    margin-bottom: 30px;
 }
 
-.mailbox-status-text {
-    font-size: 1.2rem;
-    color: #ffe6ba;
-    font-weight: bold;
-    text-shadow: 0 0 10px rgba(255, 230, 186, 0.3);
-}
-
-/* 📨 독립 우체통 진입 아이콘 버튼 */
-.secret-mail-icon-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    font-size: 1.2rem;
-    padding: 6px 16px;
-    border-radius: 30px;
+header h1 {
+    font-size: 1.6rem;
+    color: #FFE6BA;
+    text-shadow: 0 0 10px rgba(255, 230, 186, 0.4);
     cursor: pointer;
-    color: #e2e8f0;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s ease;
+    user-select: none;
 }
 
-.secret-mail-icon-btn:hover {
-    background: rgba(255, 230, 186, 0.15);
-    border-color: #ffe6ba;
-    box-shadow: 0 0 10px rgba(255, 230, 186, 0.2);
-}
-
-/* 필터 전체 박스 */
-.filter-box {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-#search-title {
-    width: 100%;
-    padding: 12px 16px;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 14px;
-    color: #fff;
-    font-size: 0.9rem;
-    outline: none;
-    transition: border-color 0.2s;
-}
-
-#search-title:focus {
-    border-color: rgba(255, 230, 186, 0.5);
-}
-
-/* 정렬/초기화 버튼 그룹 정렬 매끄럽게 고정 */
-.filter-buttons {
+.header-buttons {
     display: flex;
     gap: 8px;
 }
 
-.filter-btn {
-    flex: 1;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    color: #94a3b8;
-    font-size: 0.85rem;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s;
-    text-align: center;
-}
-
-.filter-btn:hover {
+header button {
     background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     color: #fff;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-.filter-btn.active {
-    background: #ffe6ba;
-    border-color: #ffe6ba;
-    color: #02020f;
-    font-weight: bold;
+header button:hover {
+    background: #FFE6BA;
+    color: #0d0e2d;
+    border-color: #FFE6BA;
 }
 
-.filter-btn.reset-btn {
-    flex: 0.8;
-    background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.2);
-    color: #fca5a5;
-}
-.filter-btn.reset-btn:hover {
-    background: rgba(239, 68, 68, 0.2);
-    color: #fff;
-}
-
-/* ===================================================
-   📜 메인 게시글 피드 (포스트 카드)
-   =================================================== */
-.feed-container {
+/* 필터 구역 */
+.filter-zone {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 25px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 10px;
 }
 
+.filter-zone input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.85rem;
+}
+
+.sort-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.sort-buttons button {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.6);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.sort-buttons button.active, .sort-buttons button:hover {
+    border-color: #FFE6BA;
+    color: #FFE6BA;
+    background: rgba(255, 230, 186, 0.05);
+}
+
+/* 메인 게시글 카드 디자인 */
 .post-card {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
     padding: 24px;
-    transition: transform 0.2s, box-shadow 0.2s;
-    position: relative;
-    backdrop-filter: blur(5px);
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .post-card:hover {
     transform: translateY(-2px);
-    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 40px rgba(255, 230, 186, 0.05);
 }
 
-/* 상단 고정(Pin) 스타일 강조 배경 */
 .post-card.pinned {
-    background: linear-gradient(145deg, rgba(255, 230, 186, 0.04) 0%, rgba(255, 255, 255, 0.02) 100%);
-    border-color: rgba(255, 230, 186, 0.25);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-}
-
-/* 포스트 카드 메타 정보 영역 */
-.post-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.85rem;
-    color: #94a3b8;
-    margin-bottom: 14px;
-}
-
-.meta-info {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    border: 1px solid rgba(255, 230, 186, 0.3);
+    background: linear-gradient(180deg, rgba(255, 230, 186, 0.06) 0%, rgba(255, 255, 255, 0.04) 100%);
 }
 
 .pin-tag {
-    color: #ffe6ba;
+    color: #FFE6BA;
     font-weight: bold;
 }
 
-/* 즐겨찾기 별 모양 버튼 */
-.fav-btn {
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    color: rgba(255, 255, 255, 0.15);
-    cursor: pointer;
-    transition: color 0.2s, transform 0.1s;
-}
-.fav-btn:hover {
-    transform: scale(1.1);
-}
-.fav-btn.active {
-    color: #ffe6ba;
-    text-shadow: 0 0 8px rgba(255, 230, 186, 0.5);
+.post-meta {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 12px;
 }
 
-/* 제목 및 본문 */
 .post-title {
     font-size: 1.25rem;
     color: #fff;
-    font-weight: 700;
-    margin-bottom: 12px;
-    line-height: 1.4;
+    margin-bottom: 14px;
+    font-weight: 600;
 }
 
 .post-content {
     font-size: 0.95rem;
-    color: #cbd5e1;
-    line-height: 1.65;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.6;
     white-space: pre-wrap;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
 }
 
-/* 🔒 글 잠금 구역 레이아웃 정리 */
-.locked-zone {
-    text-align: center;
-    padding: 20px 15px;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px dashed rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    margin: 15px 0;
-}
-.locked-zone input {
-    padding: 8px 12px;
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.05);
-    color: #fff;
-    font-size: 0.85rem;
-    width: 140px;
-    outline: none;
-    text-align: center;
-}
-.locked-zone button {
-    padding: 8px 14px;
-    background: #ffe6ba;
-    border: none;
-    border-radius: 10px;
-    color: #0d0e2d;
-    font-size: 0.85rem;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background 0.2s;
-}
-.locked-zone button:hover {
-    background: #ffd38d;
-}
-
-/* 🕒 요구하신 하단 중앙 날짜 스타일 */
 .post-center-date {
     text-align: center;
-    color: #64748b;
-    font-size: 0.82rem;
-    margin: 18px 0 10px 0;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.25);
     letter-spacing: 1px;
+    margin-bottom: 15px;
 }
 
-/* 카드 하단 기능 액션 버튼 라인 가로 정렬 */
 .card-actions {
     display: flex;
-    gap: 6px;
     justify-content: flex-end;
-    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    gap: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
     padding-top: 14px;
 }
 
 .card-actions button {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: #cbd5e1;
-    padding: 6px 12px;
-    border-radius: 10px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
     font-size: 0.8rem;
     cursor: pointer;
-    transition: all 0.2s;
+    padding: 4px 8px;
+    border-radius: 4px;
 }
 
 .card-actions button:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
     color: #fff;
 }
 
 .card-actions .reply-btn {
-    background: rgba(255, 230, 186, 0.06);
-    border-color: rgba(255, 230, 186, 0.15);
-    color: #ffe6ba;
-    font-weight: 500;
-}
-.card-actions .reply-btn:hover {
-    background: rgba(255, 230, 186, 0.15);
+    color: #FFE6BA;
+    font-weight: bold;
 }
 
-/* ===================================================
-   🔢 하단 페이지네이션 바
-   =================================================== */
+/* 페이지네이션 */
 .pagination-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 8px;
-    margin-top: 30px;
+    gap: 5px;
+    margin-top: 20px;
 }
 
 .page-arrow, .page-num-btn {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    color: #94a3b8;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.page-arrow {
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
-    font-size: 1.1rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.page-num-btn {
-    min-width: 36px;
-    height: 36px;
-    padding: 0 8px;
-    border-radius: 12px;
-    font-size: 0.88rem;
-}
-
-.page-arrow:hover:not(:disabled), .page-num-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
     color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .page-num-btn.active {
-    background: #ffe6ba;
-    border-color: #ffe6ba;
-    color: #02020f;
+    background: #FFE6BA;
+    color: #0d0e2d;
+    border-color: #FFE6BA;
     font-weight: bold;
 }
 
 .page-arrow:disabled {
-    opacity: 0.25;
+    opacity: 0.3;
     cursor: not-allowed;
 }
 
-/* ===================================================
-   ✍️ 하단 고정 플로팅 버튼 바
-   =================================================== */
-.action-trigger-area {
+/* 하단 고정 바 구역 */
+.bottom-actions {
     position: fixed;
-    bottom: 25px;
+    bottom: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: calc(100% - 40px);
+    width: 100%;
     max-width: 600px;
-    z-index: 50;
+    padding: 20px;
+    display: flex;
+    gap: 10px;
+    background: linear-gradient(to top, #0d0e2d 80%, transparent);
+    align-items: center;
+    z-index: 90;
 }
 
-.write-trigger-btn {
-    width: 100%;
-    padding: 15px;
-    background: linear-gradient(135deg, #ffe6ba 0%, #ffd38d 100%);
+#user-write-btn, #admin-write-btn {
+    flex: 1;
+    background: #FFE6BA;
     border: none;
-    border-radius: 16px;
-    color: #02020f;
-    font-size: 1rem;
+    color: #0d0e2d;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 0.95rem;
     font-weight: bold;
     cursor: pointer;
-    box-shadow: 0 8px 25px rgba(255, 230, 186, 0.25);
-    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(255, 230, 186, 0.2);
 }
 
-.write-trigger-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(255, 230, 186, 0.35);
+#secret-mailbox-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.4rem;
+    cursor: pointer;
 }
 
-.write-trigger-btn.admin-theme {
-    background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
-    color: #fff;
-    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
-}
-.write-trigger-btn.admin-theme:hover {
-    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.45);
-}
-
-/* ===================================================
-   🪟 오버레이 모달 전체 시스템 정렬 디자인 셋업
-   =================================================== */
+/* 공통 모달 기본 오버레이 시스템 */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(2, 2, 15, 0.7);
+    background: rgba(5, 6, 21, 0.8);
     backdrop-filter: blur(8px);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 100;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
-    padding: 20px;
+    z-index: 1000;
 }
 
 .modal-overlay.active {
@@ -477,205 +286,178 @@ body {
     pointer-events: auto;
 }
 
-.modal-window {
-    background: #0d0e2d;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 28px;
-    width: 100%;
-    max-width: 440px;
-    padding: 28px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.modal-window h3 {
-    font-size: 1.3rem;
-    color: #fff;
-    text-align: center;
-    margin-bottom: 4px;
-}
-
-/* 모달 내부 인풋 폼 전체 정렬 */
-.modal-window input[type="text"],
-.modal-window input[type="password"],
-.modal-window textarea {
-    width: 100%;
-    padding: 12px 16px;
-    background: rgba(255, 255, 255, 0.04);
+.modal-content {
+    background: #14163c;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.mini-modal {
+    max-width: 360px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header h2 {
+    font-size: 1.2rem;
+    color: #FFE6BA;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.modal-body input, .modal-body textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
     color: #fff;
-    font-size: 0.92rem;
-    outline: none;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    font-size: 0.9rem;
 }
 
-.modal-window input:focus,
-.modal-window textarea:focus {
-    border-color: rgba(255, 230, 186, 0.4);
-}
-
-.modal-window textarea {
+.modal-body textarea {
     height: 160px;
     resize: none;
     line-height: 1.5;
 }
 
-/* 모달 제어 하단 버튼 패널 가로 배열 고정 */
-.modal-buttons {
-    display: flex;
-    gap: 8px;
-    margin-top: 6px;
-}
-
-.modal-buttons button {
-    flex: 1;
+.submit-btn {
+    width: 100%;
+    background: #FFE6BA;
+    border: none;
+    color: #0d0e2d;
     padding: 12px;
-    border-radius: 12px;
-    font-size: 0.9rem;
+    border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
-    border: none;
-    transition: background 0.2s;
 }
 
-.modal-buttons .submit-btn {
-    background: #ffe6ba;
-    color: #02020f;
-}
-.modal-buttons .submit-btn:hover {
-    background: #ffd38d;
-}
-
-.modal-buttons .cancel-btn {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: #94a3b8;
-}
-.modal-buttons .cancel-btn:hover {
-    background: rgba(255, 255, 255, 0.12);
-    color: #fff;
-}
-
-/* ===================================================
-   📬 따로 열리는 비밀 편지함 전용 모달 고도화 디자인
-   =================================================== */
-.modal-window.secret-mailbox-window {
-    max-width: 480px;
-    max-height: 80vh; /* 화면 스케일 절삭 */
-}
-
-.secret-modal-meta {
-    font-size: 0.8rem;
-    color: #64748b;
-    text-align: center;
-    margin-top: -8px;
-}
-
-/* 편지함 카드 목록 스크롤 존 */
-.secret-letters-scroll-zone {
-    flex: 1;
-    overflow-y: auto;
-    padding-right: 4px;
+/* 독립 우체통 수신창 내부 커스텀 스크롤 구조 */
+.secret-window {
+    max-width: 520px;
+    height: 80vh;
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    margin: 10px 0;
 }
 
-/* 스크롤바 디자인 */
-.secret-letters-scroll-zone::-webkit-scrollbar {
-    width: 5px;
+.secret-tabs {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding-bottom: 10px;
 }
-.secret-letters-scroll-zone::-webkit-scrollbar-thumb {
+
+.secret-tabs button {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.secret-tabs button.active {
+    color: #FFE6BA;
+    font-weight: bold;
+}
+
+.secret-scroll-zone {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.secret-scroll-zone::-webkit-scrollbar {
+    width: 4px;
+}
+
+.secret-scroll-zone::-webkit-scrollbar-thumb {
     background: rgba(255, 230, 186, 0.15);
     border-radius: 10px;
 }
 
-/* 독립 팝업 속 미니 카드 컴포넌트 */
 .secret-mini-card {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px dashed rgba(167, 139, 250, 0.3);
-    border-radius: 18px;
-    padding: 18px;
-    display: flex;
-    flex-direction: column;
-}
-
-.secret-mini-card .mini-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.82rem;
-    color: #a78bfa;
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 14px;
     margin-bottom: 10px;
 }
 
-.secret-mini-card .mini-title {
-    font-size: 1.1rem;
-    color: #fff;
+.mini-meta {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.3);
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.mini-title {
+    font-size: 0.95rem;
     font-weight: bold;
     margin-bottom: 6px;
 }
 
-.secret-mini-card .mini-content {
-    font-size: 0.9rem;
-    color: #cbd5e1;
-    line-height: 1.55;
+.mini-content {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.4;
     white-space: pre-wrap;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
-.secret-mini-card .mini-center-date {
+.mini-center-date {
     text-align: center;
-    font-size: 0.78rem;
-    color: #64748b;
-    margin: 6px 0 12px 0;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.15);
+    margin-bottom: 8px;
 }
 
-/* 미니 카드 내부 액션 버튼 정렬 */
-.secret-mini-card .mini-actions {
+.mini-actions {
     display: flex;
-    gap: 5px;
     justify-content: flex-end;
+    gap: 10px;
 }
 
-.secret-mini-card .mini-actions button {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    color: #94a3b8;
-    padding: 5px 10px;
-    border-radius: 8px;
+.mini-actions button {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.3);
     font-size: 0.75rem;
     cursor: pointer;
-    transition: all 0.15s;
 }
 
-.secret-mini-card .mini-actions button:hover {
-    background: rgba(255, 255, 255, 0.12);
-    color: #fff;
-}
-
-/* ===================================================
-   ✨ 애니메이션 & 이스터에그 파트
-   =================================================== */
+/* 이스터에그 텍스트 애니메이션 */
 #easter-message {
     position: fixed;
-    top: 25%;
+    top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) scale(0.9);
-    color: #ffe6ba;
+    transform: translate(-50%, -50%) scale(0.8);
+    color: #FFE6BA;
     font-size: 1.3rem;
     font-weight: bold;
-    z-index: 200;
-    background: rgba(13, 14, 45, 0.85);
-    padding: 15px 30px;
-    border-radius: 20px;
-    border: 1px solid rgba(255, 230, 186, 0.3);
-    pointer-events: none;
+    text-shadow: 0 0 15px #ffe6ba, 0 0 30px rgba(255,230,186,0.5);
+    z-index: 9999;
     opacity: 0;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: none;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 #easter-message.active {
@@ -683,22 +465,49 @@ body {
     transform: translate(-50%, -50%) scale(1);
 }
 
-.falling-easter-star {
+#easter-stars-container {
     position: fixed;
-    top: -20px;
-    color: #ffe6ba;
-    z-index: 150;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
     pointer-events: none;
-    animation: fallAndSpin linear forwards;
+    z-index: 9998;
 }
 
-@keyframes fallAndSpin {
-    0% {
-        transform: translateY(0) rotate(0deg);
-        opacity: 1;
-    }
-    100% {
-        transform: translateY(105vh) translateX(var(--sway)) rotate(var(--angle));
-        opacity: 0;
-    }
+.falling-easter-star {
+    position: absolute;
+    top: -20px;
+    color: #FFE6BA;
+    opacity: 0.8;
+    animation: fallAnimation linear forwards;
+}
+
+@keyframes fallAnimation {
+    0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(105vh) translateX(var(--sway)) rotate(var(--angle)); opacity: 0; }
+}
+
+
+/* ── 📢 [방금 수정 요청된 항목 관련 CSS만 아래에 추가] ── */
+
+/* ⚠️ 메인 공지 3개 한도 도달 시 메인 피드 상단에 경고 효과를 줄 펄스 애니메이션 */
+@keyframes pulseNotice {
+    0% { opacity: 0.85; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.005); }
+    100% { opacity: 0.85; transform: scale(1); }
+}
+
+/* 공지사항 모아보기 독립 창 카드 디자인 커스텀 */
+.notice-mini-card {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 12px;
+    transition: all 0.25s ease;
+}
+
+.notice-mini-card:hover {
+    background: rgba(255, 255, 255, 0.07) !important;
+    box-shadow: 0 4px 15px rgba(255, 230, 186, 0.08);
 }
