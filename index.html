@@ -48,40 +48,28 @@
             </div>
         </header>
 
-        <div id="admin-area">
-            <h3 class="admin-title" id="admin-panel-title">✍️ 새로운 우주의 기록 (관리자)</h3>
-            <input type="hidden" id="edit-index" value=""> <input type="text" id="new-title" class="admin-input" placeholder="기록의 제목을 입력하세요">
-            <input type="date" id="new-date" class="admin-input">
-            <textarea id="new-content" class="admin-input" placeholder="우주에게 전할 이야기를 적으세요..." rows="6"></textarea>
-            
-            <div class="admin-btn-group">
-                <button type="button" id="admin-main-btn" onclick="savePost()" class="admin-submit-btn">
-                    <i class="fa-solid fa-pen-nib"></i> 우주에 글 등록하기
-                </button>
-                <button type="button" id="admin-cancel-btn" onclick="clearAdminForm()" class="admin-cancel-btn" style="display:none;">
-                    취소
-                </button>
-            </div>
-            
-            <div id="code-output-box" style="display: block; margin-top: 25px;">
-                <p class="code-guide">✨ 변경사항이 생기면 아래 코드가 자동 갱신됩니다. 복사해서 script.js의 [myPosts]에 덮어쓰세요!</p>
-                <textarea id="code-output" readonly onclick="this.select()"></textarea>
+        <div id="admin-wrapper" style="display: none;">
+            <button type="button" id="admin-open-toggle" onclick="toggleAdminForm()" class="admin-write-toggle-btn">
+                <i class="fa-solid fa-pen-fancy"></i> ✍️ 새로운 기록 남기기
+            </button>
+
+            <div id="admin-area" style="display: none;">
+                <h3 class="admin-title" id="admin-panel-title">✍️ 새로운 우주의 기록 (관리자)</h3>
+                <input type="hidden" id="edit-index" value=""> 
+                
+                <input type="text" id="new-title" class="admin-input" placeholder="기록의 제목을 입력하세요">
+                <input type="date" id="new-date" class="admin-input">
+                <textarea id="new-content" class="admin-input" placeholder="우주에게 전할 이야기를 적으세요..." rows="6"></textarea>
+                
+                <div class="admin-btn-group">
+                    <button type="button" id="admin-main-btn" onclick="savePost()" class="admin-submit-btn">
+                        <i class="fa-solid fa-star"></i> ⭐ 나의 우주에게 빛을 전하기
+                    </button>
+                    <button type="button" id="admin-cancel-btn" onclick="clearAdminForm(); toggleAdminForm();" class="admin-cancel-btn">
+                        닫기
+                    </button>
+                </div>
             </div>
         </div>
 
         <main id="post-list"></main>
-
-        <div class="pagination">
-            <button class="page-btn" onclick="prevPage()">
-                <i class="fa-solid fa-chevron-left"></i> 이전
-            </button>
-            <span id="page-indicator">1</span>
-            <button class="page-btn" onclick="nextPage()">
-                다음 <i class="fa-solid fa-chevron-right"></i>
-            </button>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-</body>
-</html>
