@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>사랑하는 나의 우주에게 ⭐</title>
+    <title>사랑하는 나의 우주에게</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -14,9 +14,11 @@
         
         <div class="nebula-pink"></div>
         <div class="nebula-blue"></div>
+        <div class="nebula-purple"></div>
 
         <div class="aurora-green"></div>
         <div class="aurora-purple"></div>
+        <div class="aurora-blue"></div>
         
         <div class="star-universe"></div>
         <div class="twinkle-stars">
@@ -24,8 +26,12 @@
             <div class="star-bright star2">✦</div>
             <div class="star-bright star3">✦</div>
             <div class="star-bright star4">✦</div>
+            <div class="star-bright star5">✦</div>
+            <div class="star-bright star6">✦</div>
         </div>
         
+        <div class="shooting-star"></div>
+        <div class="shooting-star"></div>
         <div class="shooting-star"></div>
         <div class="shooting-star"></div>
         <div class="shooting-star"></div>
@@ -37,7 +43,7 @@
 
     <div id="wrap">
         <header>
-            <h1>사랑하는 나의 우주에게 ⭐</h1>
+            <h1>사랑하는 나의 우주에게</h1>
             
             <div class="controls">
                 <button class="winter-btn" onclick="setSort('newest')">
@@ -62,23 +68,22 @@
 
         <div id="admin-wrapper" style="display: none;">
             <button type="button" id="admin-open-toggle" onclick="toggleAdminForm()" class="admin-write-toggle-btn">
-                <i class="fa-solid fa-pen-fancy"></i> ✍️ 새로운 기록 남기기
+                <i class="fa-solid fa-star"></i> 나의 우주에게 빛을 주러가기
             </button>
 
             <div id="admin-area" style="display: none;">
-                <h3 class="admin-title" id="admin-panel-title">✍️ 새로운 우주의 기록 (관리자)</h3>
+                <h3 class="admin-title" id="admin-panel-title">새로운 우주의 기록</h3>
                 <input type="hidden" id="edit-index" value=""> 
                 
                 <input type="text" id="new-title" class="admin-input" placeholder="기록의 제목을 입력하세요">
-                <input type="date" id="new-date" class="admin-input">
                 <textarea id="new-content" class="admin-input" placeholder="우주에게 전할 이야기를 적으세요..." rows="6"></textarea>
                 
                 <div class="admin-btn-group">
                     <button type="button" id="admin-main-btn" onclick="savePost()" class="admin-submit-btn">
-                        <i class="fa-solid fa-star"></i> ⭐ 나의 우주에게 빛을 전하기
+                        <i class="fa-solid fa-star"></i> 나의 우주에게 빛을 전하기
                     </button>
-                    <button type="button" id="admin-cancel-btn" onclick="clearAdminForm(); toggleAdminForm();" class="admin-cancel-btn">
-                        닫기
+                    <button type="button" id="admin-cancel-btn" onclick="clearAdminForm(); toggleAdminForm();" class="admin-cancel-btn" title="이전으로 돌아가기">
+                        <i class="fa-solid fa-arrow-left"></i>
                     </button>
                 </div>
             </div>
