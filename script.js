@@ -322,7 +322,7 @@ function resetFilters() {
 function openModal(id) {
     if (id === 'writeModal') {
         if (!editingPostId && !replyingPostId) {
-            document.getElementById('write-modal-title').innerText = isAdminMode ? "빛의 기록 기록하기" : "나의 우주에게 편지 쓰기";
+            document.getElementById('write-modal-title').innerText = isAdminMode ? "빛의 기록 기록하기" : "하은이에게 편지 보내기";
             document.getElementById('post-author').value = isAdminMode ? currentAdminName : "";
             document.getElementById('post-author').disabled = isAdminMode;
             document.getElementById('post-title').value = "";
