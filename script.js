@@ -579,4 +579,66 @@ function triggerSpaceEasterEgg() {
             star.remove();
         }, (duration + delay) * 1000);
     }
+    // ==========================================
+// 🌌 화면 전체 적용: 연노랑 단색 특수기호 트레일 (마우스/터치)
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    // 깔끔하고 심플한 우주/별 관련 특수기호 후보군
+    const spaceSymbols = ['✦', '★', '✧', '•', '﹡', '⁺'];
+    
+    const handleMove = (e) => {
+        const x = e.touches ? e.touches[0].clientX : e.clientX;
+        const y = e.touches ? e.touches[0].clientY : e.clientY;
+        
+        // 너무 빽빽하게 생겨서 지저분해지는 것을 방지 (스폰 확률 조절)
+        if (Math.random() > 0.4) return;
+
+        createSymbolParticle(x, y);
+    };
+
+    window.addEventListener('mousemove', handleMove, { passive: true });
+    window.addEventListener('touchmove', handleMove, { passive: true });
+
+    function createSymbolParticle(x, y) {
+        const particle = document.createElement('span');
+        
+        // 랜덤 특수기호 선택
+        particle.innerText = spaceSymbols[Math.floor(Math.random() * spaceSymbols.length)];
+        
+        // 스타일 지정 (강조하셨던 깔끔한 연노랑 단색 적용)
+        particle.style.position = 'fixed';
+        particle.style.left = `${x}px`;
+        particle.style.top = `${y}px`;
+        particle.style.color = '#F5E6C8'; /* 따뜻하고 감성적인 연노랑 단색 */
+        particle.style.fontSize = `${Math.random() * 6 + 10}px`; /* 10px ~ 16px 사이의 잔잔한 크기 */
+        particle.style.pointerEvents = 'none';
+        particle.style.zIndex = '99999';
+        particle.style.userSelect = 'none';
+        particle.style.fontFamily = 'sans-serif';
+        
+        // 은은하게 퍼지는 투명도 기본값
+        particle.style.opacity = '0.85';
+        
+        // 사방으로 부드럽게 흩어지기 위한 속도 및 회전값 계산
+        const velocityX = (Math.random() - 0.5) * 25;
+        const velocityY = (Math.random() - 0.5) * 25 - 10; // 자연스럽게 살짝 위로 뜸
+        const rotation = Math.random() * 360;
+
+        // 자연스러운 감속 애니메이션을 위한 이징(Easing) 적용
+        particle.style.transition = 'all 0.9s cubic-bezier(0.1, 0.8, 0.2, 1)';
+        
+        document.body.appendChild(particle);
+
+        // 생성 직후 미세한 이동과 함께 크기가 작아지며 스르륵 페이드아웃
+        requestAnimationFrame(() => {
+            particle.style.transform = `translate(${velocityX}px, ${velocityY}px) rotate(${rotation}deg) scale(0.4)`;
+            particle.style.opacity = '0';
+        });
+
+        // 애니메이션 완료 후 요소 완벽 삭제 (메모리 최적화)
+        setTimeout(() => {
+            particle.remove();
+        }, 900);
+    }
+});
 }
