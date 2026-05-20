@@ -59,9 +59,9 @@
                     <button class="admin-cancel-btn" id="admin-cancel-btn" onclick="clearAdminForm(); toggleAdminForm();">
                         <i class="fa-solid fa-arrow-left"></i>
                     </button>
-                    <button id="admin-open-toggle" class="admin-write-toggle-btn" onclick="toggleAdminForm()">
-    <i class="fa-solid fa-star"></i> 나의 우주에게 빛을 보내러 가기
-</button>
+                    <button id="admin-main-btn" class="admin-submit-btn" style="flex: 1; padding: 11px;" onclick="savePost()">
+                        <i class="fa-solid fa-star"></i> 우주에 빛의 기록 남기기
+                    </button>
                 </div>
             </div>
         </div>
@@ -157,7 +157,7 @@
         }
     </style>
 
-     <script type="module">
+    <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
@@ -182,7 +182,6 @@
         window.fbRemove = remove;
         window.fbUpdate = update;
 
-        // 파이어베이스 로드가 다 끝나면 스크립트 파일을 안전하게 실행하도록 트리거 발동
         if (typeof window.initApp === "function") {
             window.initApp();
         }
