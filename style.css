@@ -17,7 +17,7 @@ body {
     position: relative;
 }
 
-/* 🌠 실시간 별똥별을 뒤쪽에 자연스럽게 깔아줄 배경 레이어 */
+/* 🌠 실시간 별똥별과 배경 별들을 뒤쪽에 자연스럽게 깔아줄 배경 레이어 */
 .space-background {
     position: fixed;
     top: 0;
@@ -29,57 +29,74 @@ body {
     pointer-events: none;
 }
 
-/* ☄️ 천천히 흘러내리는 빛의 조각 (별똥별 본체) */
+/* ✨ 배경에서 반짝이는 작은 아기 별들 */
+.background-star {
+    position: absolute;
+    background-color: #ffffff;
+    border-radius: 50%;
+    animation: twinkleStar 3s infinite ease-in-out;
+    opacity: 0.3;
+}
+
+/* 아기 별 반짝임 애니메이션 */
+@keyframes twinkleStar {
+    0%, 100% { opacity: 0.2; transform: scale(0.8); }
+    50% { opacity: 0.9; transform: scale(1.2); filter: drop-shadow(0 0 3px #fff); }
+}
+
+/* ☄️ 천천히 흘러내리는 빛의 조각 (별똥별 본체 - 굵기와 밝기 대폭 강화) */
 .shooting-star {
     position: absolute;
     top: -50px;
-    width: 2px;
-    height: 2px;
+    width: 3px; /* 2px -> 3px로 두께 증가 */
+    height: 3px;
     background: linear-gradient(-45deg, #fff, rgba(255, 230, 186, 0));
     border-radius: 999px;
-    filter: drop-shadow(0 0 6px rgba(255, 230, 186, 1));
-    animation: slowStarAnim 8s infinite linear;
+    /* 푸른빛과 황금빛이 감도는 네온 그림자로 시인성 확보 */
+    filter: drop-shadow(0 0 8px rgba(255, 235, 200, 1)) drop-shadow(0 0 15px rgba(120, 150, 255, 0.8));
+    animation: slowStarAnim 6s infinite linear; /* 8s -> 6s로 살짝 더 속도감 있게 변형 */
     opacity: 0;
 }
 
-/* 빛의 꼬리 효과 유도 */
+/* 빛의 꼬리 효과 유도 (더 길고 선명하게 수정) */
 .shooting-star::before {
     content: '';
     position: absolute;
     top: 0;
     right: 0;
-    width: 80px;
-    height: 1px;
-    background: linear-gradient(-45deg, rgba(255, 230, 186, 0.4), rgba(255, 255, 255, 0));
+    width: 120px; /* 80px -> 120px로 꼬리 대폭 확장 */
+    height: 1.5px;
+    background: linear-gradient(-45deg, rgba(255, 240, 210, 0.6), rgba(255, 255, 255, 0));
     transform: translateX(0) translateY(0) rotate(-45deg);
 }
 
-/* 별똥별 시간차 딜레이 분산 세팅 */
-.shooting-star:nth-child(1) { left: 40%; animation-delay: 0s; animation-duration: 9s; }
-.shooting-star:nth-child(2) { left: 65%; animation-delay: 2.5s; animation-duration: 11s; }
-.shooting-star:nth-child(3) { left: 85%; animation-delay: 5s; animation-duration: 8s; }
-.shooting-star:nth-child(4) { left: 20%; animation-delay: 7s; animation-duration: 13s; }
-.shooting-star:nth-child(5) { left: 55%; animation-delay: 10s; animation-duration: 10s; }
+/* 별똥별 기본 배치 딜레이 조절 */
+.shooting-star:nth-child(1) { left: 30%; animation-delay: 0s; animation-duration: 6s; }
+.shooting-star:nth-child(2) { left: 55%; animation-delay: 1.5s; animation-duration: 8s; }
+.shooting-star:nth-child(3) { left: 75%; animation-delay: 3.5s; animation-duration: 5s; }
+.shooting-star:nth-child(4) { left: 15%; animation-delay: 4.5s; animation-duration: 9s; }
+.shooting-star:nth-child(5) { left: 85%; animation-delay: 6s; animation-duration: 7s; }
 
 /* 궤적 방향 애니메이션 키프레임 */
 @keyframes slowStarAnim {
     0% {
-        transform: translate3d(200px, -100px, 0) rotate(-45deg) scale(0.6);
+        transform: translate3d(300px, -100px, 0) rotate(-45deg) scale(0.7);
         opacity: 0;
     }
-    5% {
-        opacity: 0.7;
+    10% {
+        opacity: 1; /* 눈에 띄도록 최대 투명도를 100%로 상향 */
     }
-    18% {
-        transform: translate3d(-300px, 400px, 0) rotate(-45deg) scale(1);
+    25% {
+        transform: translate3d(-400px, 600px, 0) rotate(-45deg) scale(1.1);
         opacity: 0;
     }
     100% {
-        transform: translate3d(-300px, 400px, 0) rotate(-45deg) scale(1);
+        transform: translate3d(-400px, 600px, 0) rotate(-45deg) scale(1.1);
         opacity: 0;
     }
 }
 
+/* 메인 레이아웃 및 본문 */
 .wrapper {
     width: 100%;
     max-width: 600px;
@@ -108,7 +125,7 @@ header h1 {
     gap: 8px;
 }
 
-header button {
+header button, .recent-open-btn {
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.15);
     color: #fff;
@@ -119,13 +136,13 @@ header button {
     transition: all 0.2s ease;
 }
 
-header button:hover {
+header button:hover, .recent-open-btn:hover {
     background: #FFE6BA;
     color: #0d0e2d;
     border-color: #FFE6BA;
 }
 
-/* 필터 구역 */
+/* 검색 및 정렬 구역 */
 .filter-zone {
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -168,7 +185,7 @@ header button:hover {
     background: rgba(255, 230, 186, 0.05);
 }
 
-/* 메인 게시글 카드 디자인 */
+/* 게시글 카드 */
 .post-card {
     background: rgba(25, 23, 61, 0.45);
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -287,7 +304,7 @@ header button:hover {
     cursor: not-allowed;
 }
 
-/* 하단 고정 바 구역 */
+/* 하단 고정 바 */
 .bottom-actions {
     position: fixed;
     bottom: 0;
@@ -329,7 +346,7 @@ header button:hover {
     cursor: pointer;
 }
 
-/* 모달 구조 */
+/* 모달 시스템 */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -414,6 +431,7 @@ header button:hover {
     cursor: pointer;
 }
 
+/* 스크롤 가능한 독립 모달 창 구역 */
 .secret-window {
     max-width: 520px;
     height: 80vh;
@@ -509,6 +527,7 @@ header button:hover {
     cursor: pointer;
 }
 
+/* 이스터에그 연출 */
 #easter-message {
     position: fixed;
     top: 50%;
@@ -552,6 +571,7 @@ header button:hover {
     100% { transform: translateY(105vh) translateX(var(--sway)) rotate(var(--angle)); opacity: 0; }
 }
 
+/* 모달 목록 내부 공지사항 스타일 카드 */
 .notice-mini-card {
     background: rgba(255, 255, 255, 0.04) !important;
     border-radius: 12px;
@@ -563,20 +583,4 @@ header button:hover {
 .notice-mini-card:hover {
     background: rgba(255, 255, 255, 0.07) !important;
     box-shadow: 0 4px 15px rgba(255, 230, 186, 0.08);
-}
-.recent-open-btn {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    color: #fff;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.recent-open-btn:hover {
-    background: #FFE6BA;
-    color: #0d0e2d;
-    border-color: #FFE6BA;
 }
