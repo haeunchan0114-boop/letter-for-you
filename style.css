@@ -1,3 +1,4 @@
+/* 1. 우주와 밤바다 배경 설정 */
 body {
     background: #030611;
     color: #E2E8F0;
@@ -7,6 +8,7 @@ body {
     overflow-x: hidden;
 }
 
+/* 수많은 작은 별 배경 효과 */
 #stars-container {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     z-index: -2;
@@ -14,19 +16,22 @@ body {
         radial-gradient(1px 1px at 20px 30px, #eee, rgba(0,0,0,0)),
         radial-gradient(1.5px 1.5px at 40px 70px, #fff, rgba(0,0,0,0)),
         radial-gradient(1px 1px at 150px 150px, #ddd, rgba(0,0,0,0)),
-        radial-gradient(2px 2px at 250px 200px, #fff, rgba(0,0,0,0));
-    background-size: 300px 300px;
-    opacity: 0.3;
+        radial-gradient(2px 2px at 250px 200px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 310px 400px, #eee, rgba(0,0,0,0)),
+        radial-gradient(1.5px 1.5px at 420px 120px, #fff, rgba(0,0,0,0));
+    background-size: 400px 400px;
+    opacity: 0.35;
 }
 
-#wrap { max-width: 650px; margin: 0 auto; padding: 80px 20px; position: relative; z-index: 5; }
+#wrap { max-width: 650px; margin: 0 auto; padding: 60px 20px; position: relative; z-index: 5; }
 
 h1 { 
     text-align: center; color: #F5E6C8; font-weight: normal; 
-    letter-spacing: 3px; margin-bottom: 60px;
+    letter-spacing: 3px; margin-bottom: 50px;
     text-shadow: 0 0 20px rgba(245, 230, 200, 0.4);
 }
 
+/* 2. 겨울 분위기 버튼 (Frosted Glass 얼음 유리 느낌) */
 .winter-btn, .page-btn, .winter-input {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.15);
@@ -46,50 +51,39 @@ h1 {
     box-shadow: 0 0 15px rgba(245, 230, 200, 0.3);
 }
 
-.controls { display: flex; justify-content: center; flex-wrap: wrap; margin-bottom: 50px; gap: 10px; }
+.controls { display: flex; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; gap: 5px; }
 .date-group { display: flex; align-items: center; }
-.pagination { display: flex; justify-content: center; align-items: center; gap: 40px; margin-top: 60px; }
+.pagination { display: flex; justify-content: center; align-items: center; gap: 40px; margin-top: 50px; }
 #page-indicator { color: #F5E6C8; font-weight: bold; font-size: 1.2rem; text-shadow: 0 0 10px #F5E6C8; }
 
+/* 3. 글 카드 스타일 */
 .post-card {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 20px; padding: 40px; margin-bottom: 30px;
+    border-radius: 20px; padding: 35px; margin-bottom: 25px;
     box-shadow: 0 15px 40px rgba(0,0,0,0.4);
     backdrop-filter: blur(5px);
 }
-.post-date { color: #718096; font-size: 0.85rem; margin-bottom: 15px; letter-spacing: 1px; }
-.post-title { color: #F5E6C8; font-size: 1.5rem; margin: 0 0 15px 0; font-weight: normal; }
+.post-date { color: #718096; font-size: 0.85rem; margin-bottom: 12px; letter-spacing: 1px; }
+.post-title { color: #F5E6C8; font-size: 1.4rem; margin: 0 0 12px 0; font-weight: normal; }
 .post-card p { color: #CBD5E0; line-height: 1.8; margin: 0; font-size: 1rem; }
 
+/* 4. ❄️ 하늘에서 천천히 떨어지는 눈송이 애니메이션 */
 .snowflake {
-    position: fixed; top: -10px; color: white; opacity: 0.8;
-    user-select: none; pointer-events: none; z-index: 9999;
+    position: fixed; top: -20px; color: white; opacity: 0.6;
+    user-select: none; pointer-events: none; z-index: 1;
     animation: fall linear infinite;
 }
 
 @keyframes fall {
     0% { transform: translateY(0) rotate(0deg); }
-    100% { transform: translateY(110vh) rotate(360deg); }
+    100% { transform: translateY(105vh) rotate(360deg); }
 }
 
-#loading-screen {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: #03060d; z-index: 10000; display: flex; flex-direction: column;
-    justify-content: center; align-items: center; transition: opacity 1s ease;
-}
-.loading-content { text-align: center; z-index: 10001; }
-.star-icon { font-size: 3rem; margin-bottom: 20px; animation: pulse 2s infinite; }
-.loading-text { color: #F5E6C8; letter-spacing: 4px; font-size: 1.1rem; }
-
-@keyframes pulse {
-    0%, 100% { opacity: 0.5; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.2); }
-}
-
+/* 5. 관리자 영역 */
 #admin-area { 
-    background: rgba(245, 230, 200, 0.05); border: 1px dashed rgba(245, 230, 200, 0.4); 
-    border-radius: 20px; padding: 30px; margin-bottom: 60px;
+    background: rgba(245, 230, 200, 0.04); border: 1px dashed rgba(245, 230, 200, 0.4); 
+    border-radius: 20px; padding: 30px; margin-bottom: 40px;
 }
 #admin-area input, #admin-area textarea { 
     width: 100%; background: rgba(0,0,0,0.5); border: 1px solid #333; color: #fff; 
