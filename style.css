@@ -44,54 +44,61 @@ body {
     50% { opacity: 0.9; transform: scale(1.2); filter: drop-shadow(0 0 3px #fff); }
 }
 
-/* ☄️ 천천히 흘러내리는 빛의 조각 (별똥별 본체 - 굵기와 밝기 대폭 강화) */
+/* ☄️ [디자인 대폭 변경] 몽환적인 오로라 네온 빛의 별똥별 본체 */
 .shooting-star {
     position: absolute;
-    top: -50px;
-    width: 3px; /* 2px -> 3px로 두께 증가 */
-    height: 3px;
-    background: linear-gradient(-45deg, #fff, rgba(255, 230, 186, 0));
-    border-radius: 999px;
-    /* 푸른빛과 황금빛이 감도는 네온 그림자로 시인성 확보 */
-    filter: drop-shadow(0 0 8px rgba(255, 235, 200, 1)) drop-shadow(0 0 15px rgba(120, 150, 255, 0.8));
-    animation: slowStarAnim 6s infinite linear; /* 8s -> 6s로 살짝 더 속도감 있게 변형 */
+    top: -10px;
+    width: 6px; 
+    height: 6px;
+    /* 에메랄드 그린에서 부드러운 황금빛으로 이어지는 신비로운 색감 */
+    background: linear-gradient(45deg, #7fe7cc, #ffe6ba);
+    border-radius: 50%;
+    /* 신비로운 우주 가스 느낌의 이중 네온 블러 처리 */
+    box-shadow: 0 0 10px #7fe7cc, 0 0 20px #ffe6ba, 0 0 30px rgba(127, 231, 204, 0.5);
+    animation: newStarAnim 5s infinite cubic-bezier(0.25, 1, 0.5, 1);
     opacity: 0;
 }
 
-/* 빛의 꼬리 효과 유도 (더 길고 선명하게 수정) */
+/* [디자인 대폭 변경] 먼지처럼 부드럽게 사려지는 잔상 꼬리 효과 */
 .shooting-star::before {
     content: '';
     position: absolute;
-    top: 0;
-    right: 0;
-    width: 120px; /* 80px -> 120px로 꼬리 대폭 확장 */
-    height: 1.5px;
-    background: linear-gradient(-45deg, rgba(255, 240, 210, 0.6), rgba(255, 255, 255, 0));
-    transform: translateX(0) translateY(0) rotate(-45deg);
+    top: 50%;
+    left: 0;
+    width: 140px; 
+    height: 2px;
+    /* 본체 뒤로 길게 뻗어나가며 투명해지는 소프트 그라데이션 */
+    background: linear-gradient(to left, rgba(127, 231, 204, 0.8), rgba(255, 230, 186, 0.3), transparent);
+    /* 꼬리가 본체 뒤쪽 중심에서 시작되도록 축 고정 */
+    transform: translateY(-50%) rotate(0deg);
+    transform-origin: left center;
+    border-radius: 999px;
+    filter: blur(0.5px);
 }
 
-/* 별똥별 기본 배치 딜레이 조절 */
-.shooting-star:nth-child(1) { left: 30%; animation-delay: 0s; animation-duration: 6s; }
-.shooting-star:nth-child(2) { left: 55%; animation-delay: 1.5s; animation-duration: 8s; }
-.shooting-star:nth-child(3) { left: 75%; animation-delay: 3.5s; animation-duration: 5s; }
-.shooting-star:nth-child(4) { left: 15%; animation-delay: 4.5s; animation-duration: 9s; }
-.shooting-star:nth-child(5) { left: 85%; animation-delay: 6s; animation-duration: 7s; }
+/* 초기 정적 별똥별 배치 및 딜레이 설정 */
+.shooting-star:nth-child(1) { left: 20%; animation-delay: 0s; animation-duration: 4.5s; }
+.shooting-star:nth-child(2) { left: 45%; animation-delay: 1.2s; animation-duration: 5.5s; }
+.shooting-star:nth-child(3) { left: 70%; animation-delay: 2.8s; animation-duration: 4s; }
+.shooting-star:nth-child(4) { left: 10%; animation-delay: 3.8s; animation-duration: 6s; }
+.shooting-star:nth-child(5) { left: 85%; animation-delay: 5s; animation-duration: 5s; }
 
-/* 궤적 방향 애니메이션 키프레임 */
-@keyframes slowStarAnim {
+/* [애니메이션 변경] 사선으로 더 부드럽고 시원하게 그어지는 궤적 */
+@keyframes newStarAnim {
     0% {
-        transform: translate3d(300px, -100px, 0) rotate(-45deg) scale(0.7);
+        transform: translate3d(200px, -80px, 0) rotate(-35deg) scale(0.6);
         opacity: 0;
     }
-    10% {
-        opacity: 1; /* 눈에 띄도록 최대 투명도를 100%로 상향 */
+    8% {
+        opacity: 1; /* 등장할 때 확 밝아짐 */
     }
-    25% {
-        transform: translate3d(-400px, 600px, 0) rotate(-45deg) scale(1.1);
+    30% {
+        /* 대각선 아래로 길게 떨어지며 크기가 자연스럽게 커짐 */
+        transform: translate3d(-350px, 450px, 0) rotate(-35deg) scale(1.1);
         opacity: 0;
     }
     100% {
-        transform: translate3d(-400px, 600px, 0) rotate(-45deg) scale(1.1);
+        transform: translate3d(-350px, 450px, 0) rotate(-35deg) scale(1.1);
         opacity: 0;
     }
 }
