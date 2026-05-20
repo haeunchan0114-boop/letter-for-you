@@ -679,3 +679,52 @@ html, body, .space-background {
         opacity: 0.6;
     }
 }
+// ==========================================
+// 🌌 [강력형] 연노랑 단색 특수기호 트레일
+// ==========================================
+(function() {
+    const spaceSymbols = ['✦', '★', '✧', '•', '﹡', '⁺'];
+    
+    const handleMove = (e) => {
+        // 마우스 좌표 또는 모바일 터치 좌표 추출
+        const x = e.touches ? e.touches[0].clientX : e.clientX;
+        const y = e.touches ? e.touches[0].clientY : e.clientY;
+        
+        if (Math.random() > 0.4) return; // 생성 확률 조절
+
+        const particle = document.createElement('span');
+        particle.innerText = spaceSymbols[Math.floor(Math.random() * spaceSymbols.length)];
+        
+        // 화면 레이아웃을 절대 방해하지 않는 고정 스타일
+        particle.style.position = 'fixed';
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        particle.style.color = '#F5E6C8'; 
+        particle.style.fontSize = (Math.random() * 6 + 10) + 'px'; 
+        particle.style.pointerEvents = 'none'; // 마우스 클릭 방해 금지
+        particle.style.zIndex = '999999';    // 최상단 표시
+        particle.style.userSelect = 'none';
+        particle.style.opacity = '0.85';
+        particle.style.fontFamily = 'sans-serif';
+        particle.style.transition = 'all 0.9s cubic-bezier(0.1, 0.8, 0.2, 1)';
+        
+        document.body.appendChild(particle);
+
+        // 부드럽게 사방으로 퍼지며 사라지는 연출
+        const velocityX = (Math.random() - 0.5) * 25;
+        const velocityY = (Math.random() - 0.5) * 25 - 10;
+        const rotation = Math.random() * 360;
+
+        setTimeout(() => {
+            particle.style.transform = `translate(${velocityX}px, ${velocityY}px) rotate(${rotation}deg) scale(0.4)`;
+            particle.style.opacity = '0';
+        }, 10);
+
+        // 사라진 후 메모리 청소
+        setTimeout(() => { particle.remove(); }, 950);
+    };
+
+    // 브라우저 윈도우 전체에 마우스 및 터치 이동 감지기 강제 부착
+    window.addEventListener('mousemove', handleMove, { passive: true });
+    window.addEventListener('touchmove', handleMove, { passive: true });
+})();
