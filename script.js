@@ -1,21 +1,25 @@
-// ==========================================
-// ✍️ [우주의 역사 데이터 저장소] 
-// 관리자창 하단에 생성되는 코드를 통째로 복사해서 이곳에 대치(덮어쓰기)하세요.
-// ==========================================
-let myPosts = [
+// 초기 기본 데이터셋 (로컬 스토리지에 데이터가 없을 때만 불러옵니다)
+const defaultPosts = [
   { title: "첫 번째 우주의 기록", date: "2026-05-20", content: "여기는 아주 조용하고 평화로운 나만의 우주입니다.", pinned: false },
   { title: "겨울 밤바다의 소리", date: "2026-01-15", content: "차가운 파도가 하얗게 부서지는 소리가 들려옵니다.", pinned: false },
   { title: "작은 별 하나", date: "2026-01-10", content: "가장 작게 빛나는 별에게 나의 마음을 전합니다.", pinned: false }
 ];
 
-// 시스템 제어 전역 매개변수
+// 💾 브라우저 자체 영구 보관소(localStorage) 연동 데이터 로드 알고리즘
+let myPosts = JSON.parse(localStorage.getItem('galaxy_posts'));
+if (!myPosts) {
+    myPosts = defaultPosts;
+    localStorage.setItem('galaxy_posts', JSON.stringify(myPosts));
+}
+
+// 시스템 내부 핸들러 변수
 let currentDisplayPosts = []; 
 let currentPage = 1;
 const postsPerPage = 3; 
 let currentSort = 'newest';
 let selectedDate = '';
 let searchQuery = '';
-let isAdminMode = false; // 관리자 모드 가동 상태 체크
+let isAdminMode = false;
 
 // ❄️ 실시간 눈 내리기 효과
 function startSnowingEffect() {
@@ -34,26 +38,27 @@ function startSnowingEffect() {
     }
 }
 
-// 🚀 주 시스템 통합 구동 컨트롤러
+// 🚀 시스템 통합 부팅 센서
 document.addEventListener("DOMContentLoaded", function() {
     startSnowingEffect();
 
     const urlParams = new URLSearchParams(window.location.search);
     
+    // ?mode=sea 모니터링 주소 검사선
     if (urlParams.get('mode') === 'sea') {
         setTimeout(function() {
             const passwordInput = prompt("관리자 인증 시스템입니다.\n비밀번호를 입력해 주세요:");
             
             if (passwordInput === "0416haeunashi0416!*!26") {
                 isAdminMode = true;
-                document.getElementById('admin-area').style.display = 'block';
+                // 관리자 전체 조작 레이아웃 노출
+                document.getElementById('admin-wrapper').style.display = 'block';
                 
-                // 관리자용 소형 편집 버튼들을 보이기 위해 CSS 동적 주입
+                // 카드 내부 제어 버튼 활성화 동적 스타일 삽입
                 const sheet = window.document.styleSheets[0];
                 sheet.insertRule('.admin-card-controls { display: flex !important; }', sheet.cssRules.length);
                 
-                alert("인증에 성공했습니다. 우주의 제어 버튼들이 활성화됩니다.");
-                updateOutputCode();
+                alert("인증에 성공했습니다. 우주의 관리 기능이 활성화됩니다.");
             } else {
                 alert("비밀번호가 일치하지 않습니다.");
                 window.location.href = window.location.pathname; 
@@ -64,40 +69,45 @@ document.addEventListener("DOMContentLoaded", function() {
     applyFilters();
 });
 
-// 🔍 실시간 제목 필터 처리
+// ✍️ 관리자 창 접고 펴기 스위치 
+function toggleAdminForm() {
+    const form = document.getElementById('admin-area');
+    const toggleBtn = document.getElementById('admin-open-toggle');
+    if (form.style.display === 'none') {
+        form.style.display = 'block';
+        toggleBtn.style.display = 'none'; // 입력창이 열리면 열기 버튼은 숨김
+    } else {
+        form.style.display = 'none';
+        toggleBtn.style.display = 'block'; // 입력창이 닫히면 열기 버튼 다시 표시
+    }
+}
+
+// 🔍 검색 제어
 function searchTitle(value) {
     searchQuery = value.trim().toLowerCase();
     currentPage = 1; 
     applyFilters();
 }
 
-// 🛠️ 정렬, 날짜 필터, 제목 검색 및 [상단 고정 우선 배치] 로직 융합
+// 🛠️ 필터링 마스터 연산 장치
 function applyFilters() {
     let filtered = [...myPosts];
 
-    // 1. 날짜 처리
-    if (selectedDate) {
-        filtered = filtered.filter(p => p.date === selectedDate);
-    }
+    if (selectedDate) filtered = filtered.filter(p => p.date === selectedDate);
+    if (searchQuery) filtered = filtered.filter(p => p.title.toLowerCase().includes(searchQuery));
 
-    // 2. 제목 검색 처리
-    if (searchQuery) {
-        filtered = filtered.filter(p => p.title.toLowerCase().includes(searchQuery));
-    }
-
-    // 3. 정렬 알고리즘 작동 (기본 정렬 진행)
     filtered.sort((a, b) => {
         return currentSort === 'newest' ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date);
     });
 
-    // ⭐ 핵심 알고리즘: 고정(pinned: true)된 포스트를 최상단으로 재배치
+    // 상단 박제 글 정렬 알고리즘
     filtered.sort((a, b) => (b.pinned || false) - (a.pinned || false));
 
     currentDisplayPosts = filtered;
     renderPosts();
 }
 
-// 📜 가공된 카드를 화면에 뿌려주는 핵심 렌더러
+// 📜 피드 출력 조립 엔진
 function renderPosts() {
     const start = (currentPage - 1) * postsPerPage;
     const end = start + postsPerPage;
@@ -113,9 +123,7 @@ function renderPosts() {
     }
 
     pagedPosts.forEach(post => {
-        // 원본 배열(myPosts)에서의 정확한 실시간 인덱스를 추적하여 제어권 매칭
         const originalIndex = myPosts.findIndex(p => p.title === post.title && p.date === post.date && p.content === post.content);
-        
         const isPinned = post.pinned === true;
 
         const card = document.createElement('div');
@@ -148,10 +156,15 @@ function renderPosts() {
 }
 
 // ==========================================
-// 🔒 관리자 전용 제어 액션 백엔드 로직 함수군
+// 🔒 로컬 스토리지 자동 영구 저장 연동 액션 함수군
 // ==========================================
 
-// 1) 글 작성 및 수정본 임시 세이브 처리
+// 데이터 세이브 포인트 동기화 장치
+function syncStorage() {
+    localStorage.setItem('galaxy_posts', JSON.stringify(myPosts));
+}
+
+// 1) 글 저장 (등록 및 수정본 커밋)
 function savePost() {
     const titleVal = document.getElementById('new-title').value.trim();
     const dateVal = document.getElementById('new-date').value;
@@ -159,94 +172,81 @@ function savePost() {
     const editIndex = document.getElementById('edit-index').value;
 
     if (!titleVal || !dateVal || !contentVal) {
-        return alert("우주 기록 양식을 빠짐없이 기입해 주세요.");
+        return alert("기록 양식을 빠짐없이 기입해 주세요.");
     }
 
     const cleanContent = contentVal.replace(/\n/g, '<br>');
 
     if (editIndex !== "") {
-        // [수정 모드 실행]
+        // 수정 완료 분기
         myPosts[parseInt(editIndex)].title = titleVal;
         myPosts[parseInt(editIndex)].date = dateVal;
         myPosts[parseInt(editIndex)].content = cleanContent;
-        alert("기록이 성공적으로 수정되었습니다.");
+        alert("기록이 수정되었습니다.");
     } else {
-        // [신규 작성 모드 실행]
+        // 신규 추가 분기
         myPosts.unshift({
             title: titleVal,
             date: dateVal,
             content: cleanContent,
             pinned: false
         });
-        alert("새로운 우주의 기록이 등록되었습니다.");
+        alert("빛나는 새로운 기록이 보존되었습니다.");
     }
 
     clearAdminForm();
+    toggleAdminForm(); // 완료 후 입력창 닫기
+    syncStorage();
     applyFilters();
-    updateOutputCode();
 }
 
-// 2) 수정 모드 진입 (기존 텍스트를 관리자 입력창으로 이식)
+// 2) 수정 폼 세팅 이식
 function startEditPost(index) {
     const post = myPosts[index];
+    
+    // 닫혀있다면 폼 열기
+    const form = document.getElementById('admin-area');
+    if (form.style.display === 'none') toggleAdminForm();
+
     document.getElementById('new-title').value = post.title;
     document.getElementById('new-date').value = post.date;
-    // 브라우저 출력용 줄바꿈 태그(<br>)를 다시 텍스트창용 줄바꿈(\n)으로 역치환
     document.getElementById('new-content').value = post.content.replace(/<br>/g, '\n');
     document.getElementById('edit-index').value = index;
 
     document.getElementById('admin-panel-title').innerText = "✏️ 우주의 기록 수정하기 (관리자)";
-    document.getElementById('admin-main-btn').innerHTML = '<i class="fa-solid fa-check"></i> 수정 완료하기';
-    document.getElementById('admin-cancel-btn').style.display = "block";
+    document.getElementById('admin-main-btn').innerHTML = '<i class="fa-solid fa-check"></i> 빛의 기록 수정 완료하기';
     
-    window.scrollTo({ top: document.getElementById('admin-area').offsetTop - 30, behavior: 'smooth' });
+    window.scrollTo({ top: document.getElementById('admin-wrapper').offsetTop - 30, behavior: 'smooth' });
 }
 
-// 3) 글 삭제 처리
+// 3) 기록 삭제
 function deletePost(index) {
-    if (confirm("정말로 이 기록을 우주에서 완전히 영구 삭제하시겠습니까?")) {
+    if (confirm("정말로 이 기록을 우주에서 완전히 삭제하시겠습니까?")) {
         myPosts.splice(index, 1);
+        syncStorage();
         applyFilters();
-        updateOutputCode();
-        alert("기록이 삭제되었습니다.");
+        alert("기록이 우주 너머로 소멸되었습니다.");
     }
 }
 
-// 4) 상단 글 고정 / 해제 스위치 토글 기능
+// 4) 핀 고정 토글
 function togglePin(index) {
     myPosts[index].pinned = !myPosts[index].pinned;
+    syncStorage();
     applyFilters();
-    updateOutputCode();
 }
 
-// 5) 관리자 폼 초기화 리셋
+// 5) 양식 초기화
 function clearAdminForm() {
     document.getElementById('new-title').value = "";
     document.getElementById('new-date').value = "";
     document.getElementById('new-content').value = "";
     document.getElementById('edit-index').value = "";
-    
     document.getElementById('admin-panel-title').innerText = "✍️ 새로운 우주의 기록 (관리자)";
-    document.getElementById('admin-main-btn').innerHTML = '<i class="fa-solid fa-pen-nib"></i> 우주에 글 등록하기';
-    document.getElementById('admin-cancel-btn').style.display = "none";
+    document.getElementById('admin-main-btn').innerHTML = '<i class="fa-solid fa-star"></i> ⭐ 나의 우주에게 빛을 전하기';
 }
 
-// 6) 데이터 변동 시 코드를 자동 재배출해 주는 장치
-function updateOutputCode() {
-    const outputField = document.getElementById('code-output');
-    if (!outputField) return;
-    
-    // 이쁘게 정렬된 문자열 객체 코드로 가공
-    let codeString = "[\n";
-    myPosts.forEach((p, i) => {
-        codeString += `    { title: "${p.title}", date: "${p.date}", content: "${p.content}", pinned: ${p.pinned || false} }${i === myPosts.length - 1 ? '' : ','}\n`;
-    });
-    codeString += "]";
-    
-    outputField.value = codeString;
-}
-
-// 일반 필터 바인딩 함수군
+// 일반 공통 페이징 함수군
 function setSort(type) { currentSort = type; currentPage = 1; applyFilters(); }
 function filterDate(date) { selectedDate = date; currentPage = 1; applyFilters(); }
 function resetFilter() { 
