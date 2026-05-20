@@ -100,6 +100,11 @@
             <h3>📬 도착한 별빛 편지함</h3>
             <div class="secret-modal-meta">받은 편지 리스트를 확인할 수 있는 공간입니다.</div>
             
+            <div class="filter-buttons" style="margin-top: 12px; margin-bottom: 4px; justify-content: center; display: flex; gap: 8px;">
+                <button id="secret-tab-all" class="filter-btn active" onclick="changeSecretTab('all')" style="padding: 4px 12px; font-size: 0.85rem;">모든 편지</button>
+                <button id="secret-tab-fav" class="filter-btn" onclick="changeSecretTab('fav')" style="padding: 4px 12px; font-size: 0.85rem;">⭐ 즐겨찾기</button>
+            </div>
+            
             <div id="secret-letters-container" class="secret-letters-scroll-zone"></div>
             
             <div class="modal-buttons">
