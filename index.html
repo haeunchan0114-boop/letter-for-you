@@ -64,9 +64,10 @@
             <button class="winter-btn" onclick="setSort('newest')">최신 순</button>
             <button class="winter-btn" onclick="setSort('oldest')">오래된 순</button>
             <div class="date-group">
-                <input type="date" id="date-picker" class="winter-input" onchange="filterDate(this.value)">
-                <button class="winter-btn" onclick="resetFilter()">초기화</button>
-            </div>
+    <span class="date-label" style="color: #fff; font-size: 0.85rem; margin-right: 5px; white-space: nowrap;">날짜 검색:</span>
+    <input type="date" id="date-picker" class="winter-input" onchange="filterDate(this.value)">
+    <button class="winter-btn" onclick="resetFilter()">초기화</button>
+</div>
             
             <button id="global-mailbox-btn" class="winter-btn main-mailbox-trigger" onclick="handleMailboxClick()">
                 </button>
