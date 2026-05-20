@@ -1,132 +1,135 @@
 /* ==========================================
-   🌌 우주 기록소 통합 테마 CSS (잠금 디자인 포함)
+   🌌 보내주신 초호화 풀버전 오로라 스페이스 디자인 시스템
    ========================================== */
-body { 
-    margin: 0; 
-    font-family: 'Pretendard', -apple-system, sans-serif; 
-    background: #0b0f19; 
-    color: #fff; 
-    overflow-x: hidden;
-}
-.container { 
-    max-width: 800px; 
-    margin: 0 auto; 
-    padding: 20px; 
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    background-color: #010205; color: #E2E8F0;
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    min-height: 100vh; overflow-x: hidden;
 }
 
-/* 범용 버튼 스타일 */
-.winter-btn { 
-    background: rgba(255,255,255,0.08); 
-    border: 1px solid rgba(255,255,255,0.15); 
-    color: #fff; 
-    padding: 10px 18px; 
-    border-radius: 8px; 
-    cursor: pointer; 
-    display: inline-flex; 
-    align-items: center; 
-    gap: 8px; 
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-}
-.winter-btn:hover { 
-    background: rgba(255,255,255,0.18); 
-    border-color: rgba(255,255,255,0.3);
+#wrap { max-width: 650px; margin: 0 auto; padding: 80px 20px; position: relative; z-index: 20; }
+
+h1 { 
+    text-align: center; color: #F5E6C8; font-weight: normal; letter-spacing: 5px; margin-bottom: 50px;
+    text-shadow: 0 0 20px rgba(245, 230, 200, 0.7), 0 0 40px rgba(245, 230, 200, 0.3);
 }
 
-/* 우체통 버튼 조건부 테마 */
-.visitor-mailbox-theme { background: rgba(66, 153, 225, 0.15); border-color: #4299e1; color: #90cdf4; }
-.visitor-mailbox-theme:hover { background: rgba(66, 153, 225, 0.3); }
-.admin-mailbox-theme { background: rgba(246, 173, 85, 0.15); border-color: #f6ad55; color: #fbd38d; }
-.admin-mailbox-theme:hover { background: rgba(246, 173, 85, 0.3); }
+/* ==========================================
+    🌌 애니메이션이 극대화된 딥 스페이스 시스템
+   ========================================== */
+.space-background {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -10; overflow: hidden; pointer-events: none;
+    background: linear-gradient(180deg, #010206 0%, #030717 25%, #061022 60%, #0c152b 100%);
+}
 
-/* 글 카드 레이아웃 */
-.post-card { 
-    background: rgba(255,255,255,0.04); 
-    border: 1px solid rgba(255,255,255,0.08); 
-    padding: 24px; 
-    border-radius: 14px; 
-    margin-bottom: 20px; 
+.space-moon {
+    position: absolute; top: 10%; right: 12%; width: 75px; height: 75px;
+    border-radius: 50%; box-shadow: -14px 14px 0 0 #F5E6C8;
+    filter: drop-shadow(0 0 18px rgba(245, 230, 200, 0.55));
+    animation: moonFloat 9s ease-in-out infinite alternate;
+    opacity: 0.85;
+}
+
+/* 🌀 우주 성운 입체 회전 효과 */
+.nebula-pink {
+    position: absolute; width: 650px; height: 650px; top: 15%; left: -15%;
+    background: radial-gradient(circle, rgba(219, 39, 119, 0.09) 0%, rgba(0,0,0,0) 70%);
+    filter: blur(65px); animation: nebulaRotate 45s linear infinite;
+}
+.nebula-blue {
+    position: absolute; width: 750px; height: 750px; bottom: 5%; right: -15%;
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, rgba(0,0,0,0) 75%);
+    filter: blur(85px); animation: nebulaRotate 65s linear infinite reverse;
+}
+.nebula-purple {
+    position: absolute; width: 550px; height: 550px; top: -10%; right: 20%;
+    background: radial-gradient(circle, rgba(147, 51, 234, 0.06) 0%, rgba(0,0,0,0) 70%);
+    filter: blur(60px); animation: nebulaRotate 55s linear infinite;
+}
+
+/* ==========================================
+    💚💜💙 신비롭게 빛나며 일렁이는 오로라 광원 시스템
+   ========================================== */
+.aurora-blue {
+    position: absolute; width: 160%; height: 60%; bottom: 15%; left: -30%;
+    background: radial-gradient(circle at 25% 75%, rgba(59, 130, 246, 0.18) 0%, rgba(59, 130, 246, 0.04) 30%, rgba(0, 0, 0, 0) 65%);
+    filter: blur(100px); mix-blend-mode: screen;
+    animation: auroraWave 28s ease-in-out infinite alternate, auroraPulse 9s ease-in-out infinite alternate-reverse;
+}
+
+/* ✨ 자연스러운 은하수 잔별 */
+.star-universe {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background-image: 
+        radial-gradient(1.5px 1.5px at 150px 280px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 220px 140px, #e2e8f0, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 420px 390px, #f5e6c8, rgba(0,0,0,0)),
+        radial-gradient(1.2px 1.2px at 560px 190px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1.8px 1.8px at 680px 520px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1.5px 1.5px at 310px 610px, #fff, rgba(0,0,0,0)),
+        radial-gradient(2.5px 2.5px at 250px 450px, #f5e6c8, rgba(0,0,0,0)),
+        radial-gradient(2.2px 2.2px at 820px 220px, #f5e6c8, rgba(0,0,0,0));
+    background-size: 450px 450px; opacity: 0.6; animation: starPulse 6s ease-in-out infinite;
+}
+
+/* ✦ 반짝이는 대형 포인트 별 */
+.star-bright {
+    position: absolute; color: #FFFDF0; font-size: 14px; opacity: 0;
+    text-shadow: 0 0 8px #fff, 0 0 15px #F5E6C8;
+    animation: starTwinkle 4s ease-in-out infinite;
+}
+.star1 { top: 15%; left: 25%; animation-delay: 0s; } 
+.star2 { top: 45%; right: 12%; animation-delay: 1.3s; font-size: 11px; }
+.star3 { bottom: 35%; left: 8%; animation-delay: 2.5s; font-size: 16px; }
+.star4 { top: 75%; right: 22%; animation-delay: 0.7s; }
+.star5 { top: 28%; right: 35%; animation-delay: 1.9s; font-size: 13px; }
+.star6 { bottom: 15%; right: 45%; animation-delay: 3.1s; font-size: 15px; }
+
+/* ==========================================
+    🎬 우주 애니메이션 타임라인 정의 (키프레임)
+   ========================================== */
+@keyframes moonFloat { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(-8px) rotate(-3deg); } }
+@keyframes nebulaRotate { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.08); } 100% { transform: rotate(360deg) scale(1); } }
+@keyframes starPulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.8; } }
+@keyframes starTwinkle { 0%, 100% { opacity: 0; transform: scale(0.6); } 50% { opacity: 0.95; transform: scale(1.1); } }
+
+/* 🌊 오로라 물결 일렁임 애니메이션 */
+@keyframes auroraWave {
+    0% { transform: translate(0, 0) scale(1) rotate(0deg) skewX(0deg); }
+    50% { transform: translate(-3%, 4%) scale(1.05) rotate(2deg) skewX(4deg); }
+    100% { transform: translate(2%, -3%) scale(0.95) rotate(-1.5deg) skewX(-3deg); }
+}
+
+/* ✨ 오로라 발광 극대화 펄스 애니메이션 */
+@keyframes auroraPulse {
+    0% { opacity: 0.5; filter: blur(100px) brightness(0.9); }
+    50% { opacity: 0.85; filter: blur(85px) brightness(1.2); }
+    100% { opacity: 0.6; filter: blur(105px) brightness(0.95); }
+}
+
+.snowflake { position: fixed; top: -20px; color: #ffffff; opacity: 0.35; user-select: none; pointer-events: none; z-index: 10; animation: snowDown linear infinite; }
+@keyframes snowDown { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(105vh) rotate(360deg); } }
+
+/* ==========================================
+    🛡️ 고대비 가독성 확보 보장용 글래스모피즘
+   ========================================== */
+.post-card {
     position: relative; 
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: rgba(4, 7, 19, 0.86); 
+    border: 1px solid rgba(255, 255, 255, 0.09); 
+    border-radius: 26px; 
+    padding: 45px 40px; 
+    margin-bottom: 35px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,255,255,0.02);
+    backdrop-filter: blur(20px); 
+    -webkit-backdrop-filter: blur(20px); 
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s;
 }
-.post-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+.post-card.pinned {
+    border: 1px solid rgba(245, 230, 200, 0.45);
+    background: rgba(8, 13, 33, 0.92);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), inset 0 0 25px rgba(245, 230, 200, 0.06);
 }
-.post-card.pinned { 
-    border-color: #f6ad55; 
-    background: rgba(246, 173, 85, 0.02);
-}
-
-.post-date { font-size: 0.85rem; color: #718096; margin-bottom: 12px; }
-.author-tag { color: #fbd38d; font-weight: 500; }
-.pin-badge { color: #f6ad55; font-weight: bold; }
-.post-title { margin: 0 0 14px 0; font-size: 1.45rem; color: #F5E6C8; letter-spacing: -0.3px; }
-
-/* 🔒 [핵심 부품] 비밀번호 잠금글 스타일 구조 정의 */
-.post-card.post-locked {
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px dashed rgba(246, 173, 85, 0.35);
-}
-.lock-container {
-    background: rgba(0, 0, 0, 0.2);
-    padding: 16px 20px;
-    border-radius: 10px;
-    border-left: 4px solid #f6ad55;
-    margin: 10px 0;
-}
-.lock-text {
-    color: #e2e8f0;
-    font-weight: 500;
-    font-size: 1.05rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.lock-btn-zone { margin-top: 16px; }
-.lock-unlock-btn {
-    background: rgba(246, 173, 85, 0.12) !important;
-    border: 1px solid #f6ad55 !important;
-    color: #f6ad55 !important;
-    font-weight: bold;
-}
-.lock-unlock-btn:hover {
-    background: rgba(246, 173, 85, 0.25) !important;
-}
-
-/* 입력 폼 인터페이스 스타일 */
-.input-style { 
-    width: 100%; 
-    padding: 12px; 
-    background: rgba(0,0,0,0.4); 
-    border: 1px solid #4a5568; 
-    color: #fff; 
-    border-radius: 8px; 
-    box-sizing: border-box; 
-    font-size: 0.95rem;
-    transition: border-color 0.3s, box-shadow 0.3s;
-}
-.input-style:focus {
-    outline: none;
-    border-color: #63b3ed;
-    box-shadow: 0 0 8px rgba(99, 179, 237, 0.2);
-}
-#new-password:focus {
-    border-color: #f6ad55;
-    box-shadow: 0 0 8px rgba(246, 173, 85, 0.2);
-}
-
-/* 관리자 제어 버튼 어레이 스타일 */
-.admin-card-controls { display: none !important; gap: 8px; margin-top: 18px; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 14px; }
-.admin-mini-btn { background: rgba(0,0,0,0.3); border: 1px solid #4a5568; color: #cbd5e0; padding: 5px 10px; font-size: 0.8rem; border-radius: 5px; cursor: pointer; transition: all 0.2s; }
-.admin-mini-btn:hover { background: #4a5568; color: #fff; }
-.admin-mini-btn.del-btn { border-color: #e53e3e; color: #fc8181; }
-.admin-mini-btn.del-btn:hover { background: #e53e3e; color: #fff; }
-.admin-mini-btn.pin-active { background: #f6ad55; color: #000; border-color: #f6ad55; font-weight: bold; }
-
-/* 모달 스타일 */
-.modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.75); align-items:center; justify-content:center; z-index:1000; backdrop-filter: blur(4px); }
-.modal-content { background:#1a202c; padding:28px; border-radius:16px; max-width:440px; width:90%; border:1px solid #4a5568; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
-
-/* 최적화 모드 전용 가드 */
-body.optimized .snowflake, body.optimized span { animation: none !important; display: none !important; }
+.post-card:hover { transform: translateY(-4px); border-color: rgba(245, 230
