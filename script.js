@@ -307,6 +307,7 @@ function clearFormFields() {
     if(document.getElementById('reply-content')) document.getElementById('reply-content').value = "";
 }
 
+// 모달 외부 클릭 감지 차단 및 정상 닫기용 함수
 function closeReplyModal() {
     document.getElementById('reply-modal').style.display = 'none';
 }
@@ -487,7 +488,7 @@ function closeMailboxModal() { document.getElementById('mailbox-modal').style.di
 
 function getFormattedCurrentTime() {
     const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')} ${String(now.getMinutes()).padStart(2, '0')}`;
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 }
 
 function savePost() {
@@ -522,7 +523,8 @@ function savePost() {
                 title,
                 content,
                 author: adminName, // 등록한 이름 강제 바인딩
-                createdAt: Date.now()
+                createdAt: Date.now(),
+                date: getFormattedCurrentTime().substring(0, 10) // 리스트 출력 안정성을 위한 날짜 필드 보완
             });
         }
         
@@ -573,6 +575,8 @@ function clearAdminForm() {
     if (document.getElementById('edit-id')) document.getElementById('edit-id').value = '';
     if (document.getElementById('new-title')) document.getElementById('new-title').value = '';
     if (document.getElementById('new-content')) document.getElementById('new-content').value = '';
+    if (document.getElementById('admin-panel-title')) document.getElementById('admin-panel-title').innerText = "우주에 새로운 빛의 기록 남기기";
+    if (document.getElementById('admin-main-btn')) document.getElementById('admin-main-btn').innerHTML = '<i class="fa-solid fa-feather"></i> 우주에 빛의 기록 새겨넣기';
 }
 
 function setSort(type) { currentSort = type; currentPage = 1; applyFilters(); }
