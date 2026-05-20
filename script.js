@@ -187,6 +187,7 @@ function toggleNoticeLetters() {
     renderNoticeMailboxWindow();
 }
 
+// 📢 공지사항 전체 모아보기 독립 창 렌더러 (비밀번호 해제 기능 추가 버전)
 function renderNoticeMailboxWindow() {
     const container = document.getElementById('notice-letters-container');
     if (!container) return;
@@ -210,10 +211,24 @@ function renderNoticeMailboxWindow() {
             }
         }
 
+        // 잠금 상태 여부 확인 (관리자 모드이거나 이미 풀린 글은 패스)
         const isLocked = post.postPassword && !isAdminMode && !unlockedPostIds.includes(post.firebaseKey);
-        let displayContent = isLocked 
-            ? `<p style="color:rgba(255,255,255,0.4); font-size:0.85rem; text-align:center; padding:10px; background:rgba(0,0,0,0.1); border-radius:6px;">🔒 메인 피드에서 잠금을 해제해야 볼 수 있습니다.</p>`
-            : `<div class="mini-content">${post.content}</div>`;
+        let displayContent = "";
+
+        if (isLocked) {
+            // 🔒 공지사항 창 내부 전용 비밀번호 입력 폼 생성
+            displayContent = `
+                <div class="locked-zone" style="text-align:center; padding:12px; background:rgba(0,0,0,0.2); border-radius:10px; margin:10px 0;">
+                    <p style="color:rgba(255,255,255,0.5); font-size:0.8rem; margin-bottom:8px;">🔒 비밀번호로 보호된 공지입니다.</p>
+                    <div style="display:flex; gap:5px; justify-content:center;">
+                        <input type="password" id="notice-unlock-pw-${post.firebaseKey}" placeholder="비밀번호 입력" style="padding:4px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.05); color:#fff; font-size:0.8rem; width:120px; margin-bottom:0;">
+                        <button onclick="unlockNoticePost('${post.firebaseKey}', '${post.postPassword}')" style="padding:4px 10px; background:#FFE6BA; border:none; border-radius:6px; color:#0d0e2d; font-size:0.8rem; cursor:pointer; font-weight:bold;">해제</button>
+                    </div>
+                </div>
+            `;
+        } else {
+            displayContent = `<div class="mini-content">${post.content}</div>`;
+        }
 
         const miniCard = document.createElement('div');
         miniCard.className = 'secret-mini-card notice-mini-card';
@@ -224,10 +239,12 @@ function renderNoticeMailboxWindow() {
                 <span>📌 공지사항 | 작성자: <b>${post.author}</b> ${post.isMainNotice ? '<b style="color:#FFE6BA; margin-left:5px;">[메인 노출중]</b>' : ''}</span>
             </div>
             <div class="mini-title" style="color:${post.isMainNotice ? '#FFE6BA' : '#fff'};">${post.title}</div>
+            
             ${displayContent}
+            
             <div class="mini-center-date">— ${formattedDate} —</div>
             <div class="mini-actions">
-                <button onclick="openReplyModal('${post.nodeType}', '${post.firebaseKey}')" ${isLocked ? 'disabled style="opacity:0.5;"' : ''}>답장</button>
+                <button onclick="openReplyModal('${post.nodeType}', '${post.firebaseKey}')" ${isLocked ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>답장</button>
                 ${isAdminMode ? `
                     <button onclick="toggleMainNoticeStatus('${post.firebaseKey}', ${post.isMainNotice})">
                         ${post.isMainNotice ? '메인 공지 해제' : '메인 공지 지정'}
@@ -241,6 +258,17 @@ function renderNoticeMailboxWindow() {
     });
 }
 
+// 🔐 공지사항 전용 잠금 해제 처리 함수 (script.js 맨 아래나 적당한 곳에 추가해 주세요)
+function unlockNoticePost(firebaseKey, correctPassword) {
+    const inputVal = document.getElementById(`notice-unlock-pw-${firebaseKey}`).value;
+    if (inputVal === correctPassword) {
+        unlockedPostIds.push(firebaseKey); // 해제 목록에 키 저장
+        renderNoticeMailboxWindow();       // 공지사항 창 즉시 새로고침
+        renderPosts();                     // 뒤편 메인 피드도 동기화 새로고침
+    } else {
+        alert("비밀번호가 일치하지 않습니다.");
+    }
+}
 // 🛠️ 사용자의 피드백을 수용하여 상단 자동 붉은 배너를 완전히 탈거한 렌더러 함수
 function renderPosts() {
     const feed = document.getElementById('posts-mailbox-feed');
