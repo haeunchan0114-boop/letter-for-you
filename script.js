@@ -54,6 +54,7 @@ function listenToFirebase() {
                     content: data[key].content || "",
                     date: data[key].date || "",
                     isPinned: data[key].isPinned || false,
+                    isMainNotice: data[key].isMainNotice || false, // 💡 메인 공지 여부 필드 추가
                     pinnedAt: data[key].pinnedAt || 0,
                     isFavorite: data[key].isFavorite || false,
                     postPassword: data[key].postPassword || "" 
@@ -61,7 +62,6 @@ function listenToFirebase() {
             }
         }
         mergeAndRender();
-        // 💡 공지 모아보기 창이 열려있다면 실시간 갱신 보장
         if (document.getElementById('noticeMailboxModal') && document.getElementById('noticeMailboxModal').classList.contains('active')) {
             renderNoticeMailboxWindow();
         }
@@ -82,6 +82,7 @@ function listenToFirebase() {
                     content: data[key].text || "",       
                     date: data[key].date || "",         
                     isPinned: data[key].isPinned || false,
+                    isMainNotice: false,
                     pinnedAt: data[key].pinnedAt || 0,
                     isFavorite: data[key].isFavorite || false
                 });
@@ -186,19 +187,18 @@ function renderSecretMailboxWindow() {
     });
 }
 
-// 💡 1. 공지사항 모아보기 독립 창 열기 기능 추가
+// 공지사항 모아보기 독립 창 열기 기능
 function toggleNoticeLetters() {
     openModal('noticeMailboxModal');
     renderNoticeMailboxWindow();
 }
 
-// 💡 2. 공지사항 전용 독립 창 렌더러 추가 (기존 메인 피드에서 삭제하지 않고 데이터만 가져옴)
+// 📢 공지사항 전체 모아보기 창 렌더러 (모든 공지가 여기에 모입니다)
 function renderNoticeMailboxWindow() {
     const container = document.getElementById('notice-letters-container');
     if (!container) return;
     container.innerHTML = "";
 
-    // 메인 피드 글(publicPosts) 중 고정된 공지글(isPinned)만 필터링
     const noticePosts = publicPosts.filter(post => post.isPinned);
 
     if (noticePosts.length === 0) {
@@ -206,7 +206,6 @@ function renderNoticeMailboxWindow() {
         return;
     }
 
-    // 고정 버튼 누른 순서(최신 고정 순)대로 정렬
     const sortedNotices = noticePosts.sort((a, b) => b.pinnedAt - a.pinnedAt);
 
     sortedNotices.forEach(post => {
@@ -224,19 +223,23 @@ function renderNoticeMailboxWindow() {
             : `<div class="mini-content">${post.content}</div>`;
 
         const miniCard = document.createElement('div');
-        miniCard.className = 'secret-mini-card notice-mini-card'; // 디자인 커스텀용 클래스 부여
-        miniCard.style.borderLeft = "3px solid #FFE6BA"; // 공지 강조용 왼쪽 선 추가
+        miniCard.className = 'secret-mini-card notice-mini-card';
+        miniCard.style.borderLeft = post.isMainNotice ? "3px solid #FFE6BA" : "3px solid rgba(255,255,255,0.2)";
+        
         miniCard.innerHTML = `
-            <div class="mini-meta">
-                <span>📌 공지사항 | 작성자: <b>${post.author}</b></span>
+            <div class="mini-meta" style="display:flex; justify-content:space-between; align-items:center;">
+                <span>📌 공지사항 | 작성자: <b>${post.author}</b> ${post.isMainNotice ? '<b style="color:#FFE6BA; margin-left:5px;">[메인 노출중]</b>' : ''}</span>
             </div>
-            <div class="mini-title" style="color:#FFE6BA;">${post.title}</div>
+            <div class="mini-title" style="color:${post.isMainNotice ? '#FFE6BA' : '#fff'};">${post.title}</div>
             ${displayContent}
             <div class="mini-center-date">— ${formattedDate} —</div>
             <div class="mini-actions">
                 <button onclick="openReplyModal('${post.nodeType}', '${post.firebaseKey}')" ${isLocked ? 'disabled style="opacity:0.5;"' : ''}>답장</button>
                 ${isAdminMode ? `
-                    <button onclick="togglePin('${post.nodeType}', '${post.firebaseKey}', true)">고정 해제</button>
+                    <button onclick="toggleMainNoticeStatus('${post.firebaseKey}', ${post.isMainNotice})">
+                        ${post.isMainNotice ? '메인 공지 해제' : '메인 공지 지정'}
+                    </button>
+                    <button onclick="togglePin('${post.nodeType}', '${post.firebaseKey}', true)">공지 해제</button>
                     <button onclick="openEditModal('${post.nodeType}', '${post.firebaseKey}')">수정</button>
                 ` : ''}
             </div>
@@ -252,15 +255,30 @@ function renderPosts() {
 
     const searchTitleVal = document.getElementById('search-title').value.toLowerCase();
 
+    // 💡 오직 메인 공지로 선택되었거나(isMainNotice), 공지가 아닌 일반 글만 피드 대상으로 필터링합니다.
     let filtered = displayPosts.filter(post => {
-        return post.title.toLowerCase().includes(searchTitleVal);
+        const matchesSearch = post.title.toLowerCase().includes(searchTitleVal);
+        const isNormalOrMainNotice = !post.isPinned || (post.isPinned && post.isMainNotice);
+        return matchesSearch && isNormalOrMainNotice;
     });
 
+    // 메인 공지 개수 확인
+    const mainNoticeCount = displayPosts.filter(post => post.isPinned && post.isMainNotice).length;
+    
+    // 💡 만약 메인 공지 슬롯이 가득 찼다면 경고 구역을 상단에 띄워줍니다.
+    if (mainNoticeCount >= 3) {
+        const warningBanner = document.createElement('div');
+        warningBanner.style.cssText = "background: rgba(255, 139, 139, 0.15); border: 1px solid #ff8b8b; color: #ff8b8b; padding: 12px; text-align: center; border-radius: 10px; font-weight: bold; margin-bottom: 20px; font-size: 0.9rem; letter-spacing: 0.5px; box-shadow: 0 0 10px rgba(255,139,139,0.1); animate: pulse 2s infinite;";
+        warningBanner.innerText = "⚠️ 화면에 메인 공지가 다 찼어! (최대 3개)";
+        feed.appendChild(warningBanner);
+    }
+
     filtered.sort((a, b) => {
-        if (a.isPinned && !b.isPinned) return -1;
-        if (!a.isPinned && b.isPinned) return 1;
+        // 💡 오직 메인 공지(isMainNotice) 상태인 것만 최상단으로 정렬합니다.
+        if (a.isMainNotice && !b.isMainNotice) return -1;
+        if (!a.isMainNotice && b.isMainNotice) return 1;
         
-        if (a.isPinned && b.isPinned) {
+        if (a.isMainNotice && b.isMainNotice) {
             return b.pinnedAt - a.pinnedAt; 
         }
         
@@ -285,7 +303,7 @@ function renderPosts() {
     const pagePosts = filtered.slice(startIndex, endIndex);
 
     if(pagePosts.length === 0) {
-        feed.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.9rem;">우체통이 고요합니다. 일치하는 글이 없습니다.</div>`;
+        feed.innerHTML += `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.9rem;">우체통이 고요합니다. 일치하는 글이 없습니다.</div>`;
         renderPaginationControls(totalPages);
         return;
     }
@@ -300,7 +318,7 @@ function renderPosts() {
         }
 
         const card = document.createElement('div');
-        card.className = `post-card ${post.isPinned ? 'pinned' : ''}`;
+        card.className = `post-card ${post.isMainNotice ? 'pinned' : ''}`;
         
         const isLocked = post.postPassword && !isAdminMode && !unlockedPostIds.includes(post.firebaseKey);
         
@@ -322,7 +340,7 @@ function renderPosts() {
         card.innerHTML = `
             <div class="post-meta">
                 <div class="meta-info">
-                    ${post.isPinned ? '<span class="pin-tag">📌 고정됨(공지)</span> | ' : ''}
+                    ${post.isMainNotice ? '<span class="pin-tag">📌 메인 공지사항</span> | ' : ''}
                     <span>작성자: ${post.author}</span>
                     ${post.postPassword ? ' <span style="font-size:0.8rem; color:#8A99AD;">🔒 잠금설정됨</span>' : ''}
                 </div>
@@ -336,7 +354,8 @@ function renderPosts() {
             <div class="card-actions">
                 <button class="reply-btn" onclick="openReplyModal('${post.nodeType}', '${post.firebaseKey}')" ${isLocked ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>답장 보내기</button>
                 ${isAdminMode ? `
-                    <button onclick="togglePin('${post.nodeType}', '${post.firebaseKey}', ${post.isPinned})">${post.isPinned ? '고정 해제' : '글 고정'}</button>
+                    <button onclick="toggleMainNoticeStatus('${post.firebaseKey}', ${post.isMainNotice})">${post.isMainNotice ? '메인 해제' : '메인 지정'}</button>
+                    <button onclick="togglePin('${post.nodeType}', '${post.firebaseKey}', ${post.isPinned})">공지 해제</button>
                     <button onclick="openEditModal('${post.nodeType}', '${post.firebaseKey}')">수정</button>
                     <button style="color:#ff8b8b;" onclick="deletePost('${post.nodeType}', '${post.firebaseKey}')">삭제</button>
                 ` : ''}
@@ -346,6 +365,23 @@ function renderPosts() {
     });
 
     renderPaginationControls(totalPages);
+}
+
+// 💡 3. 메인 공지 상태를 전환하는 토글 핸들러 (최대 3개 슬롯 제어 포함)
+function toggleMainNoticeStatus(firebaseKey, currentMainStatus) {
+    if (!currentMainStatus) {
+        // 새로 메인 공지로 등록하려는 상황일 때, 현재 메인 공지 개수 계산
+        const currentMainCount = publicPosts.filter(post => post.isPinned && post.isMainNotice).length;
+        if (currentMainCount >= 3) {
+            alert("메인 공지가 다 찼어! 더 이상 지정할 수 없습니다.");
+            return;
+        }
+    }
+
+    // 조건 통과 시 메인 상태 업데이트
+    database.ref(`posts/${firebaseKey}`).update({
+        isMainNotice: !currentMainStatus
+    });
 }
 
 function unlockPost(firebaseKey, correctPassword) {
@@ -443,6 +479,7 @@ function checkAdminPassword() {
     }
 }
 
+// 관리자 프로필 정보 보관 및 활성화 세션
 function saveAdminProfile() {
     const nameInput = document.getElementById('admin-name-input').value.trim();
     currentAdminName = nameInput ? nameInput : "관리자";
@@ -464,10 +501,17 @@ function toggleFavorite(nodeType, firebaseKey, currentStatus, e) {
 
 function togglePin(nodeType, firebaseKey, currentStatus) {
     const nextStatus = !currentStatus;
-    database.ref(`${nodeType}/${firebaseKey}`).update({
+    const updatePayload = {
         isPinned: nextStatus,
-        pinnedAt: nextStatus ? Date.now() : 0 
-    });
+        pinnedAt: nextStatus ? Date.now() : 0
+    };
+    
+    // 만약 일반 공지에서 완전히 내린다면 메인 공지 노출 속성도 비활성화 처리
+    if (!nextStatus) {
+        updatePayload.isMainNotice = false;
+    }
+
+    database.ref(`${nodeType}/${firebaseKey}`).update(updatePayload);
 }
 
 function submitPost() {
@@ -502,6 +546,8 @@ function submitPost() {
             updateData.isPinned = isPinned; 
             if(isPinned) {
                 updateData.pinnedAt = Date.now(); 
+            } else {
+                updateData.isMainNotice = false; // 공지 해제 시 메인 연동 해제
             }
         }
         database.ref(`${editingTargetNode}/${editingPostId}`).update(updateData).then(() => {
@@ -517,6 +563,7 @@ function submitPost() {
             content: content,
             date: today,
             isPinned: false,
+            isMainNotice: false,
             pinnedAt: 0,
             isFavorite: false,
             postPassword: "" 
@@ -533,6 +580,7 @@ function submitPost() {
                 content: content,
                 date: today,
                 isPinned: isPinned, 
+                isMainNotice: false, // 💡 새로 쓸 때는 일반 공지 상태로 먼저 저장되게 배정
                 pinnedAt: isPinned ? Date.now() : 0,
                 isFavorite: false,
                 postPassword: postPassword 
@@ -547,6 +595,7 @@ function submitPost() {
                 text: content,
                 date: today,
                 isPinned: false,
+                isMainNotice: false,
                 pinnedAt: 0,
                 isFavorite: false
             }).then(() => {
