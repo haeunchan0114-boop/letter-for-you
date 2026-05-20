@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나의 사랑하는 우주에게</title>
+    <title>나의 사랑하는 우주</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -44,9 +44,9 @@
             </button>
             
             <div id="admin-area" style="display: none;">
-                <h3 id="admin-panel-title" class="admin-title">새로운 우주의 빛나는 기록</h3>
+                <h3 id="admin-panel-title" class="admin-title">새로운 우주 속 빛의 기록</h3>
                 <input type="hidden" id="edit-index">
-                <input type="text" id="new-title" class="admin-input" placeholder="빛의 제목을 적어주세요.">
+                <input type="text" id="new-title" class="admin-input" placeholder="기록의 제목을 적어주세요.">
                 <textarea id="new-content" class="admin-input" rows="6" placeholder="우주에 새길 이야기를 기록해 주세요."></textarea>
                 <div class="admin-btn-group">
                     <button class="admin-cancel-btn" id="admin-cancel-btn" onclick="clearAdminForm(); toggleAdminForm();">
@@ -62,17 +62,20 @@
         <div class="search-container">
             <div class="search-box">
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" id="search-input" class="winter-input search-input-field" placeholder="빛의 제목을 검색해보세요..." oninput="searchTitle(this.value)">
+                <input type="text" id="search-input" class="winter-input search-input-field" placeholder="빛의 기록의 제목을 검색해보세요..." oninput="searchTitle(this.value)">
             </div>
         </div>
 
         <div class="controls">
-            <button class="winter-btn" onclick="setSort('newest')">최신 정렬</button>
-            <button class="winter-btn" onclick="setSort('oldest')">과거 정렬</button>
+            <button class="winter-btn" onclick="setSort('newest')">최신 순</button>
+            <button class="winter-btn" onclick="setSort('oldest')">오래된 순</button>
             <div class="date-group">
                 <input type="date" id="date-picker" class="winter-input" onchange="filterDate(this.value)">
                 <button class="winter-btn" onclick="resetFilter()">초기화</button>
             </div>
+            
+            <button id="global-mailbox-btn" class="winter-btn main-mailbox-trigger" onclick="handleMailboxClick()">
+                </button>
         </div>
 
         <div id="post-list"></div>
@@ -84,21 +87,21 @@
         </div>
     </div> <div id="reply-modal" class="reply-modal-overlay" style="display: none;">
         <div class="reply-modal-content">
-            <h3>✉️ 이 기록에 답장 보내기</h3>
-            <p id="reply-target-title" class="reply-target-info"></p>
+            <h3>✉️ 하은이에게 편지 보내기</h3>
+            <p class="reply-target-info">하은이에게 전하고 싶은 이야기를 별빛에 실어 보내세요.</p>
             <input type="text" id="reply-author" class="admin-input" placeholder="당신의 이름(닉네임)">
-            <textarea id="reply-content" class="admin-input" rows="5" placeholder="따뜻한 답장을 별빛에 실어 보내세요..."></textarea>
+            <textarea id="reply-content" class="admin-input" rows="5" placeholder="여기에 전하고 싶은 기록을 적어주세요..."></textarea>
             <div class="admin-btn-group">
                 <button class="winter-btn" style="flex: 1; margin: 0;" onclick="closeReplyModal()">닫기</button>
-                <button class="admin-submit-btn" style="flex: 2; padding: 11px;" onclick="submitReply()">빛의 답장 보내기</button>
+                <button class="admin-submit-btn" style="flex: 2; padding: 11px;" onclick="submitGlobalLetter()">빛의 편지 전송하기</button>
             </div>
         </div>
     </div>
 
     <div id="mailbox-modal" class="reply-modal-overlay" style="display: none;">
         <div class="reply-modal-content" style="max-width: 520px; width: 95%;">
-            <h3>📬 도착한 우주 편지함</h3>
-            <p id="mailbox-target-title" class="reply-target-info" style="color: #F5E6C8; margin-bottom: 15px;"></p>
+            <h3>우주의 빛이 담긴 편지함</h3>
+            <p class="reply-target-info" style="color: #F5E6C8; margin-bottom: 15px;">방문자들이 보낸 모든 편지가 모이는 공간입니다.</p>
             
             <div class="mailbox-controls">
                 <input type="text" id="mailbox-search" class="winter-input" placeholder="작성자 검색..." oninput="filterMailbox()">
@@ -114,7 +117,7 @@
                 <button class="mailbox-page-btn" onclick="nextMailboxPage()"><i class="fa-solid fa-arrow-right"></i></button>
             </div>
 
-            <button class="winter-btn" style="width: 100%; margin: 15px 0 0 0;" onclick="closeMailboxModal()">우주 편지함 닫기</button>
+            <button class="winter-btn" style="width: 100%; margin: 15px 0 0 0;" onclick="closeMailboxModal()">편지함 닫기</button>
         </div>
     </div>
 
