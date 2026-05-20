@@ -3,33 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>사랑하는 나의 우주에게</title>
+    <title>나의 작은 우주</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
     <div class="space-background">
         <div class="space-moon"></div>
-        
         <div class="nebula-pink"></div>
         <div class="nebula-blue"></div>
         <div class="nebula-purple"></div>
-
         <div class="aurora-green"></div>
         <div class="aurora-purple"></div>
         <div class="aurora-blue"></div>
-        
         <div class="star-universe"></div>
-        <div class="twinkle-stars">
-            <div class="star-bright star1">✦</div>
-            <div class="star-bright star2">✦</div>
-            <div class="star-bright star3">✦</div>
-            <div class="star-bright star4">✦</div>
-            <div class="star-bright star5">✦</div>
-            <div class="star-bright star6">✦</div>
-        </div>
-        
+        <div class="star-bright star1">✦</div>
+        <div class="star-bright star2">✦</div>
+        <div class="star-bright star3">✦</div>
+        <div class="star-bright star4">✦</div>
+        <div class="star-bright star5">✦</div>
+        <div class="star-bright star6">✦</div>
         <div class="shooting-star"></div>
         <div class="shooting-star"></div>
         <div class="shooting-star"></div>
@@ -42,63 +36,72 @@
     <div id="snow-container"></div>
 
     <div id="wrap">
-        <header>
-            <h1>사랑하는 나의 우주에게</h1>
-            
-            <div class="controls">
-                <button class="winter-btn" onclick="setSort('newest')">
-                    <i class="fa-solid fa-arrow-down-short-wide"></i> 최신순
-                </button>
-                <button class="winter-btn" onclick="setSort('oldest')">
-                    <i class="fa-solid fa-arrow-up-wide-short"></i> 오래된순
-                </button>
-                <div class="date-group">
-                    <input type="date" id="date-picker" class="winter-input" onchange="filterDate(this.value)">
-                    <button class="winter-btn" onclick="resetFilter()">전체보기</button>
-                </div>
-            </div>
-
-            <div class="search-container">
-                <div class="search-box">
-                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                    <input type="text" id="search-input" class="winter-input search-input-field" placeholder="기록의 제목을 검색해 보세요..." oninput="searchTitle(this.value)">
-                </div>
-            </div>
-        </header>
+        <h1>나의 우주에게</h1>
 
         <div id="admin-wrapper" style="display: none;">
-            <button type="button" id="admin-open-toggle" onclick="toggleAdminForm()" class="admin-write-toggle-btn">
-                <i class="fa-solid fa-star"></i> 나의 우주에게 빛을 주러가기
+            <button id="admin-open-toggle" class="admin-write-toggle-btn" onclick="toggleAdminForm()">
+                <i class="fa-solid fa-star"></i> ⭐ 나의 우주에게 빛을 주러가기
             </button>
-
+            
             <div id="admin-area" style="display: none;">
-                <h3 class="admin-title" id="admin-panel-title">새로운 우주의 기록</h3>
-                <input type="hidden" id="edit-index" value=""> 
-                
-                <input type="text" id="new-title" class="admin-input" placeholder="기록의 제목을 입력하세요">
-                <textarea id="new-content" class="admin-input" placeholder="우주에게 전할 이야기를 적으세요..." rows="6"></textarea>
-                
+                <h3 id="admin-panel-title" class="admin-title">새로운 우주의 기록</h3>
+                <input type="hidden" id="edit-index">
+                <input type="text" id="new-title" class="admin-input" placeholder="기록의 제목을 적어주세요.">
+                <textarea id="new-content" class="admin-input" rows="6" placeholder="우주에 새길 이야기를 집필해 주세요."></textarea>
                 <div class="admin-btn-group">
-                    <button type="button" id="admin-main-btn" onclick="savePost()" class="admin-submit-btn">
-                        <i class="fa-solid fa-star"></i> 나의 우주에게 빛을 전하기
-                    </button>
-                    <button type="button" id="admin-cancel-btn" onclick="clearAdminForm(); toggleAdminForm();" class="admin-cancel-btn" title="이전으로 돌아가기">
+                    <button class="admin-cancel-btn" id="admin-cancel-btn" onclick="clearAdminForm(); toggleAdminForm();">
                         <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <button id="admin-main-btn" class="admin-submit-btn" onclick="savePost()">
+                        <i class="fa-solid fa-star"></i> 나의 우주에게 빛을 전하기
                     </button>
                 </div>
             </div>
         </div>
 
-        <main id="post-list"></main>
+        <div class="search-container">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="search-input" class="winter-input search-input-field" placeholder="기록의 제목을 검색해보세요..." oninput="searchTitle(this.value)">
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="winter-btn" onclick="setSort('newest')">최신 정렬</button>
+            <button class="winter-btn" onclick="setSort('oldest')">과거 정렬</button>
+            <div class="date-group">
+                <input type="date" id="date-picker" class="winter-input" onchange="filterDate(this.value)">
+                <button class="winter-btn" onclick="resetFilter()">초기화</button>
+            </div>
+        </div>
+
+        <div id="post-list"></div>
 
         <div class="pagination">
-            <button class="page-btn" onclick="prevPage()">
-                <i class="fa-solid fa-chevron-left"></i> 이전
-            </button>
+            <button class="page-btn" onclick="prevPage()"><i class="fa-solid fa-chevron-left"></i></button>
             <span id="page-indicator">1</span>
-            <button class="page-btn" onclick="nextPage()">
-                다음 <i class="fa-solid fa-chevron-right"></i>
-            </button>
+            <button class="page-btn" onclick="nextPage()"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div> <div id="reply-modal" class="reply-modal-overlay" style="display: none;">
+        <div class="reply-modal-content">
+            <h3>✉️ 이 기록에 답장 남기기</h3>
+            <p id="reply-target-title" class="reply-target-info"></p>
+            <input type="text" id="reply-author" class="admin-input" placeholder="당신의 이름(닉네임)">
+            <textarea id="reply-content" class="admin-input" rows="5" placeholder="따뜻한 답장을 별빛에 실어 보내세요..."></textarea>
+            <div class="admin-btn-group">
+                <button class="winter-btn" style="flex: 1; margin: 0;" onclick="closeReplyModal()">닫기</button>
+                <button class="admin-submit-btn" style="flex: 2; padding: 11px;" onclick="submitReply()">답장 보내기</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="mailbox-modal" class="reply-modal-overlay" style="display: none;">
+        <div class="reply-modal-content" style="max-width: 500px;">
+            <h3>📬 도착한 우주 편지함</h3>
+            <p id="mailbox-target-title" class="reply-target-info" style="color: #F5E6C8;"></p>
+            <div id="mailbox-list" class="mailbox-scroll-area">
+                </div>
+            <button class="winter-btn" style="width: 100%; margin: 15px 0 0 0;" onclick="closeMailboxModal()">편지함 닫기</button>
         </div>
     </div>
 
