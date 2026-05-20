@@ -66,6 +66,12 @@
             </div>
         </div>
 
+        <div class="optimization-container" style="width: 100%; max-width: 340px; margin: 0 auto 8px auto; box-sizing: border-box;">
+            <button id="opt-toggle-btn" class="winter-btn opt-btn" style="width: 100%; margin: 0; padding: 10px 0; font-size: 0.85rem; background: rgba(255, 255, 255, 0.1);" onclick="toggleOptimization()">
+                <i class="fa-solid fa-gauge-high"></i> 최적화 모드: OFF (애니메이션 켜짐)
+            </button>
+        </div>
+
         <div class="controls" style="display: flex; justify-content: center; gap: 8px; width: 100%; max-width: 340px; margin: 0 auto 12px auto; box-sizing: border-box;">
             <button class="winter-btn" style="flex: 1; margin: 0; padding: 10px 0; font-size: 0.85rem; white-space: nowrap;" onclick="setSort('newest')">최신 순</button>
             <button class="winter-btn" style="flex: 1; margin: 0; padding: 10px 0; font-size: 0.85rem; white-space: nowrap;" onclick="setSort('oldest')">오래된 순</button>
@@ -174,6 +180,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // 일반 자바스크립트 파일(script.js)에서 제어할 수 있도록 전역 윈도우 객체로 바인딩 처리
         window.fbDB = db;
         window.fbRef = ref;
         window.fbSet = set;
@@ -182,6 +189,7 @@
         window.fbRemove = remove;
         window.fbUpdate = update;
 
+        // 시스템 연동 완료 시 script.js 내부의 부팅 프로세스 트리거 실행
         if (typeof window.initApp === "function") {
             window.initApp();
         }
