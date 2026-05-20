@@ -15,10 +15,10 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
 // 상태 제어 변수들
-let publicPosts = [];      // 'posts' 노드의 데이터 (메인 피드용 글)
-let globalLetters = [];    // 'global_letters' 노드의 데이터 (독립 우체통 창 전용 편지)
-let displayPosts = [];     // 메인 피드 화면에 최종 출력될 배열
-let unlockedPostIds = [];  // 사용자가 비밀번호를 입력해 잠금 해제한 글 ID 배열
+let publicPosts = [];      
+let globalLetters = [];    
+let displayPosts = [];     
+let unlockedPostIds = [];  
 
 let currentSort = 'latest';
 let currentSecretTab = 'all'; 
@@ -28,18 +28,18 @@ let editingPostId = null;
 let replyingPostId = null;
 let editingTargetNode = 'posts'; 
 
-// 페이징 설정 규칙 (3개 단위 절삭, 인덱스 최대 5개 제한)
+// 페이징 설정 규칙 (3개 단위 절삭)
 let currentPage = 1;
 const postsPerPage = 3;
 const maxNavPages = 5;
 
 window.onload = function() {
     listenToFirebase();
+    startDynamicShootingStars(); 
 };
 
 // 📡 Firebase 실시간 리스너 작동부
 function listenToFirebase() {
-    // 1. 피드용 posts 추적
     database.ref('posts').on('value', (snapshot) => {
         const data = snapshot.val();
         publicPosts = [];
@@ -54,7 +54,7 @@ function listenToFirebase() {
                     content: data[key].content || "",
                     date: data[key].date || "",
                     isPinned: data[key].isPinned || false,
-                    isMainNotice: data[key].isMainNotice || false, // 💡 메인 공지 여부 필드 추가
+                    isMainNotice: data[key].isMainNotice || false, 
                     pinnedAt: data[key].pinnedAt || 0,
                     isFavorite: data[key].isFavorite || false,
                     postPassword: data[key].postPassword || "" 
@@ -67,7 +67,6 @@ function listenToFirebase() {
         }
     });
 
-    // 2. global_letters 데이터 파싱
     database.ref('global_letters').on('value', (snapshot) => {
         const data = snapshot.val();
         globalLetters = [];
@@ -94,7 +93,6 @@ function listenToFirebase() {
     });
 }
 
-// 🧩 데이터 통합 및 관리자 인터페이스 분리 구조
 function mergeAndRender() {
     const userWriteBtn = document.getElementById('user-write-btn');
     const adminWriteBtn = document.getElementById('admin-write-btn');
@@ -122,14 +120,12 @@ function mergeAndRender() {
     renderPosts();
 }
 
-// 📬 📨 우체통 아이콘 클릭 시 전용 독립 창 모달 팝업 열기
 function toggleSecretLetters() {
     currentSecretTab = 'all'; 
     openModal('secretMailboxModal');
     renderSecretMailboxWindow();
 }
 
-// 도착한 별빛 편지함 내부 탭 전환 제어 함수
 function changeSecretTab(tab) {
     currentSecretTab = tab;
     document.getElementById('secret-tab-all').classList.toggle('active', tab === 'all');
@@ -137,7 +133,6 @@ function changeSecretTab(tab) {
     renderSecretMailboxWindow();
 }
 
-// 독립 우체통 창 렌더러
 function renderSecretMailboxWindow() {
     const container = document.getElementById('secret-letters-container');
     container.innerHTML = "";
@@ -149,7 +144,7 @@ function renderSecretMailboxWindow() {
 
     if (targetLetters.length === 0) {
         if (currentSecretTab === 'fav') {
-            container.innerHTML = `<div style="text-align:center; padding:60px 20px; color:#ffe6ba; font-size:1rem; font-weight:bold; letter-spacing:1px; text-shadow:0 0 8px rgba(255,230,186,0.2);">특별한 빛이 없어!</div>`;
+            container.innerHTML = `<div style="text-align:center; padding:60px 20px; color:#ffe6ba; font-size:1rem; font-weight:bold;">특별한 빛이 없어!</div>`;
         } else {
             container.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.85rem;">비밀 우체통에 도착한 편지가 없습니다.</div>`;
         }
@@ -172,7 +167,7 @@ function renderSecretMailboxWindow() {
         miniCard.innerHTML = `
             <div class="mini-meta">
                 <span>✉️ 보낸 사람: <b>${letter.author}</b></span>
-                <button style="background:none; border:none; font-size:1.25rem; color:${letter.isFavorite ? '#FFE6BA' : 'rgba(255,255,255,0.2)'}; cursor:pointer; text-shadow:${letter.isFavorite ? '0 0 6px #ffe6ba' : 'none'};" onclick="toggleFavorite('${letter.nodeType}', '${letter.firebaseKey}', ${letter.isFavorite}, event)">★</button>
+                <button style="background:none; border:none; font-size:1.25rem; color:${letter.isFavorite ? '#FFE6BA' : 'rgba(255,255,255,0.2)'}; cursor:pointer;" onclick="toggleFavorite('${letter.nodeType}', '${letter.firebaseKey}', ${letter.isFavorite}, event)">★</button>
             </div>
             <div class="mini-title">${letter.title}</div>
             <div class="mini-content">${letter.content}</div>
@@ -187,13 +182,11 @@ function renderSecretMailboxWindow() {
     });
 }
 
-// 공지사항 모아보기 독립 창 열기 기능
 function toggleNoticeLetters() {
     openModal('noticeMailboxModal');
     renderNoticeMailboxWindow();
 }
 
-// 📢 공지사항 전체 모아보기 창 렌더러 (모든 공지가 여기에 모입니다)
 function renderNoticeMailboxWindow() {
     const container = document.getElementById('notice-letters-container');
     if (!container) return;
@@ -248,33 +241,20 @@ function renderNoticeMailboxWindow() {
     });
 }
 
-// 메인 화면 피드 렌더링 출력부
+// 🛠️ 사용자의 피드백을 수용하여 상단 자동 붉은 배너를 완전히 탈거한 렌더러 함수
 function renderPosts() {
     const feed = document.getElementById('posts-mailbox-feed');
-    feed.innerHTML = "";
+    if(!feed) return;
 
     const searchTitleVal = document.getElementById('search-title').value.toLowerCase();
 
-    // 💡 오직 메인 공지로 선택되었거나(isMainNotice), 공지가 아닌 일반 글만 피드 대상으로 필터링합니다.
     let filtered = displayPosts.filter(post => {
         const matchesSearch = post.title.toLowerCase().includes(searchTitleVal);
         const isNormalOrMainNotice = !post.isPinned || (post.isPinned && post.isMainNotice);
         return matchesSearch && isNormalOrMainNotice;
     });
 
-    // 메인 공지 개수 확인
-    const mainNoticeCount = displayPosts.filter(post => post.isPinned && post.isMainNotice).length;
-    
-    // 💡 만약 메인 공지 슬롯이 가득 찼다면 경고 구역을 상단에 띄워줍니다.
-    if (mainNoticeCount >= 3) {
-        const warningBanner = document.createElement('div');
-        warningBanner.style.cssText = "background: rgba(255, 139, 139, 0.15); border: 1px solid #ff8b8b; color: #ff8b8b; padding: 12px; text-align: center; border-radius: 10px; font-weight: bold; margin-bottom: 20px; font-size: 0.9rem; letter-spacing: 0.5px; box-shadow: 0 0 10px rgba(255,139,139,0.1); animate: pulse 2s infinite;";
-        warningBanner.innerText = "⚠️ 화면에 메인 공지가 다 찼어! (최대 3개)";
-        feed.appendChild(warningBanner);
-    }
-
     filtered.sort((a, b) => {
-        // 💡 오직 메인 공지(isMainNotice) 상태인 것만 최상단으로 정렬합니다.
         if (a.isMainNotice && !b.isMainNotice) return -1;
         if (!a.isMainNotice && b.isMainNotice) return 1;
         
@@ -302,8 +282,10 @@ function renderPosts() {
     const endIndex = startIndex + postsPerPage;
     const pagePosts = filtered.slice(startIndex, endIndex);
 
+    feed.innerHTML = "";
+
     if(pagePosts.length === 0) {
-        feed.innerHTML += `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.9rem;">우체통이 고요합니다. 일치하는 글이 없습니다.</div>`;
+        feed.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.9rem;">우체통이 고요합니다. 일치하는 글이 없습니다.</div>`;
         renderPaginationControls(totalPages);
         return;
     }
@@ -367,18 +349,15 @@ function renderPosts() {
     renderPaginationControls(totalPages);
 }
 
-// 💡 3. 메인 공지 상태를 전환하는 토글 핸들러 (최대 3개 슬롯 제어 포함)
+// ⚠️ 4개째를 추가로 채워 넣으려고 시도할 때만 경고창을 송출하도록 가공 완료
 function toggleMainNoticeStatus(firebaseKey, currentMainStatus) {
     if (!currentMainStatus) {
-        // 새로 메인 공지로 등록하려는 상황일 때, 현재 메인 공지 개수 계산
         const currentMainCount = publicPosts.filter(post => post.isPinned && post.isMainNotice).length;
         if (currentMainCount >= 3) {
-            alert("메인 공지가 다 찼어! 더 이상 지정할 수 없습니다.");
+            alert("화면에 메인 공지가 다 찼어! 더 이상 지정할 수 없습니다.");
             return;
         }
     }
-
-    // 조건 통과 시 메인 상태 업데이트
     database.ref(`posts/${firebaseKey}`).update({
         isMainNotice: !currentMainStatus
     });
@@ -479,7 +458,6 @@ function checkAdminPassword() {
     }
 }
 
-// 관리자 프로필 정보 보관 및 활성화 세션
 function saveAdminProfile() {
     const nameInput = document.getElementById('admin-name-input').value.trim();
     currentAdminName = nameInput ? nameInput : "관리자";
@@ -505,12 +483,9 @@ function togglePin(nodeType, firebaseKey, currentStatus) {
         isPinned: nextStatus,
         pinnedAt: nextStatus ? Date.now() : 0
     };
-    
-    // 만약 일반 공지에서 완전히 내린다면 메인 공지 노출 속성도 비활성화 처리
     if (!nextStatus) {
         updatePayload.isMainNotice = false;
     }
-
     database.ref(`${nodeType}/${firebaseKey}`).update(updatePayload);
 }
 
@@ -547,7 +522,7 @@ function submitPost() {
             if(isPinned) {
                 updateData.pinnedAt = Date.now(); 
             } else {
-                updateData.isMainNotice = false; // 공지 해제 시 메인 연동 해제
+                updateData.isMainNotice = false; 
             }
         }
         database.ref(`${editingTargetNode}/${editingPostId}`).update(updateData).then(() => {
@@ -580,7 +555,7 @@ function submitPost() {
                 content: content,
                 date: today,
                 isPinned: isPinned, 
-                isMainNotice: false, // 💡 새로 쓸 때는 일반 공지 상태로 먼저 저장되게 배정
+                isMainNotice: false, 
                 pinnedAt: isPinned ? Date.now() : 0,
                 isFavorite: false,
                 postPassword: postPassword 
@@ -662,20 +637,41 @@ function triggerUniverseEasterEgg() {
             const star = document.createElement('div');
             star.className = 'falling-easter-star';
             star.innerText = ['✦', '✧', '★', '🌟', '*'][Math.floor(Math.random() * 5)];
-            
             star.style.left = (Math.random() * window.innerWidth) + 'px';
             star.style.fontSize = (Math.random() * 14 + 10) + 'px';
-            
             star.style.setProperty('--sway', (Math.random() * 200 - 100) + 'px');
             star.style.setProperty('--angle', (Math.random() * 720 - 360) + 'deg');
-            
             star.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
-            
             container.appendChild(star);
-            
-            star.addEventListener('animationend', () => {
-                star.remove();
-            });
+            star.addEventListener('animationend', () => { star.remove(); });
         }, i * 40);
     }
+}
+
+// 🌠 밤하늘에 불규칙적인 속도로 은은한 별똥별을 실시간 생성해주는 엔진
+function startDynamicShootingStars() {
+    const spaceBg = document.querySelector('.space-background');
+    if (!spaceBg) return;
+
+    setInterval(() => {
+        if (spaceBg.querySelectorAll('.dynamic-star').length > 10) return;
+
+        const dynamicStar = document.createElement('div');
+        dynamicStar.className = 'shooting-star dynamic-star';
+        
+        const randomLeft = Math.floor(Math.random() * 80) + 10; 
+        const randomDelay = Math.random() * 2;
+        const randomDuration = Math.random() * 5 + 7; 
+
+        dynamicStar.style.left = `${randomLeft}%`;
+        dynamicStar.style.animationDelay = `${randomDelay}s`;
+        dynamicStar.style.animationDuration = `${randomDuration}s`;
+
+        spaceBg.appendChild(dynamicStar);
+
+        setTimeout(() => {
+            dynamicStar.remove();
+        }, (randomDuration + randomDelay) * 1000);
+
+    }, 3500); 
 }
