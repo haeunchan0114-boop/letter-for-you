@@ -14,7 +14,7 @@ let targetPostTitleForReply = '';
 let mailboxFilteredLetters = [];
 let mailboxCurrentPage = 1;
 const mailboxLettersPerPage = 3; 
-let currentMailboxTab = 'all'; // 즐겨찾기 탭 추적 변수
+let currentMailboxTab = 'all';
 
 // 크로스 브라우저 호환용 날짜 객체 생성 함수
 function parseSafeDate(dateString) {
@@ -23,9 +23,11 @@ function parseSafeDate(dateString) {
     return new Date(safeString);
 }
 
+// 눈송이 효과
 function startSnowingEffect() {
     const container = document.getElementById('snow-container');
     if (!container) return;
+    container.innerHTML = '';
     for (let i = 0; i < 30; i++) {
         const snowflake = document.createElement('div');
         snowflake.className = 'snowflake';
@@ -39,43 +41,57 @@ function startSnowingEffect() {
     }
 }
 
-document.addEventListener("DOMContentLoaded", function() {
+// [핵심 엔진] 파이어베이스 연결과 시스템 인증을 무조건 안정적으로 호출해주는 총괄 스타터 함수
+window.initApp = function() {
     startSnowingEffect();
+    initFirebaseListeners();
+    checkAdminAuthentication();
+};
 
-    const checkFB = setInterval(() => {
-        if (window.fbDB) {
-            clearInterval(checkFB);
-            initFirebaseListeners();
-        }
-    }, 100);
+// 기존 DOMContentLoaded 타이머를 완벽히 대체하여 초기 부팅 억까 방지
+document.addEventListener("DOMContentLoaded", function() {
+    if (window.fbDB) {
+        window.initApp();
+    }
+});
 
+// 관리자 인증 처리 로직 함수화 (비밀번호창 미작동 문제 원천 해결)
+function checkAdminAuthentication() {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('mode') === 'sea') {
         setTimeout(function() {
             const passwordInput = prompt("기록자 시스템 보안 인증\n비밀번호를 입력해 주세요:");
             if (passwordInput === "0416haeunashi0416!*!26") {
                 const nameInput = prompt("우주에 새겨질 기록자 이름을 입력해 주세요:");
-                adminName = (nameInput && nameInput.trim() !== "") ? nameInput.trim() : "별빛 기록자";
+                adminName = (nameInput && nameInput.trim() !== "") ? nameInput.trim() : "무명 기록자";
 
                 isAdminMode = true;
-                document.getElementById('admin-wrapper').style.display = 'block';
+                const adminWrap = document.getElementById('admin-wrapper');
+                if (adminWrap) adminWrap.style.display = 'block';
                 
-                const sheet = window.document.styleSheets[0];
-                sheet.insertRule('.admin-card-controls { display: flex !important; }', sheet.cssRules.length);
+                try {
+                    const sheet = window.document.styleSheets[0];
+                    sheet.insertRule('.admin-card-controls { display: flex !important; }', sheet.cssRules.length);
+                } catch(e) { console.log(e); }
                 
-                alert(`별빛 기록자 ${adminName}님. 반갑습니다`);
+                alert(`인증 성공. 반갑습니다, ${adminName}님.`);
                 updateMailboxButtonUI();
                 applyFilters(); 
             } else {
                 alert("비밀번호가 일치하지 않습니다.");
                 window.location.href = window.location.pathname; 
             }
-        }, 200);
+        }, 300);
+    } else {
+        // 비관리자 일반 모드일 때 버튼 문구 디폴트 노출 보장
+        updateMailboxButtonUI();
     }
-});
+}
 
 function initFirebaseListeners() {
-    // 1. 메인 게시글 실시간 연동 및 렌더링 강제 실행
+    if (!window.fbOnValue || !window.fbRef || !window.fbDB) return;
+
+    // 1. 메인 게시글 동기화 스위치
     window.fbOnValue(window.fbRef(window.fbDB, 'posts'), (snapshot) => {
         const data = snapshot.val();
         myPosts = [];
@@ -84,10 +100,10 @@ function initFirebaseListeners() {
                 myPosts.push({ id: key, ...data[key] });
             });
         }
-        applyFilters(); // 메인 화면 글 복구 스위치
+        applyFilters(); 
     });
 
-    // 2. 우체통 편지/답장 실시간 연동 및 리스트 자동 리로드
+    // 2. 우체통 데이터 실시간 연동
     window.fbOnValue(window.fbRef(window.fbDB, 'global_letters'), (snapshot) => {
         const data = snapshot.val();
         globalLetters = [];
@@ -97,7 +113,7 @@ function initFirebaseListeners() {
             });
         }
         updateMailboxButtonUI();
-        filterMailbox(); // 즐겨찾기 및 편지 렌더링 스위치
+        filterMailbox(); 
     });
 }
 
@@ -125,6 +141,7 @@ function handleMailboxClick() {
 function toggleAdminForm() {
     const form = document.getElementById('admin-area');
     const toggleBtn = document.getElementById('admin-open-toggle');
+    if (!form || !toggleBtn) return;
     if (form.style.display === 'none') {
         form.style.display = 'block';
         toggleBtn.style.display = 'none';
@@ -166,7 +183,7 @@ function renderPosts() {
     container.innerHTML = '';
 
     if (pagedPosts.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#718096; padding: 50px 0;">우주에 기록된 빛의 이야기가 없습니다.</p>';
+        container.innerHTML = '<p style="text-align:center; color:#718096; padding: 50px 0;">우주에 기록된 이야기가 없습니다.</p>';
         return;
     }
 
@@ -212,13 +229,15 @@ function renderPosts() {
         container.appendChild(card);
     });
     
-    document.getElementById('page-indicator').innerText = currentPage;
+    if(document.getElementById('page-indicator')) {
+        document.getElementById('page-indicator').innerText = currentPage;
+    }
 }
 
 function openGeneralLetterModal() {
     mailboxMode = 'global';
     document.getElementById('modal-form-title').innerText = "하은이에게 편지 보내기";
-    document.getElementById('modal-form-desc').innerText = "하은이에게 전하고 싶은 이야기를 편지에 실어 보내세요.";
+    document.getElementById('modal-form-desc').innerText = "하은이에게 전하고 싶은 이야기를 별빛에 실어 보내세요.";
     clearFormFields();
     document.getElementById('reply-modal').style.display = 'flex';
 }
@@ -233,8 +252,8 @@ function openPostReplyModal(postTitle) {
 }
 
 function clearFormFields() {
-    document.getElementById('reply-author').value = "";
-    document.getElementById('reply-content').value = "";
+    if(document.getElementById('reply-author')) document.getElementById('reply-author').value = "";
+    if(document.getElementById('reply-content')) document.getElementById('reply-content').value = "";
 }
 
 function closeReplyModal() {
@@ -263,12 +282,11 @@ function submitLetterOrReply() {
     window.fbSet(newLetterPushRef, newLetterItem)
         .then(() => {
             closeReplyModal();
-            alert("별빛을 통하여 메시지가 실시간 전송되었습니다!");
+            alert("별빛을 통하여 메시지가 전송되었습니다!");
         })
         .catch(() => alert("전송에 실패했습니다. 네트워크를 확인해 주세요."));
 }
 
-// 우체통 열기 (탭 초기화 및 렌더링 강제)
 function openMailboxModal() {
     mailboxCurrentPage = 1;
     currentMailboxTab = 'all'; 
@@ -282,14 +300,13 @@ function openMailboxModal() {
         btnStarred.style.fontWeight = 'normal';
     }
 
-    document.getElementById('mailbox-search').value = '';
-    document.getElementById('mailbox-date').value = '';
+    if(document.getElementById('mailbox-search')) document.getElementById('mailbox-search').value = '';
+    if(document.getElementById('mailbox-date')) document.getElementById('mailbox-date').value = '';
     
     filterMailbox(); 
     document.getElementById('mailbox-modal').style.display = 'flex';
 }
 
-// 우체통 탭 선택 스위치
 function switchMailboxTab(tabType) {
     currentMailboxTab = tabType;
     const btnAll = document.getElementById('tab-all');
@@ -313,7 +330,6 @@ function filterMailbox() {
     let indexed = [...globalLetters];
     indexed.reverse(); 
 
-    // 즐겨찾기 전용 정렬 필터
     if (currentMailboxTab === 'starred') {
         indexed = indexed.filter(l => l.starred === true);
     }
@@ -361,13 +377,12 @@ function renderMailboxPosts() {
     paged.forEach(letter => {
         let originBadgeHTML = (letter.type === 'reply') 
             ? `<div class="mailbox-type-badge reply-type">글 답장 | 원문: ${letter.targetTitle}</div>`
-            : `<div class="mailbox-type-badge global-type">우주 일반 편지</div>`;
+            : `<div class="mailbox-type-badge global-type">별빛 편지</div>`;
 
         const isStarred = letter.starred === true;
         const item = document.createElement('div');
         item.className = `mailbox-item ${isStarred ? 'starred-letter' : ''}`;
         
-        // 클릭 영역 확장 및 z-index 완전 보장형 터치 인터페이스 마크업
         item.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center; width:100%; position: relative;">
                 ${originBadgeHTML}
@@ -402,7 +417,7 @@ function resetMailboxFilter() {
 }
 
 function deleteGlobalLetter(letterId) {
-    if (confirm("이 우주 편지(답장)를 영구히 소멸시키겠습니까?")) {
+    if (confirm("이 빛나는 답장을 영구히 소멸시키겠습니까?")) {
         window.fbRemove(window.fbRef(window.fbDB, `global_letters/${letterId}`))
             .then(() => {
                 const maxPage = Math.ceil((globalLetters.length - 1) / mailboxLettersPerPage);
@@ -415,7 +430,7 @@ function closeMailboxModal() { document.getElementById('mailbox-modal').style.di
 
 function getFormattedCurrentTime() {
     const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')} ${String(now.getMinutes()).padStart(2, '0')}`;
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 }
 
 function savePost() {
@@ -458,15 +473,15 @@ function startEditPost(postId) {
     document.getElementById('new-content').value = post.content.replace(/<br>/g, '\n');
     document.getElementById('edit-id').value = postId;
 
-    document.getElementById('admin-panel-title').innerText = "우주의 기록 수정하기";
+    document.getElementById('admin-panel-title').innerText = "우주 속 빛의 기록 수정하기";
     document.getElementById('admin-main-btn').innerHTML = '<i class="fa-solid fa-check"></i> 빛의 기록 수정 완료하기';
     window.scrollTo({ top: document.getElementById('admin-wrapper').offsetTop - 30, behavior: 'smooth' });
 }
 
 function deletePost(postId) {
-    if (confirm("정말로 이 기록을 우주에서 완전히 삭제하시겠습니까?")) {
+    if (confirm("정말로 이 빛의 기록을 우주에서 완전히 삭제하시겠습니까?")) {
         window.fbRemove(window.fbRef(window.fbDB, `posts/${postId}`))
-            .then(() => alert("기록이 우주 너머로 소멸되었습니다."));
+            .then(() => alert("빛의 기록이 우주 너머로 소멸되었습니다."));
     }
 }
 
@@ -480,8 +495,8 @@ function clearAdminForm() {
     document.getElementById('new-title').value = "";
     document.getElementById('new-content').value = "";
     document.getElementById('edit-id').value = "";
-    document.getElementById('admin-panel-title').innerText = "새로운 우주의 기록";
-    document.getElementById('admin-main-btn').innerHTML = '<i class="fa-solid fa-star"></i> 나의 우주에게 빛을 전하기';
+    document.getElementById('admin-panel-title').innerText = "새로운 우주의 빛의 기록";
+    document.getElementById('admin-main-btn').innerHTML = '<i class="fa-solid fa-star"></i> 나의 우주에게 빛을 보내기';
 }
 
 function setSort(type) { currentSort = type; currentPage = 1; applyFilters(); }
@@ -494,12 +509,11 @@ function resetFilter() {
 function prevPage() { if (currentPage > 1) { currentPage--; window.scrollTo({ top: 0, behavior: 'smooth' }); renderPosts(); } }
 function nextPage() { if (currentPage * postsPerPage < currentDisplayPosts.length) { currentPage++; window.scrollTo({ top: 0, behavior: 'smooth' }); renderPosts(); } }
 
-// 편지 즐겨찾기 서버 연동 및 즉시 리로드 처리 함수
 function toggleStarLetter(letterId, currentStarredStatus) {
     const nextStatus = !currentStarredStatus;
     window.fbUpdate(window.fbRef(window.fbDB, `global_letters/${letterId}`), {
         starred: nextStatus
     }).then(() => {
-        filterMailbox(); // 별표 누르자마자 리스트 즉시 새로고침
+        filterMailbox(); 
     }).catch((e) => console.error("즐겨찾기 실패:", e));
 }
