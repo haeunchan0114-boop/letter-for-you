@@ -49,18 +49,23 @@
         </header>
 
         <div id="admin-area">
-            <h3 class="admin-title">✍️ 새로운 우주의 기록 (관리자)</h3>
-            <input type="text" id="new-title" class="admin-input" placeholder="기록의 제목을 입력하세요">
+            <h3 class="admin-title" id="admin-panel-title">✍️ 새로운 우주의 기록 (관리자)</h3>
+            <input type="hidden" id="edit-index" value=""> <input type="text" id="new-title" class="admin-input" placeholder="기록의 제목을 입력하세요">
             <input type="date" id="new-date" class="admin-input">
             <textarea id="new-content" class="admin-input" placeholder="우주에게 전할 이야기를 적으세요..." rows="6"></textarea>
             
-            <button type="button" onclick="generateCode()" class="admin-submit-btn">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> 시스템 코드 생성하기
-            </button>
+            <div class="admin-btn-group">
+                <button type="button" id="admin-main-btn" onclick="savePost()" class="admin-submit-btn">
+                    <i class="fa-solid fa-pen-nib"></i> 우주에 글 등록하기
+                </button>
+                <button type="button" id="admin-cancel-btn" onclick="clearAdminForm()" class="admin-cancel-btn" style="display:none;">
+                    취소
+                </button>
+            </div>
             
-            <div id="code-output-box">
-                <p class="code-guide">💡 아래 코드를 복사해서 script.js의 [myPosts] 배열 안에 붙여넣으세요.</p>
-                <textarea id="code-output" readonly></textarea>
+            <div id="code-output-box" style="display: block; margin-top: 25px;">
+                <p class="code-guide">✨ 변경사항이 생기면 아래 코드가 자동 갱신됩니다. 복사해서 script.js의 [myPosts]에 덮어쓰세요!</p>
+                <textarea id="code-output" readonly onclick="this.select()"></textarea>
             </div>
         </div>
 
