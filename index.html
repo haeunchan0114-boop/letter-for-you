@@ -14,6 +14,7 @@
         <div class="nebula-pink"></div>
         <div class="nebula-blue"></div>
         <div class="nebula-purple"></div>
+        
         <div class="aurora-green"></div>
         <div class="aurora-purple"></div>
         <div class="aurora-blue"></div>
@@ -40,29 +41,32 @@
 
         <div class="main-console-box">
             
-            <button id="opt-toggle-btn" onclick="toggleOptimization()" class="winter-btn opt-btn full-width-btn">
+            <button id="opt-toggle-btn" onclick="toggleOptimization()" class="winter-btn opt-btn" style="width: 100%; margin: 5px 0 12px 0;">
                 <i class="fa-solid fa-circle-notch"></i> 최적화 모드: OFF (애니메이션 켜짐)
             </button>
 
-            <div class="triple-sort-group">
-                <button onclick="setSort('newest')" class="winter-btn sort-mini-btn">최신 순</button>
-                <button onclick="setSort('oldest')" class="winter-btn sort-mini-btn">오래된 순</button>
-                <button onclick="resetFilter()" class="winter-btn sort-mini-btn">초기화</button>
+            <div class="controls" style="margin-bottom: 12px;">
+                <button onclick="setSort('newest')" class="winter-btn">최신 순</button>
+                <button onclick="setSort('oldest')" class="winter-btn">오래된 순</button>
+                <button onclick="resetFilter()" class="winter-btn">초기화</button>
             </div>
 
             <div class="search-container">
-                <input type="text" id="search-input" class="winter-input search-input-field" placeholder="빛의 기록의 제목을 검색해보세요..." oninput="searchTitle(this.value)">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="search-input" class="winter-input search-input-field" placeholder="빛의 기록의 제목을 검색해보세요..." oninput="searchTitle(this.value)">
+                </div>
             </div>
 
-            <button id="global-mailbox-btn" onclick="handleMailboxClick()" class="winter-btn main-mailbox-trigger visitor-mailbox-theme full-width-btn">
+            <button id="global-mailbox-btn" onclick="handleMailboxClick()" class="winter-btn main-mailbox-trigger visitor-mailbox-theme" style="width: 100%; margin: 10px 0 0 0;">
                 <i class="fa-solid fa-paper-plane"></i> 하은이에게 편지 쓰기
             </button>
             
         </div>
 
-        <div id="admin-wrapper" style="display: none; margin-bottom: 35px;">
+        <div id="admin-wrapper" style="display: none;">
             <button id="admin-open-toggle" onclick="toggleAdminForm()" class="admin-write-toggle-btn">
-                <i class="fa-solid fa-pen-to-square"></i> 기록자 글쓰기 판넬 열기
+                <i class="fa-solid fa-pen-to-square"></i> 기록자 글쓰기 판ネル 열기
             </button>
 
             <div id="admin-area" style="display: none;">
@@ -111,15 +115,30 @@
             <h3 id="modal-form-title">하은이에게 편지 보내기</h3>
             <p id="modal-form-desc" class="reply-target-info"></p>
             
-            <div style="margin-top: 15px; margin-bottom: 12px;">
-                <input type="text" id="reply-author" class="admin-input" placeholder="보내는 이 이름" style="margin-bottom:0;">
+            <div id="mailbox-admin-view" style="display: none; margin-bottom: 15px;">
+                <div class="mailbox-controls">
+                    <input type="text" id="mailbox-search" class="winter-input" placeholder="작성자 검색..." oninput="filterMailbox()">
+                </div>
+                <div id="mailbox-letters-list" class="mailbox-scroll-area"></div>
+                <div class="mailbox-pagination">
+                    <button onclick="moveMailboxPage(-1)" class="mailbox-page-btn">이전</button>
+                    <span id="mailbox-page-indicator">1 / 1</span>
+                    <button onclick="moveMailboxPage(1)" class="mailbox-page-btn">다음</button>
+                </div>
             </div>
-            <div style="margin-bottom: 18px;">
-                <textarea id="reply-content" class="admin-input" rows="5" placeholder="마음을 실어 보낼 이야기를 채워주세요." style="margin-bottom:0;"></textarea>
+
+            <div id="mailbox-user-form">
+                <div style="margin-top: 15px; margin-bottom: 12px;">
+                    <input type="text" id="reply-author" class="admin-input" placeholder="보내는 이 이름" style="margin-bottom:0;">
+                </div>
+                <div style="margin-bottom: 18px;">
+                    <textarea id="reply-content" class="admin-input" rows="5" placeholder="마음을 실어 보낼 이야기를 채워주세요." style="margin-bottom:0;"></textarea>
+                </div>
             </div>
-            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
                 <button onclick="closeReplyModal()" class="winter-btn" style="margin:0; background:rgba(255,255,255,0.1);">닫기</button>
-                <button onclick="submitLetterOrReply()" class="winter-btn" style="margin:0; background:rgba(245,230,200,0.2); border-color:#F5E6C8; color:#F5E6C8; font-weight:bold;">전송하기</button>
+                <button id="reply-submit-btn" onclick="submitLetterOrReply()" class="winter-btn" style="margin:0; background:rgba(245,230,200,0.2); border-color:#F5E6C8; color:#F5E6C8; font-weight:bold;">전송하기</button>
             </div>
         </div>
     </div>
@@ -128,6 +147,6 @@
     <div id="easter-stars-container"></div>
     <div id="easter-egg-message" class="easter-message-box">🌌 우주의 별들이 당신을 축복합니다 🌌</div>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
