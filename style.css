@@ -1,23 +1,19 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    background-color: #02040a;
-    color: #E2E8F0;
+    background-color: #02040a; color: #E2E8F0;
     font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
+    min-height: 100vh; overflow-x: hidden;
 }
 
-#wrap { 
-    max-width: 650px; margin: 0 auto; padding: 80px 20px; position: relative; z-index: 20;
-}
+#wrap { max-width: 650px; margin: 0 auto; padding: 80px 20px; position: relative; z-index: 20; }
 
 h1 { 
     text-align: center; color: #F5E6C8; font-weight: normal; letter-spacing: 4px; margin-bottom: 50px;
     text-shadow: 0 0 25px rgba(245, 230, 200, 0.6), 0 0 50px rgba(245, 230, 200, 0.3);
 }
 
-/* 🌌 밤하늘 그래픽 시스템 */
+/* 🌌 배경 시스템 */
 .space-background {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -10; overflow: hidden; pointer-events: none;
     background: linear-gradient(180deg, #02040f 0%, #050c24 35%, #0a1931 70%, #112647 100%);
@@ -74,11 +70,11 @@ h1 {
 }
 @keyframes snowFallingStyle { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(105vh) rotate(360deg); } }
 
-/* ❄️ 공통 겨울 UI 스타일 */
+/* ❄️ UI 스타일 */
 .winter-btn, .page-btn, .winter-input {
     background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.15); color: #F5E6C8;
     padding: 11px 22px; border-radius: 25px; cursor: pointer; font-size: 0.9rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); margin: 5px;
+    transition: all 0.3s; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); margin: 5px;
 }
 .winter-btn:hover, .page-btn:hover {
     background: rgba(245, 230, 200, 0.18); border-color: #F5E6C8; box-shadow: 0 0 20px rgba(245, 230, 200, 0.4); transform: translateY(-2px);
@@ -86,53 +82,66 @@ h1 {
 .controls { display: flex; justify-content: center; flex-wrap: wrap; margin-bottom: 15px; gap: 5px; }
 .date-group { display: flex; align-items: center; }
 
-/* 🔍 신규 디자인: 제목 검색창 구역 (기존 디자인 무드 유지) */
-.search-container {
-    display: flex; justify-content: center; margin-bottom: 40px; width: 100%; padding: 0 5px;
-}
-.search-box {
-    position: relative; max-width: 535px; width: 100%; display: flex; align-items: center;
-}
-.search-icon {
-    position: absolute; left: 22px; color: rgba(245, 230, 200, 0.6); font-size: 0.95rem; pointer-events: none;
-}
-.search-input-field {
-    width: 100%; padding-left: 48px !important; margin: 0; font-family: inherit;
-}
-.search-input-field:focus {
-    outline: none; border-color: #F5E6C8; background: rgba(255, 255, 255, 0.08); box-shadow: 0 0 15px rgba(245, 230, 200, 0.25);
-}
+/* 🔍 검색창 */
+.search-container { display: flex; justify-content: center; margin-bottom: 40px; width: 100%; padding: 0 5px; }
+.search-box { position: relative; max-width: 535px; width: 100%; display: flex; align-items: center; }
+.search-icon { position: absolute; left: 22px; color: rgba(245, 230, 200, 0.6); font-size: 0.95rem; pointer-events: none; }
+.search-input-field { width: 100%; padding-left: 48px !important; margin: 0; }
 
 .pagination { display: flex; justify-content: center; align-items: center; gap: 40px; margin-top: 50px; }
 #page-indicator { color: #F5E6C8; font-weight: bold; font-size: 1.2rem; text-shadow: 0 0 10px #F5E6C8; }
 
-/* 블로그 피드 카드 */
+/* 📜 블로그 포스트 카드 */
 .post-card {
-    background: rgba(8, 15, 36, 0.5); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 24px; padding: 40px; margin-bottom: 30px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: transform 0.3s ease, border-color 0.3s ease;
+    position: relative; background: rgba(8, 15, 36, 0.5); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 24px; padding: 40px; margin-bottom: 30px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.3s ease;
+}
+/* 📌 고정된 글 디자인 효과 */
+.post-card.pinned {
+    border: 1px solid rgba(245, 230, 200, 0.45);
+    background: rgba(15, 23, 50, 0.65);
+    box-shadow: 0 20px 50px rgba(245, 230, 200, 0.05), inset 0 0 15px rgba(245, 230, 200, 0.05);
 }
 .post-card:hover { transform: translateY(-3px); border-color: rgba(245, 230, 200, 0.25); }
-.post-date { color: #55657e; font-size: 0.85rem; margin-bottom: 15px; letter-spacing: 1px; }
-.post-title { color: #F5E6C8; font-size: 1.45rem; margin: 0 0 14px 0; font-weight: normal; }
+.post-date { color: #55657e; font-size: 0.85rem; margin-bottom: 15px; letter-spacing: 1px; display: flex; align-items: center; gap: 6px; }
+.pin-badge { color: #F5E6C8; font-weight: bold; font-size: 0.85rem; }
+.post-title { color: #F5E6C8; font-size: 1.45rem; margin: 0 0 14px 0; font-weight: normal; padding-right: 80px; }
 .post-card p { color: #CBD5E0; line-height: 1.8; margin: 0; font-size: 1rem; }
 
-/* 🔒 관리자 제어 패널 스타일 */
+/* 🛠️ 관리자 전용 제어 단추 레이아웃 (카드 우측 상단 배치) */
+.admin-card-controls {
+    position: absolute; top: 30px; right: 30px; display: none; gap: 6px;
+}
+.admin-mini-btn {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #CBD5E0;
+    padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; transition: all 0.2s;
+}
+.admin-mini-btn.pin-active { color: #02040f; background: #F5E6C8; border-color: #F5E6C8; }
+.admin-mini-btn:hover { border-color: #F5E6C8; color: #fff; background: rgba(245, 230, 200, 0.1); }
+.admin-mini-btn.del-btn:hover { border-color: #ef4444; color: #fff; background: rgba(239, 68, 68, 0.2); }
+
+/* 🔒 관리자 작성 패널 */
 #admin-area { 
     display: none; background: rgba(8, 15, 36, 0.6); border: 1px solid rgba(245, 230, 200, 0.3); border-radius: 24px; padding: 40px; margin-bottom: 40px;
-    box-shadow: 0 25px 50px rgba(0,0,0,0.7), 0 0 30px rgba(245, 230, 200, 0.05); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
 }
-.admin-title { color: #F5E6C8; font-size: 1.3rem; margin-top: 0; margin-bottom: 25px; font-weight: normal; letter-spacing: 1px; text-align: center; }
+.admin-title { color: #F5E6C8; font-size: 1.3rem; margin-top: 0; margin-bottom: 25px; font-weight: normal; text-align: center; }
 .admin-input { 
     width: 100%; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff; 
     padding: 14px 18px; margin-bottom: 16px; border-radius: 14px; box-sizing: border-box; font-size: 0.95rem; font-family: inherit; transition: all 0.3s;
 }
-.admin-input:focus { outline: none; border-color: #F5E6C8; background: rgba(0, 0, 0, 0.6); box-shadow: 0 0 10px rgba(245, 230, 200, 0.15); }
+.admin-input:focus { outline: none; border-color: #F5E6C8; background: rgba(0, 0, 0, 0.6); }
+
+.admin-btn-group { display: flex; gap: 10px; }
 .admin-submit-btn { 
-    background: #F5E6C8 !important; color: #02040f !important; width: 100%; padding: 15px; border: none; border-radius: 14px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.2s ease;
+    background: #F5E6C8 !important; color: #02040f !important; width: 100%; padding: 15px; border: none; border-radius: 14px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.2s;
 }
-.admin-submit-btn:hover { background: #ffffff !important; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(245, 230, 200, 0.4); }
-.code-guide { color: #A3E635; font-size: 0.9rem; margin: 20px 0 10px 0; text-align: center; }
-#code-output-box { display: none; }
+.admin-submit-btn:hover { background: #ffffff !important; transform: translateY(-1px); }
+.admin-cancel-btn {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 15px 25px; border-radius: 14px; font-size: 1rem; cursor: pointer;
+}
+
+.code-guide { color: #A3E635; font-size: 0.85rem; margin-bottom: 10px; text-align: center; line-height: 1.5; }
 #code-output { 
-    background: #05070f; color: #6EE7B7; width: 100%; height: 90px; margin-top: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); padding: 12px; font-family: monospace; font-size: 0.85rem; resize: none;
+    background: #05070f; color: #6EE7B7; width: 100%; height: 110px; margin-top: 5px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); padding: 12px; font-family: monospace; font-size: 0.8rem; resize: none;
 }
