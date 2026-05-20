@@ -21,7 +21,7 @@ let displayPosts = [];     // 메인 피드 화면에 최종 출력될 배열
 let unlockedPostIds = [];  // 사용자가 비밀번호를 입력해 잠금 해제한 글 ID 배열
 
 let currentSort = 'latest';
-let currentSecretTab = 'all'; // 💡 비밀 편지함 내부 탭 상태 관리 변수 추가 ('all' 또는 'fav')
+let currentSecretTab = 'all'; 
 let isAdminMode = false;
 let currentAdminName = "";
 let editingPostId = null;
@@ -54,6 +54,7 @@ function listenToFirebase() {
                     content: data[key].content || "",
                     date: data[key].date || "",
                     isPinned: data[key].isPinned || false,
+                    pinnedAt: data[key].pinnedAt || 0, // 💡 고정된 시간 추적 필드 추가
                     isFavorite: data[key].isFavorite || false,
                     postPassword: data[key].postPassword || "" 
                 });
@@ -77,6 +78,7 @@ function listenToFirebase() {
                     content: data[key].text || "",       
                     date: data[key].date || "",         
                     isPinned: data[key].isPinned || false,
+                    pinnedAt: data[key].pinnedAt || 0,
                     isFavorite: data[key].isFavorite || false
                 });
             }
@@ -117,12 +119,12 @@ function mergeAndRender() {
 
 // 📬 📨 우체통 아이콘 클릭 시 전용 독립 창 모달 팝업 열기
 function toggleSecretLetters() {
-    currentSecretTab = 'all'; // 💡 모달이 열릴 때는 항상 '모든 편지'를 기본으로 세팅
+    currentSecretTab = 'all'; 
     openModal('secretMailboxModal');
     renderSecretMailboxWindow();
 }
 
-// 💡 도착한 별빛 편지함 내부 탭 전환 제어 함수 추가
+// 💡 도착한 별빛 편지함 내부 탭 전환 제어 함수
 function changeSecretTab(tab) {
     currentSecretTab = tab;
     document.getElementById('secret-tab-all').classList.toggle('active', tab === 'all');
@@ -135,16 +137,13 @@ function renderSecretMailboxWindow() {
     const container = document.getElementById('secret-letters-container');
     container.innerHTML = "";
 
-    // 💡 선택된 탭 필터 적용 (즐겨찾기 탭인 경우 ★ 표시된 편지만 걸러내기)
     let targetLetters = [...globalLetters];
     if (currentSecretTab === 'fav') {
         targetLetters = targetLetters.filter(letter => letter.isFavorite);
     }
 
-    // 💡 데이터가 존재하지 않을 때 분기 처리 규칙 적용
     if (targetLetters.length === 0) {
         if (currentSecretTab === 'fav') {
-            // 즐겨찾기 보관함에 아무것도 없을 경우 지정하신 감성 멘트 출력
             container.innerHTML = `<div style="text-align:center; padding:60px 20px; color:#ffe6ba; font-size:1rem; font-weight:bold; letter-spacing:1px; text-shadow:0 0 8px rgba(255,230,186,0.2);">특별한 빛이 없어!</div>`;
         } else {
             container.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.85rem;">비밀 우체통에 도착한 편지가 없습니다.</div>`;
@@ -194,20 +193,27 @@ function renderPosts() {
         return post.title.toLowerCase().includes(searchTitleVal);
     });
 
-    // 💡 [정렬 알고리즘 전면 교체] 공지글 고정 및 완벽한 시간 우선 정렬 
+    // 💡 [고정 버튼 누른 순서 정렬 반영 알고리즘]
     filtered.sort((a, b) => {
+        // 1. 둘 중 하나만 공지글(isPinned)일 경우, 공지글을 상단으로 올림
         if (a.isPinned && !b.isPinned) return -1;
         if (!a.isPinned && b.isPinned) return 1;
         
+        // 2. 둘 다 공지글일 경우: 고정 버튼을 누른 순서대로 정렬 (최신 고정글이 위로 가게 하려면 b.pinnedAt - a.pinnedAt)
+        if (a.isPinned && b.isPinned) {
+            return b.pinnedAt - a.pinnedAt; 
+        }
+        
+        // 3. 둘 다 일반 글일 경우: 기존 선택 정렬 기준(시간순)을 엄격히 적용
         const timeA = new Date(a.date).getTime() || 0;
         const timeB = new Date(b.date).getTime() || 0;
         
         if (currentSort === 'latest') {
-            if (timeB !== timeA) return timeB - timeA; // 최신 시간이 위로
-            return b.id - a.id; // 시간이 완전히 같다면 최신 등록 ID 순
+            if (timeB !== timeA) return timeB - timeA; 
+            return b.id - a.id; 
         } else {
-            if (timeA !== timeB) return timeA - timeB; // 오래된 시간이 위로
-            return a.id - b.id; // 시간이 완전히 같다면 과거 등록 ID 순
+            if (timeA !== timeB) return timeA - timeB; 
+            return a.id - b.id; 
         }
     });
 
@@ -237,7 +243,6 @@ function renderPosts() {
         const card = document.createElement('div');
         card.className = `post-card ${post.isPinned ? 'pinned' : ''}`;
         
-        // 비밀번호 처리 로직 (비밀번호 존재 여부와 무관하게 정렬 성능은 완전 유지됨)
         const isLocked = post.postPassword && !isAdminMode && !unlockedPostIds.includes(post.firebaseKey);
         
         let displayContent = "";
@@ -255,7 +260,6 @@ function renderPosts() {
             displayContent = `<div class="post-content">${post.content}</div>`;
         }
 
-        // 💡 요구사항 반영: 메인 피드 일반 게시글 카드 안에 있던 별표(<button class="fav-btn">★</button>) 디자인 완벽하게 제거
         card.innerHTML = `
             <div class="post-meta">
                 <div class="meta-info">
@@ -334,6 +338,8 @@ function changePage(page) {
     renderPosts();
 }
 
+// ... 중략 (나머지 필터 및 모달 핸들러 동일 유지) ...
+
 function changeSort(type) {
     currentSort = type;
     document.getElementById('sort-latest').classList.toggle('active', type === 'latest');
@@ -350,7 +356,6 @@ function resetFilters() {
 function openModal(id) {
     if (id === 'writeModal') {
         if (!editingPostId && !replyingPostId) {
-            // 💡 고유 한글 텍스트 원형 보존
             document.getElementById('write-modal-title').innerText = isAdminMode ? "별빛 기록 기록하기" : "하은이에게 편지 쓰기";
             document.getElementById('post-author').value = isAdminMode ? currentAdminName : "";
             document.getElementById('post-author').disabled = isAdminMode;
@@ -388,7 +393,6 @@ function saveAdminProfile() {
     isAdminMode = true;
     
     closeModal('adminNameModal');
-    // 💡 원본 알림창 한글 멘트 완벽 보존
     alert(`인증 성공!📨을 누르면 도착한 편지들을 읽을 수 있어!`);
     
     document.querySelector('.admin-entry-btn').innerText = `관리자 모드 (${currentAdminName})`;
@@ -399,6 +403,15 @@ function toggleFavorite(nodeType, firebaseKey, currentStatus, e) {
     e.stopPropagation();
     database.ref(`${nodeType}/${firebaseKey}`).update({
         isFavorite: !currentStatus
+    });
+}
+
+// 💡 글 고정 토글 핸들러 수정 (고정 타임스탬프 기록)
+function togglePin(nodeType, firebaseKey, currentStatus) {
+    const nextStatus = !currentStatus;
+    database.ref(`${nodeType}/${firebaseKey}`).update({
+        isPinned: nextStatus,
+        pinnedAt: nextStatus ? Date.now() : 0 // 고정할 때 현재 시간 기록, 해제할 때 0으로 리셋
     });
 }
 
@@ -433,6 +446,9 @@ function submitPost() {
             updateData.content = content;
             updateData.postPassword = postPassword; 
             updateData.isPinned = isPinned; 
+            if(isPinned) {
+                updateData.pinnedAt = Date.now(); // 수정창에서 고정 체크했을 때도 반영
+            }
         }
         database.ref(`${editingTargetNode}/${editingPostId}`).update(updateData).then(() => {
             closeModal('writeModal');
@@ -447,6 +463,7 @@ function submitPost() {
             content: content,
             date: today,
             isPinned: false,
+            pinnedAt: 0,
             isFavorite: false,
             postPassword: "" 
         }).then(() => closeModal('writeModal'));
@@ -460,6 +477,7 @@ function submitPost() {
                 content: content,
                 date: today,
                 isPinned: isPinned, 
+                pinnedAt: isPinned ? Date.now() : 0,
                 isFavorite: false,
                 postPassword: postPassword 
             }).then(() => closeModal('writeModal'));
@@ -471,6 +489,7 @@ function submitPost() {
                 text: content,
                 date: today,
                 isPinned: false,
+                pinnedAt: 0,
                 isFavorite: false
             }).then(() => closeModal('writeModal'));
         }
@@ -487,12 +506,6 @@ function openReplyModal(nodeType, firebaseKey) {
     document.getElementById('write-modal-title').innerText = `'${target.author}' 님에게 답장 전송`;
     document.getElementById('post-title').value = `Re: ${target.title}`;
     document.getElementById('post-content').value = "";
-}
-
-function togglePin(nodeType, firebaseKey, currentStatus) {
-    database.ref(`${nodeType}/${firebaseKey}`).update({
-        isPinned: !currentStatus
-    });
 }
 
 // 글 수정 기능 모달 바인딩 파트
