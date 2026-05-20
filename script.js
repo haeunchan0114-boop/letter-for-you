@@ -16,6 +16,12 @@ let mailboxCurrentPage = 1;
 const mailboxLettersPerPage = 3; 
 let currentMailboxTab = 'all';
 
+// 브라우저가 관리자 인증 성공을 기억하도록 전역 변수 설정
+if (window.isAdminAuthenticated === undefined) {
+    window.isAdminAuthenticated = false;
+}
+let isPromptOpening = false; // [모바일 락] 중복 실행 방어막 변수
+
 // 크로스 브라우저 호환용 날짜 객체 생성 함수
 function parseSafeDate(dateString) {
     if (!dateString) return new Date();
@@ -55,18 +61,43 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-// 관리자 인증 처리 로직 함수화 (비밀번호창 미작동 문제 원천 해결)
-// 관리자 인증 처리 로직 (비밀번호 창 연속 팝업 버그 완전 해결 버전)
+// [수정] 관리자 비밀번호인증 -> 이름 필수입력 순차 진행 함수 (모바일 중복팝업 완벽방어)
 function checkAdminAuthentication() {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('mode') === 'sea') {
-        setTimeout(function() {
-            const passwordInput = prompt("기록자 시스템 보안 인증\n비밀번호를 입력해 주세요:");
-            if (passwordInput === "0416haeunashi0416!*!26") {
-                const nameInput = prompt("우주에 새겨질 기록자 이름을 입력해 주세요:");
-                adminName = (nameInput && nameInput.trim() !== "") ? nameInput.trim() : "무명 기록자";
+        if (isPromptOpening) return; // 이미 진행 중이면 무시
+        isPromptOpening = true;
 
+        setTimeout(function() {
+            // 1단계: 비밀번호 검증
+            const passwordInput = prompt("기록자 시스템 보안 인증\n비밀번호를 입력해 주세요:");
+            
+            if (passwordInput === "0416haeunashi0416!*!26") {
+                
+                // 2단계: 이름 입력 (취소하거나 공백이면 무한 루프 돌려 무조건 쓰게 만듦)
+                let nameInput = "";
+                while (true) {
+                    nameInput = prompt("우주에 새겨질 기록자 이름을 무조건 입력해 주세요:\n(공백이나 취소는 허용되지 않습니다)");
+                    
+                    // 취소 버튼을 누르거나 글자를 안 썼을 때 거름
+                    if (nameInput === null) {
+                        alert("이름 등록이 취소되었습니다. 인증 과정을 처음부터 다시 해주세요.");
+                        isPromptOpening = false;
+                        window.location.href = window.location.pathname; // 페이지 원상복구
+                        return;
+                    }
+                    
+                    if (nameInput.trim() !== "") {
+                        adminName = nameInput.trim();
+                        break; // 유효한 이름이면 루프 탈출
+                    }
+                    alert("이름을 공백으로 둘 수 없습니다!");
+                }
+
+                // 3단계: 인증 최종 성공 처리
                 isAdminMode = true;
+                window.isAdminAuthenticated = true; // 전역 관리자 도장 가동
+                
                 const adminWrap = document.getElementById('admin-wrapper');
                 if (adminWrap) adminWrap.style.display = 'block';
                 
@@ -75,10 +106,10 @@ function checkAdminAuthentication() {
                     sheet.insertRule('.admin-card-controls { display: flex !important; }', sheet.cssRules.length);
                 } catch(e) { console.log(e); }
                 
-                // [개선] 인증 성공 메시지 팝업
+                // 성공 안내
                 alert(`인증 성공. 반갑습니다, ${adminName}님.`);
 
-                // [핵심 해결책] 주소창의 ?mode=sea를 새로고침 없이 즉시 지워버려서 비번창이 다시 뜨는 현상을 원천 차단합니다.
+                // 주소창 초기화로 중복 실행 원천 봉쇄
                 const cleanURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
                 window.history.replaceState({ path: cleanURL }, '', cleanURL);
 
@@ -88,6 +119,7 @@ function checkAdminAuthentication() {
                 alert("비밀번호가 일치하지 않습니다.");
                 window.location.href = window.location.pathname; 
             }
+            isPromptOpening = false; // 락 해제
         }, 300);
     } else {
         updateMailboxButtonUI();
@@ -97,7 +129,6 @@ function checkAdminAuthentication() {
 function initFirebaseListeners() {
     if (!window.fbOnValue || !window.fbRef || !window.fbDB) return;
 
-    // 1. 메인 게시글 동기화 스위치
     window.fbOnValue(window.fbRef(window.fbDB, 'posts'), (snapshot) => {
         const data = snapshot.val();
         myPosts = [];
@@ -109,7 +140,6 @@ function initFirebaseListeners() {
         applyFilters(); 
     });
 
-    // 2. 우체통 데이터 실시간 연동
     window.fbOnValue(window.fbRef(window.fbDB, 'global_letters'), (snapshot) => {
         const data = snapshot.val();
         globalLetters = [];
@@ -144,58 +174,28 @@ function handleMailboxClick() {
     }
 }
 
-// [수정] 관리자 창 토글 함수 (비밀번호 딱 '한 번'만 확인하도록 고정)
-// ==========================================
-// 🔐 관리자 인증 및 창 토글 시스템 (완전 개정판)
-// ==========================================
-// ==========================================
-// 🔐 [최종 해결] 관리자 인증 및 글쓰기 전송 시스템
-// ==========================================
-
-// 브라우저가 관리자 인증 성공을 기억하도록 전역 변수 설정
-if (window.isAdminAuthenticated === undefined) {
-    window.isAdminAuthenticated = false;
-}
-let isPromptOpening = false; 
-
-// 1. 오직 '관리자 창을 열고 닫을 때만' 작동하는 함수 (글 보낼 땐 절대 실행 안 됨)
+// 1. 오직 '글쓰기 판넬 수동 토글 버튼' 작동용 (주소창 로그인 성공했다면 바로 열리고 닫힘)
 function toggleAdminForm() {
-    if (isPromptOpening) return;
-
     const adminArea = document.getElementById('admin-area');
     const toggleBtn = document.getElementById('admin-open-toggle');
 
     if (!adminArea) return;
 
-    // 이미 열려있다면 비밀번호 묻지 않고 바로 닫기
     if (adminArea.style.display === 'block') {
         adminArea.style.display = 'none';
         if (toggleBtn) toggleBtn.style.display = 'block';
-        return;
-    }
-
-    isPromptOpening = true;
-
-    setTimeout(() => {
-        const password = prompt("관리자 비밀번호를 입력해주세요:");
-        
-        // ✨ 본인의 실제 비밀번호를 입력하세요 (예: "1234")
-        const correctPassword = "여기에지정할비밀번호"; 
-
-        if (password === correctPassword) {
-            window.isAdminAuthenticated = true; // 대문짝만하게 관리자 도장 쾅!
-            
-            adminArea.style.display = 'block';
-            if (toggleBtn) toggleBtn.style.display = 'none';
-            clearAdminForm();
-            alert("우주 기록자님, 환영합니다.");
-        } else if (password !== null) {
-            window.isAdminAuthenticated = false;
-            alert("비밀번호가 올바르지 않습니다.");
+    } else {
+        // 주소창 인증(?mode=sea)을 거치지 않은 경우 방어막 작동
+        if (!window.isAdminAuthenticated) {
+            alert("주소창 보안 링크(?mode=sea)를 통해 접속해야 관리자 권한을 부여받을 수 있습니다.");
+            return;
         }
-        isPromptOpening = false;
-    }, 50);
+        adminArea.style.display = 'block';
+        if (toggleBtn) toggleBtn.style.display = 'none';
+        clearAdminForm();
+    }
 }
+
 function searchTitle(value) {
     searchQuery = value.trim().toLowerCase();
     currentPage = 1; 
@@ -427,7 +427,6 @@ function renderMailboxPosts() {
         const isStarred = letter.starred === true;
         const item = document.createElement('div');
         
-        // 편지 카드 자체에 상대 위치(relative)와 아래쪽 여백을 주어 버튼이 안 겹치게 설계
         item.className = `mailbox-item ${isStarred ? 'starred-letter' : ''}`;
         item.style.position = 'relative';
         item.style.paddingBottom = '45px'; 
@@ -486,7 +485,6 @@ function getFormattedCurrentTime() {
 }
 
 function savePost() {
-    // 이미 로그인 도장이 찍혀있는지 확인
     if (!window.isAdminAuthenticated) {
         alert("권한이 없습니다. 페이지를 새로고침 후 다시 로그인해 주세요.");
         return;
@@ -508,23 +506,21 @@ function savePost() {
     }
 
     try {
-        // 파이어베이스 저장 구역
         if (editId) {
             const postRef = window.fbRef(window.fbDB, `posts/${editId}`);
-            window.fbUpdate(postRef, { title, content, updatedAt: Date.now() });
+            window.fbUpdate(postRef, { title, content, author: adminName, updatedAt: Date.now() });
         } else {
             const postsRef = window.fbRef(window.fbDB, 'posts');
             const newPostRef = window.fbPush(postsRef);
             window.fbSet(newPostRef, {
                 title,
                 content,
+                author: adminName, // 등록한 이름 강제 바인딩
                 createdAt: Date.now()
             });
         }
         
         alert("우주에 빛의 기록이 새겨졌습니다.");
-        
-        // 폼 내용만 지우고 창을 닫습니다. (비번 함수를 다시 부르지 않고 UI만 직접 조작)
         clearAdminForm();
         
         const adminArea = document.getElementById('admin-area');
@@ -543,7 +539,7 @@ function startEditPost(postId) {
     if (!post) return;
     
     const form = document.getElementById('admin-area');
-    if (form.style.display === 'none') toggleAdminForm();
+    if (form && form.style.display === 'none') toggleAdminForm();
 
     document.getElementById('new-title').value = post.title;
     document.getElementById('new-content').value = post.content.replace(/<br>/g, '\n');
@@ -591,8 +587,8 @@ function toggleStarLetter(letterId, currentStarredStatus) {
         filterMailbox(); 
     }).catch((e) => console.error("즐겨찾기 실패:", e));
 }
-// [추가] 타이틀 클릭 시 이스터에그 발동 함수
-// 타이틀 클릭 시 이스터에그 발동 함수 (단색 및 미니멀 버전)
+
+// 타이틀 클릭 시 이스터에그 발동 함수
 function triggerSpaceEasterEgg() {
     const msgBox = document.getElementById('easter-egg-message');
     const starContainer = document.getElementById('easter-stars-container');
@@ -600,106 +596,78 @@ function triggerSpaceEasterEgg() {
 
     if (msgBox.classList.contains('active')) return;
 
-    // 1. 문구 등장 및 자동 페이드아웃 (3초)
     msgBox.classList.add('active');
-    setTimeout(() => {
-        msgBox.classList.remove('active');
-    }, 3000);
+    setTimeout(() => { msgBox.classList.remove('active'); }, 3000);
 
-    // 2. 단색 별빛 낙하 연출
-    const starShapes = ['✦', '★', '✧']; // 직관적이고 깔끔한 모양들
-    const totalStars = 60; // 화면이 지저분하지 않게 개수도 살짝 조절
+    const starShapes = ['✦', '★', '✧'];
+    const totalStars = 60; 
 
     for (let i = 0; i < totalStars; i++) {
         const star = document.createElement('div');
         star.className = 'falling-easter-star';
-        
-        // 모양 무작위 선택 (색상은 CSS에서 #F5E6C8 단색 고정)
         star.innerHTML = starShapes[Math.floor(Math.random() * starShapes.length)];
         
-        // 위치 및 크기 설정 (너무 크지 않게 조절)
         star.style.left = Math.random() * 100 + 'vw';
-        star.style.fontSize = (Math.random() * 6 + 10) + 'px'; // 10px ~ 16px 사이의 잔잔한 크기
+        star.style.fontSize = (Math.random() * 6 + 10) + 'px'; 
         
-        // 속도 분산
-        const duration = Math.random() * 2.5 + 2; // 2초 ~ 4.5초
+        const duration = Math.random() * 2.5 + 2; 
         const delay = Math.random() * 1.2;
         star.style.animationDuration = duration + 's';
         star.style.animationDelay = delay + 's';
 
-        // 낙하 궤적 계산
-        const sway = (Math.random() * 100 - 50) + 'px'; // 좌우 흔들림 최소화
+        const sway = (Math.random() * 100 - 50) + 'px'; 
         const spin = (Math.random() * 360 - 180) + 'deg';
         star.style.setProperty('--sway-distance', sway);
         star.style.setProperty('--spin-angle', spin);
 
         starContainer.appendChild(star);
 
-        // 타이머 종료 후 삭제
-        setTimeout(() => {
-            star.remove();
-        }, (duration + delay) * 1000);
+        setTimeout(() => { star.remove(); }, (duration + delay) * 1000);
     }
-    // ==========================================
+}
+
+// ==========================================
 // 🌌 화면 전체 적용: 연노랑 단색 특수기호 트레일 (마우스/터치)
 // ==========================================
-document.addEventListener('DOMContentLoaded', () => {
-    // 깔끔하고 심플한 우주/별 관련 특수기호 후보군
+// IIFE 익명함수 처리하여 이벤트가 꼬이거나 무시되지 않고 최우선 구동되도록 변경
+(function() {
     const spaceSymbols = ['✦', '★', '✧', '•', '﹡', '⁺'];
     
     const handleMove = (e) => {
         const x = e.touches ? e.touches[0].clientX : e.clientX;
         const y = e.touches ? e.touches[0].clientY : e.clientY;
         
-        // 너무 빽빽하게 생겨서 지저분해지는 것을 방지 (스폰 확률 조절)
         if (Math.random() > 0.4) return;
 
-        createSymbolParticle(x, y);
-    };
-
-    window.addEventListener('mousemove', handleMove, { passive: true });
-    window.addEventListener('touchmove', handleMove, { passive: true });
-
-    function createSymbolParticle(x, y) {
         const particle = document.createElement('span');
-        
-        // 랜덤 특수기호 선택
         particle.innerText = spaceSymbols[Math.floor(Math.random() * spaceSymbols.length)];
         
-        // 스타일 지정 (강조하셨던 깔끔한 연노랑 단색 적용)
         particle.style.position = 'fixed';
-        particle.style.left = `${x}px`;
-        particle.style.top = `${y}px`;
-        particle.style.color = '#F5E6C8'; /* 따뜻하고 감성적인 연노랑 단색 */
-        particle.style.fontSize = `${Math.random() * 6 + 10}px`; /* 10px ~ 16px 사이의 잔잔한 크기 */
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        particle.style.color = '#F5E6C8'; 
+        particle.style.fontSize = (Math.random() * 6 + 10) + 'px'; 
         particle.style.pointerEvents = 'none';
-        particle.style.zIndex = '99999';
+        particle.style.zIndex = '999999';
         particle.style.userSelect = 'none';
         particle.style.fontFamily = 'sans-serif';
-        
-        // 은은하게 퍼지는 투명도 기본값
         particle.style.opacity = '0.85';
-        
-        // 사방으로 부드럽게 흩어지기 위한 속도 및 회전값 계산
-        const velocityX = (Math.random() - 0.5) * 25;
-        const velocityY = (Math.random() - 0.5) * 25 - 10; // 자연스럽게 살짝 위로 뜸
-        const rotation = Math.random() * 360;
-
-        // 자연스러운 감속 애니메이션을 위한 이징(Easing) 적용
         particle.style.transition = 'all 0.9s cubic-bezier(0.1, 0.8, 0.2, 1)';
         
         document.body.appendChild(particle);
 
-        // 생성 직후 미세한 이동과 함께 크기가 작아지며 스르륵 페이드아웃
-        requestAnimationFrame(() => {
+        const velocityX = (Math.random() - 0.5) * 25;
+        const velocityY = (Math.random() - 0.5) * 25 - 10;
+        const rotation = Math.random() * 360;
+
+        setTimeout(() => {
             particle.style.transform = `translate(${velocityX}px, ${velocityY}px) rotate(${rotation}deg) scale(0.4)`;
             particle.style.opacity = '0';
-        });
+        }, 10);
 
-        // 애니메이션 완료 후 요소 완벽 삭제 (메모리 최적화)
-        setTimeout(() => {
-            particle.remove();
-        }, 900);
-    }
-});
-}
+        setTimeout(() => { particle.remove(); }, 950);
+    };
+
+    window.addEventListener('mousemove', handleMove, { passive: true });
+    window.addEventListener('touchmove', handleMove, { passive: true });
+})();
