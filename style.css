@@ -281,3 +281,98 @@ button.btn-base:hover { background: rgba(255, 255, 255, 0.12); border-color: rgb
     margin-bottom: 15px;
     letter-spacing: 1px;
 }
+/* 📬 따로 열리는 비밀 편지함 모달 수동 확장 디자인 */
+.modal-window.secret-mailbox-window {
+    max-width: 480px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.secret-modal-meta {
+    font-size: 0.85rem;
+    color: #8A99AD;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+/* 편지들이 모여서 스크롤 되는 구역 */
+.secret-letters-scroll-zone {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 10px 0;
+}
+
+/* 스크롤바 커스텀 */
+.secret-letters-scroll-zone::-webkit-scrollbar {
+    width: 6px;
+}
+.secret-letters-scroll-zone::-webkit-scrollbar-thumb {
+    background: rgba(255, 230, 186, 0.2);
+    border-radius: 10px;
+}
+
+/* 비밀 편지함 내부 전용 미니 카드 디자인 */
+.secret-mini-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(167, 139, 250, 0.4);
+    border-radius: 16px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.secret-mini-card .mini-meta {
+    font-size: 0.8rem;
+    color: #A78BFA;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.secret-mini-card .mini-title {
+    font-size: 1.1rem;
+    color: #fff;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.secret-mini-card .mini-content {
+    font-size: 0.92rem;
+    color: #D1D5DB;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    margin-bottom: 10px;
+}
+
+.secret-mini-card .mini-center-date {
+    text-align: center;
+    font-size: 0.8rem;
+    color: #8A99AD;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.secret-mini-card .mini-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+}
+.secret-mini-card .mini-actions button {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #ccc;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+.secret-mini-card .mini-actions button:hover {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+}
