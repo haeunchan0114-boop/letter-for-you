@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>겨울 밤바다</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="loading-screen">
+        <div class="sea-background"></div>
+        <div class="snow-box">❄️ 밤바다에 눈이 내리는 중...</div>
+    </div>
+
+    <div id="wrap">
+        <header>
+            <h1>겨울 밤바다, 나의 기록</h1>
+            <div class="controls">
+                <button onclick="setSort('newest')">최신순</button>
+                <button onclick="setSort('oldest')">오래된순</button>
+                <input type="date" id="date-picker" onchange="filterDate(this.value)">
+                <button onclick="resetFilter()">전체보기</button>
+            </div>
+        </header>
+
+        <main id="post-list"></main>
+
+        <div class="pagination">
+            <button onclick="prevPage()">이전</button>
+            <span id="page-indicator">1</span>
+            <button onclick="nextPage()">다음</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
