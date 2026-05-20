@@ -72,7 +72,7 @@ function listenToFirebase() {
                     nodeType: 'global_letters',
                     id: data[key].id || Date.now(),
                     author: data[key].writer || "익명",  
-                    title: data[key].title || "비밀 편지 조각",
+                    title: data[key].title || "별빛 편지",
                     content: data[key].text || "",       
                     date: data[key].date || "",         
                     isPinned: data[key].isPinned || false,
@@ -330,7 +330,7 @@ function resetFilters() {
 function openModal(id) {
     if (id === 'writeModal') {
         if (!editingPostId && !replyingPostId) {
-            document.getElementById('write-modal-title').innerText = isAdminMode ? "✍️ 관리자 우주 조각 기록하기" : "나의 우주에게 편지 쓰기";
+            document.getElementById('write-modal-title').innerText = isAdminMode ? "별빛 기록 기록하기" : "하은이에게 편지 쓰기";
             document.getElementById('post-author').value = isAdminMode ? currentAdminName : "";
             document.getElementById('post-author').disabled = isAdminMode;
             document.getElementById('post-title').value = "";
@@ -357,7 +357,7 @@ function checkAdminPassword() {
         closeModal('adminAuthModal');
         openModal('adminNameModal');
     } else {
-        alert("비밀번호가 일치하지 않습니다 우주인님.");
+        alert("비밀번호가 일치하지 않습니다.");
     }
 }
 
@@ -367,7 +367,7 @@ function saveAdminProfile() {
     isAdminMode = true;
     
     closeModal('adminNameModal');
-    alert(`인증 성공! 우측 상단 단색 우체통 아이콘(📨)을 누르면 별도의 독립 창에서 수신 편지들을 열람할 수 있습니다.`);
+    alert(`인증 성공!📨을 누르면 도착한 편지들을 읽을 수 있어!`);
     
     document.querySelector('.admin-entry-btn').innerText = `관리자 모드 (${currentAdminName})`;
     mergeAndRender();
