@@ -377,11 +377,15 @@ function renderMailboxPosts() {
     paged.forEach(letter => {
         let originBadgeHTML = (letter.type === 'reply') 
             ? `<div class="mailbox-type-badge reply-type">글 답장 | 원문: ${letter.targetTitle}</div>`
-            : `<div class="mailbox-type-badge global-type">별빛 편지</div>`;
+            : `<div class="mailbox-type-badge global-type">우주 일반 편지</div>`;
 
         const isStarred = letter.starred === true;
         const item = document.createElement('div');
+        
+        // 편지 카드 자체에 상대 위치(relative)와 아래쪽 여백을 주어 버튼이 안 겹치게 설계
         item.className = `mailbox-item ${isStarred ? 'starred-letter' : ''}`;
+        item.style.position = 'relative';
+        item.style.paddingBottom = '45px'; 
         
         item.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center; width:100%; position: relative;">
@@ -396,8 +400,11 @@ function renderMailboxPosts() {
                 <span style="color:#F5E6C8; font-weight:bold;">기록: ${letter.writer}</span>
                 <span style="font-size:0.8rem; color:#718096;">${letter.date}</span>
             </div>
-            <p class="mailbox-item-text" style="position: relative; z-index: 1;">${letter.text}</p>
-            <button class="reply-delete-btn" style="position: relative; z-index: 5;" onclick="deleteGlobalLetter('${letter.id}')">소멸</button>
+            <p class="mailbox-item-text" style="position: relative; z-index: 1; margin-bottom: 10px;">${letter.text}</p>
+            
+            <button class="reply-delete-btn" 
+                    style="position: absolute; bottom: 15px; right: 15px; z-index: 5; margin: 0;" 
+                    onclick="deleteGlobalLetter('${letter.id}')">삭제</button>
         `;
         listContainer.appendChild(item);
     });
