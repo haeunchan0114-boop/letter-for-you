@@ -159,3 +159,42 @@ button.btn-base:hover { background: rgba(255, 255, 255, 0.12); border-color: rgb
     90% { opacity: 1; }
     100% { top: 105vh; transform: translateX(var(--sway)) rotate(var(--angle)); opacity: 0; }
 }
+/* 우체통 상단 헤더 정렬 배치 디자인 */
+.mailbox-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.mailbox-status-text {
+    font-size: 1.1rem; 
+    color: #FFE6BA; 
+    font-weight: bold; 
+    padding-left: 5px;
+    text-shadow: 0 0 8px rgba(255, 230, 186, 0.4);
+}
+
+/* 📬 편지 가방 아이콘 버튼 디자인 정의 */
+.secret-mail-icon-btn {
+    background: rgba(255, 230, 186, 0.1);
+    border: 1px solid rgba(255, 230, 186, 0.2);
+    font-size: 1.4rem;
+    padding: 6px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.secret-mail-icon-btn:hover {
+    background: rgba(255, 230, 186, 0.25);
+    transform: scale(1.05);
+}
+.secret-mail-icon-btn.active {
+    background: #FFE6BA;
+    box-shadow: 0 0 12px #FFE6BA;
+    border-color: #FFE6BA;
+}
