@@ -7,7 +7,7 @@
 }
 
 body {
-    /* 🔮 은은한 오로라 보랏빛을 머금은 심해 우주색 그라데이션으로 교체 */
+    /* 🔮 은은한 오로라 보랏빛을 머금은 심해 우주색 그라데이션 */
     background: linear-gradient(135deg, #090a1e 0%, #151133 35%, #221442 70%, #060714 100%);
     color: #ffffff;
     min-height: 100vh;
@@ -24,7 +24,7 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: -1; /* 글을 읽는 데 방해되지 않도록 카드 뒤쪽으로 격리 */
+    z-index: -1;
     overflow: hidden;
     pointer-events: none;
 }
@@ -54,15 +54,14 @@ body {
     transform: translateX(0) translateY(0) rotate(-45deg);
 }
 
-/* 각각의 고정형 별똥별들이 다른 시간차로 나타나도록 딜레이 분산 세팅 */
+/* 별똥별 시간차 딜레이 분산 세팅 */
 .shooting-star:nth-child(1) { left: 40%; animation-delay: 0s; animation-duration: 9s; }
 .shooting-star:nth-child(2) { left: 65%; animation-delay: 2.5s; animation-duration: 11s; }
 .shooting-star:nth-child(3) { left: 85%; animation-delay: 5s; animation-duration: 8s; }
 .shooting-star:nth-child(4) { left: 20%; animation-delay: 7s; animation-duration: 13s; }
 .shooting-star:nth-child(5) { left: 55%; animation-delay: 10s; animation-duration: 10s; }
 
-/* 궤적 방향 애니메이션 키프레임 (천천히 이동하도록 세밀조정 완료) */
-@keyframes __avoid_conflicts_star__ {}
+/* 궤적 방향 애니메이션 키프레임 */
 @keyframes slowStarAnim {
     0% {
         transform: translate3d(200px, -100px, 0) rotate(-45deg) scale(0.6);
@@ -171,7 +170,7 @@ header button:hover {
 
 /* 메인 게시글 카드 디자인 */
 .post-card {
-    background: rgba(25, 23, 61, 0.45); /* 은은하게 뒤쪽 보라색 비치게 배경투명도 최적화 */
+    background: rgba(25, 23, 61, 0.45);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
     padding: 24px;
@@ -551,12 +550,6 @@ header button:hover {
 @keyframes fallAnimation {
     0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
     100% { transform: translateY(105vh) translateX(var(--sway)) rotate(var(--angle)); opacity: 0; }
-}
-
-@keyframes pulseNotice {
-    0% { opacity: 0.85; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.005); }
-    100% { opacity: 0.85; transform: scale(1); }
 }
 
 .notice-mini-card {
