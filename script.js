@@ -45,7 +45,6 @@ function startSnowingEffect() {
     }
 }
 
-// 키프레임 가속 가드 생성
 try {
     const style = document.createElement('style');
     style.innerHTML = `@keyframes fall { to { transform: translateY(105vh); } }`;
@@ -146,16 +145,16 @@ function updateMailboxButtonUI() {
     if (!btn) return;
     if (isAdminMode) {
         btn.innerHTML = `<i class="fa-solid fa-envelope-open-text"></i> 별빛 우체통 (${globalLetters.length})`;
-        btn.className = "winter-btn main-mailbox-trigger admin-mailbox-theme";
+        btn.className = "winter-btn main-mailbox-trigger admin-mailbox-theme full-width-btn";
     } else {
         btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> 하은이에게 편지 쓰기`;
-        btn.className = "winter-btn main-mailbox-trigger visitor-mailbox-theme";
+        btn.className = "winter-btn main-mailbox-trigger visitor-mailbox-theme full-width-btn";
     }
 }
 
 function handleMailboxClick() {
     if (isAdminMode) {
-        alert("관리자 우체통 기능이 연동되어 활성화됩니다.");
+        alert("관리자 전용 우체통 제어창으로 진입합니다.");
     } else {
         openGeneralLetterModal();
     }
@@ -171,7 +170,7 @@ function toggleAdminForm() {
         if (toggleBtn) toggleBtn.style.display = 'block';
     } else {
         if (!window.isAdminAuthenticated) {
-            alert("주소창 보안 링크(?mode=sea) 권한이 필요합니다.");
+            alert("보안 권한 인증이 필요합니다.");
             return;
         }
         adminArea.style.display = 'block';
@@ -199,9 +198,6 @@ function applyFilters() {
     renderPosts();
 }
 
-/* ==========================================
-   🔒 [핵심 동적 렌더러] 잠금 가림막 전용 모듈
-   ========================================== */
 function renderPosts() {
     const start = (currentPage - 1) * postsPerPage;
     const end = start + postsPerPage;
@@ -225,7 +221,6 @@ function renderPosts() {
         let lockClass = "";
         let lockControlsHTML = "";
 
-        // 암호 가드 기능 연동
         if (hasPassword && !isAdminMode) {
             lockClass = "post-locked";
             displayContent = `
@@ -295,11 +290,11 @@ function renderPosts() {
 }
 
 function unlockPost(postId, correctPassword) {
-    const userInput = prompt("이 기록의 빛을 밝힐 암호(숫자 4자리)를 입력하세요:");
+    const userInput = prompt("암호(숫자 4자리)를 입력하세요:");
     if (userInput === null) return; 
 
     if (userInput.trim() === correctPassword) {
-        alert("암호가 일치합니다. 빛의 기록이 열립니다.");
+        alert("암호가 일치합니다.");
         window[`unlocked_${postId}`] = true; 
         renderPosts(); 
     } else {
@@ -353,7 +348,7 @@ function submitLetterOrReply() {
         window.fbSet(newLetterPushRef, newLetterItem)
             .then(() => {
                 closeReplyModal();
-                alert("별빛을 통하여 메시지가 전송되었습니다!");
+                alert("별빛을 통해 메시지가 전송되었습니다!");
             })
             .catch(() => alert("전송에 실패했습니다."));
     }
@@ -361,14 +356,11 @@ function submitLetterOrReply() {
 
 function getFormattedCurrentTime() {
     const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')} :${String(now.getMinutes()).padStart(2, '0')}`;
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 }
 
 function savePost() {
-    if (!window.isAdminAuthenticated) {
-        alert("권한이 없습니다.");
-        return;
-    }
+    if (!window.isAdminAuthenticated) return alert("권한이 없습니다.");
 
     const titleInput = document.getElementById('new-title');
     const contentInput = document.getElementById('new-content');
@@ -382,15 +374,8 @@ function savePost() {
     const editId = editIdInput ? editIdInput.value : '';
     let password = passwordInput ? passwordInput.value.trim() : '';
 
-    if (!title || !content) {
-        alert("제목과 내용을 모두 입력해주세요.");
-        return;
-    }
-
-    if (password !== "" && !/^\d{4}$/.test(password)) {
-        alert("비밀번호는 숫자 4자리로 설정하셔야 합니다!");
-        return;
-    }
+    if (!title || !content) return alert("제목과 내용을 모두 입력해주세요.");
+    if (password !== "" && !/^\d{4}$/.test(password)) return alert("비밀번호는 숫자 4자리여야 합니다!");
 
     try {
         if (editId) {
@@ -404,11 +389,11 @@ function savePost() {
                 date: getFormattedCurrentTime().substring(0, 10)
             });
         }
-        alert("우주에 빛의 기록이 새겨졌습니다.");
+        alert("우주에 기록이 저장되었습니다.");
         clearAdminForm();
         toggleAdminForm();
     } catch (error) {
-        alert("데이터베이스 연결 실패");
+        alert("DB 전송 실패");
     }
 }
 
@@ -426,13 +411,13 @@ function startEditPost(postId) {
         document.getElementById('new-password').value = post.password ? post.password : '';
     }
 
-    document.getElementById('admin-panel-title').innerHTML = "<i class='fa-solid fa-pen'></i> 우주 속 빛의 기록 수정하기";
+    document.getElementById('admin-panel-title').innerHTML = "<i class='fa-solid fa-pen'></i> 기록 수정하기";
     document.getElementById('admin-main-btn').innerHTML = '<i class="fa-solid fa-check"></i> 수정 완료';
     window.scrollTo({ top: document.getElementById('admin-wrapper').offsetTop - 30, behavior: 'smooth' });
 }
 
 function deletePost(postId) {
-    if (confirm("정말로 이 기록을 완전히 삭제하시겠습니까?")) {
+    if (confirm("정말로 삭제하시겠습니까?")) {
         window.fbRemove(window.fbRef(window.fbDB, `posts/${postId}`));
     }
 }
@@ -446,8 +431,6 @@ function clearAdminForm() {
     if (document.getElementById('new-title')) document.getElementById('new-title').value = '';
     if (document.getElementById('new-content')) document.getElementById('new-content').value = '';
     if (document.getElementById('new-password')) document.getElementById('new-password').value = ''; 
-    if (document.getElementById('admin-panel-title')) document.getElementById('admin-panel-title').innerHTML = "<i class='fa-solid fa-feather'></i> 우주에 새로운 빛의 기록 남기기";
-    if (document.getElementById('admin-main-btn')) document.getElementById('admin-main-btn').innerHTML = '<i class="fa-solid fa-feather"></i> 기록 새겨넣기';
 }
 
 function setSort(type) { currentSort = type; currentPage = 1; applyFilters(); }
@@ -462,11 +445,11 @@ function toggleOptimization() {
     const isOptimized = document.body.classList.toggle('optimized');
     const btn = document.getElementById('opt-toggle-btn');
     if (isOptimized) {
-        if(btn) btn.innerHTML = `<i class="fa-solid fa-bolt"></i> 최적화 모드: ON`;
+        if(btn) btn.innerHTML = `<i class="fa-solid fa-bolt"></i> 최적화 모드: ON (애니메이션 끔)`;
         localStorage.setItem('site-optimized', 'true');
         const sc = document.getElementById('snow-container'); if(sc) sc.innerHTML = '';
     } else {
-        if(btn) btn.innerHTML = `<i class="fa-solid fa-gauge-high"></i> 최적화 모드: OFF`;
+        if(btn) btn.innerHTML = `<i class="fa-solid fa-circle-notch"></i> 최적화 모드: OFF (애니메이션 켜짐)`;
         localStorage.setItem('site-optimized', 'false');
         startSnowingEffect();
     }
@@ -476,11 +459,11 @@ function applySavedOptimization() {
     if (localStorage.getItem('site-optimized') === 'true') {
         document.body.classList.add('optimized');
         const btn = document.getElementById('opt-toggle-btn');
-        if (btn) btn.innerHTML = `<i class="fa-solid fa-bolt"></i> 최적화 모드: ON`;
+        if (btn) btn.innerHTML = `<i class="fa-solid fa-bolt"></i> 최적화 모드: ON (애니메이션 끔)`;
     }
 }
 
-// 특수기호 마우스 트레일 독립 구동 유닛
+// 마우스 트레일 입자 효과
 (function() {
     const symbols = ['✦', '★', '✧', '•'];
     window.addEventListener('mousemove', (e) => {
