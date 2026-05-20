@@ -33,6 +33,9 @@ const lettersPerPage = 4;
 let mailboxFilterKeyword = "";
 let currentReplyTargetId = null; 
 
+// 🔒 핵심 마스터 보안 비밀번호 설정
+const ADMIN_MASTER_PASSWORD = "0416haeunashi0416!*!26";
+
 // 초기 구동 감지 시스템
 window.addEventListener('DOMContentLoaded', () => {
     checkAdminMode();
@@ -40,19 +43,51 @@ window.addEventListener('DOMContentLoaded', () => {
     initSnowFall();
 });
 
-// 관리자 파라미터 식별 함수
+// 관리자 진입 인증 게이트 (비밀번호 검증식 추가)
+window.enterAdminMode = function(event) {
+    if (event) event.preventDefault();
+    
+    if (isAdminMode) {
+        alert("이미 기록자 관리자 모드가 활성화되어 있습니다.");
+        return;
+    }
+
+    const userInput = prompt("🔒 우주의 문을 열기 위한 절대 암호를 입력하세요:");
+    
+    if (userInput === ADMIN_MASTER_PASSWORD) {
+        alert("인증 성공. 빛의 기록 권한이 개방되었습니다.");
+        activateAdminLayout();
+        applyFilters();
+    } else if (userInput !== null) {
+        alert("암호가 일치하지 않습니다. 접근이 거부되었습니다.");
+    }
+};
+
+// URL 파라미터 감지식 (다이렉트 주소 진입 대응용)
 function checkAdminMode() {
     const params = new URLSearchParams(window.location.search);
     if (params.get('mode') === 'sea') {
-        isAdminMode = true;
-        document.getElementById('admin-wrapper').style.display = 'block';
-        
-        // 관리자용 메일박스 테마 체인지
-        const mailBtn = document.getElementById('global-mailbox-btn');
-        if (mailBtn) {
-            mailBtn.className = "winter-btn main-mailbox-trigger admin-mailbox-theme";
-            mailBtn.innerHTML = '<i class="fa-solid fa-mailbox"></i> 별빛우체통 확인하기 (관리자)';
+        const userInput = prompt("🔒 관리자 주소로 접근 중입니다. 마스터 암호를 입력하세요:");
+        if (userInput === ADMIN_MASTER_PASSWORD) {
+            activateAdminLayout();
+        } else {
+            alert("암호 오류. 일반 모드로 강제 전환됩니다.");
+            // 주소창 초기화
+            window.history.replaceState({}, document.title, window.location.pathname);
         }
+    }
+}
+
+// 관리자 레이아웃 시각적 즉시 변경 장치
+function activateAdminLayout() {
+    isAdminMode = true;
+    document.getElementById('admin-wrapper').style.display = 'block';
+    
+    // 관리자용 메일박스 테마 체인지
+    const mailBtn = document.getElementById('global-mailbox-btn');
+    if (mailBtn) {
+        mailBtn.className = "winter-btn main-mailbox-trigger admin-mailbox-theme";
+        mailBtn.innerHTML = '<i class="fa-solid fa-mailbox"></i> 별빛우체통 확인하기 (관리자)';
     }
 }
 
@@ -278,7 +313,6 @@ window.handleMailboxClick = function() {
     modal.style.display = 'flex';
 
     if (isAdminMode) {
-        // 관리자 모드: 수신 편지함 출력 모드 전환
         document.getElementById('modal-form-title').innerText = "🌌 은하수 관리자 우체통";
         document.getElementById('modal-form-desc').innerText = "방문자들이 남긴 모든 익명 편지 리스트입니다.";
         document.getElementById('mailbox-admin-view').style.display = 'block';
@@ -287,7 +321,6 @@ window.handleMailboxClick = function() {
         currentMailboxPage = 1;
         renderMailboxLetters();
     } else {
-        // 일반 유저 모드: 하은이에게 편지 쓰기 폼 전환
         document.getElementById('modal-form-title').innerText = "하은이에게 편지 보내기";
         document.getElementById('modal-form-desc').innerText = "우주 공간을 넘어서 마음을 담은 다리를 놓아보세요.";
         document.getElementById('mailbox-admin-view').style.display = 'none';
@@ -302,7 +335,6 @@ window.closeReplyModal = function() {
     document.getElementById('reply-content').value = '';
 };
 
-// 일반 유저 편지 전송 기능
 window.submitLetterOrReply = function() {
     const author = document.getElementById('reply-author').value.trim();
     const content = document.getElementById('reply-content').value.trim();
@@ -322,7 +354,6 @@ window.submitLetterOrReply = function() {
     });
 };
 
-// 관리자용 우체통 리스트 전용 렌더러
 function renderMailboxLetters() {
     const container = document.getElementById('mailbox-letters-list');
     container.innerHTML = '';
@@ -332,7 +363,6 @@ function renderMailboxLetters() {
         filteredLetters = filteredLetters.filter(l => l.author && l.author.toLowerCase().includes(mailboxFilterKeyword));
     }
 
-    // 최신 편지 순 정렬
     filteredLetters.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
 
     if (filteredLetters.length === 0) {
