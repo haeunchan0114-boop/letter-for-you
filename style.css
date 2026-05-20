@@ -55,7 +55,7 @@ button.btn-base:hover { background: rgba(255, 255, 255, 0.12); border-color: rgb
 .triple-row .btn-base { padding: 11px 10px; font-size: 0.9rem; }
 .triple-row .btn-base.active { background: rgba(255, 230, 186, 0.2); border-color: #FFE6BA; color: #FFE6BA; }
 
-/* 필터 박스 행 (디자인 수정) */
+/* 필터 박스 행 */
 .filter-row { display: flex; width: 100%; }
 .filter-row select { 
     width: 100%; background: #121438; border: 1px solid rgba(255, 255, 255, 0.15); 
@@ -122,16 +122,19 @@ button.btn-base:hover { background: rgba(255, 255, 255, 0.12); border-color: rgb
 .modal-buttons .submit-btn { background: #FFE6BA; color: #0d0e2d; font-weight: bold; }
 .modal-buttons .cancel-btn { background: rgba(255,255,255,0.1); color: #fff; }
 
-/* 페이지네이션 */
-.pagination { display: flex; align-items: center; gap: 25px; margin-top: 30px; }
-.page-arrow {
-    width: 36px; height: 36px; border-radius: 50%; background: #fff; border: none;
-    color: #000; font-size: 1rem; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer;
+/* ◀ 1 2 3 4 5 ▶ 페이지네이션 디자인 고도화 */
+.pagination { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 30px; user-select: none; }
+.page-arrow, .page-num-btn {
+    min-width: 36px; height: 36px; padding: 0 6px; border-radius: 50%; background: transparent; border: 1px solid rgba(255,255,255,0.15);
+    color: #8A99AD; font-size: 0.95rem; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;
 }
-.page-number { color: #FFE6BA; font-size: 1.1rem; font-weight: bold; }
+.page-arrow { background: #fff; color: #000; border: none; }
+.page-arrow:disabled { background: rgba(255,255,255,0.2); color: rgba(0,0,0,0.4); cursor: not-allowed; }
+.page-num-btn.active { background: rgba(255, 230, 186, 0.2); border-color: #FFE6BA; color: #FFE6BA; box-shadow: 0 0 8px rgba(255,230,186,0.3); }
+.page-num-btn:hover:not(.active) { background: rgba(255,255,255,0.08); color: #fff; }
 
 /* ==========================================
-   ✨ 이스터에그 특수 연노랑 빛무리 별 효과
+   ✨ 이스터에그 특수 효과
    ========================================== */
 .easter-message-box {
     position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%) scale(0.95);
