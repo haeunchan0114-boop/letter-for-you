@@ -32,13 +32,6 @@
                 <button class="btn-base" onclick="resetFilters()">초기화</button>
             </div>
 
-            <div class="filter-row">
-                <select id="filter-fav" onchange="changePage(1)">
-                    <option value="all">모든 편지 보기</option>
-                    <option value="fav">⭐ 즐겨찾기 조각만 보기</option>
-                </select>
-            </div>
-
             <input type="text" id="search-title" class="btn-base search-input" placeholder="빛의 기록의 제목을 검색해보세요..." oninput="changePage(1)">
 
             <button class="btn-base write-btn" onclick="openModal('writeModal')">
@@ -47,6 +40,8 @@
         </div>
 
         <div class="mailbox-container">
+            <div id="mailbox-status-title" class="mailbox-status-text">🌌 별빛 우체통</div>
+            
             <button class="admin-entry-btn" onclick="openModal('adminAuthModal')">관리자 모드 진입</button>
             
             <div id="posts-mailbox-feed"></div>
