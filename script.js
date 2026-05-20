@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function initFirebaseListeners() {
-    // 파이어베이스 데이터 실시간 연동 (로컬스토리지 복사 로직 제외로 데이터 유실 원천 방지)
+    // 파이어베이스 데이터 실시간 연동
     window.fbOnValue(window.fbRef(window.fbDB, 'posts'), (snapshot) => {
         const data = snapshot.val();
         myPosts = [];
@@ -85,6 +85,20 @@ function initFirebaseListeners() {
         }
         applyFilters();
     });
+
+    window.fbOnValue(window.fbRef(window.fbDB, 'global_letters'), (snapshot) => {
+        const data = snapshot.val();
+        globalLetters = [];
+        if (data) {
+            Object.keys(data).forEach(key => {
+                globalLetters.push({ id: key, ...data[key] });
+            });
+        }
+        updateMailboxButtonUI();
+        // [수정] 우체통 모달창이 열려있든 닫혀있든, 데이터가 갱신되면 필터를 거쳐 별표 버튼을 새로 그리도록 강제합니다.
+        filterMailbox();
+    });
+}
 
     window.fbOnValue(window.fbRef(window.fbDB, 'global_letters'), (snapshot) => {
         const data = snapshot.val();
