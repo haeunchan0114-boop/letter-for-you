@@ -379,35 +379,34 @@ function renderMailboxPosts() {
     paged.forEach(letter => {
         let originBadgeHTML = (letter.type === 'reply') 
             ? `<div class="mailbox-type-badge reply-type">글 답장 | 원문: ${letter.targetTitle}</div>`
-            : `<div class="mailbox-type-badge global-type">우주 일반 편지</div>`;
+            : `<div class="mailbox-type-badge global-type">빛의 편지</div>`;
 
         const isStarred = letter.starred === true;
         const item = document.createElement('div');
         item.className = `mailbox-item ${isStarred ? 'starred-letter' : ''}`;
+        
+        // 터치 씹힘 방지 및 레이어 순위(z-index), 클릭 범위(padding)를 대폭 보강한 마크업
         item.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; width:100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; width:100%; position: relative;">
                 ${originBadgeHTML}
-                <button class="star-btn ${isStarred ? 'active' : ''}" onclick="toggleStarLetter('${letter.id}', ${isStarred})">
-                    <i class="${isStarred ? 'fa-solid' : 'fa-regular'} fa-star"></i>
+                <button class="star-btn ${isStarred ? 'active' : ''}" 
+                        style="position: relative; z-index: 10; padding: 10px; margin: -10px; cursor: pointer; -webkit-tap-highlight-color: transparent;" 
+                        onclick="toggleStarLetter('${letter.id}', ${isStarred}); event.stopPropagation();">
+                    <i class="${isStarred ? 'fa-solid' : 'fa-regular'} fa-star" style="pointer-events: none;"></i>
                 </button>
             </div>
-            <div class="mailbox-item-meta" style="margin-top: 8px;">
+            <div class="mailbox-item-meta" style="margin-top: 12px;">
                 <span style="color:#F5E6C8; font-weight:bold;">기록: ${letter.writer}</span>
                 <span style="font-size:0.8rem; color:#718096;">${letter.date}</span>
             </div>
-            <p class="mailbox-item-text">${letter.text}</p>
-            <button class="reply-delete-btn" onclick="deleteGlobalLetter('${letter.id}')">소멸</button>
+            <p class="mailbox-item-text" style="position: relative; z-index: 1;">${letter.text}</p>
+            <button class="reply-delete-btn" style="position: relative; z-index: 5;" onclick="deleteGlobalLetter('${letter.id}')">소멸</button>
         `;
         listContainer.appendChild(item);
     });
 
     document.getElementById('mailbox-page-indicator').innerText = mailboxCurrentPage;
 }
-
-function prevMailboxPage() { if (mailboxCurrentPage > 1) { mailboxCurrentPage--; renderMailboxPosts(); } }
-function nextMailboxPage() { if (mailboxCurrentPage * mailboxLettersPerPage < mailboxFilteredLetters.length) { mailboxCurrentPage++; renderMailboxPosts(); } }
-function resetMailboxFilter() { document.getElementById('mailbox-search').value = ''; document.getElementById('mailbox-date').value = ''; mailboxCurrentPage = 1; filterMailbox(); }
-
 function deleteGlobalLetter(letterId) {
     if (confirm("이 빛나는 글을 영구히 소멸시키겠습니까?")) {
         window.fbRemove(window.fbRef(window.fbDB, `global_letters/${letterId}`))
