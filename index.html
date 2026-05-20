@@ -4,291 +4,96 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>나의 사랑하는 우주에게</title>
-    <style>
-        /* 기본 리셋 및 배경 설정 */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            background-color: #0d0e2d; 
-            color: #E2E8F0;
-            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-            min-height: 100vh; 
-            overflow-x: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-        }
-
-        /* 🌌 이미지 속 오로라 밤하늘 배경 레이어 */
-        .space-background {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -10; overflow: hidden; pointer-events: none;
-            background: radial-gradient(circle at 50% 30%, #201a49 0%, #110e2f 50%, #08071a 100%);
-        }
-        /* 은하수 잔별 효과 */
-        .star-universe {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: 
-                radial-gradient(1.5px 1.5px at 15% 20%, #fff, rgba(0,0,0,0)),
-                radial-gradient(1.2px 1.2px at 85% 15%, #fff, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 30% 60%, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 75% 70%, #e2e8f0, rgba(0,0,0,0)),
-                radial-gradient(1.8px 1.8px at 10% 80%, #fff, rgba(0,0,0,0)),
-                radial-gradient(2.5px 2.5px at 90% 45%, #f5e6c8, rgba(0,0,0,0));
-            background-size: 100% 100%; opacity: 0.6;
-        }
-        /* 반짝이는 대형 포인트 별 */
-        .star-bright {
-            position: absolute; color: #FFFDF0; font-size: 14px; opacity: 0.8;
-            text-shadow: 0 0 8px #fff, 0 0 15px #F5E6C8; animation: starTwinkle 4s ease-in-out infinite;
-        }
-        .star1 { top: 4%; left: 10%; font-size: 18px; }
-        .star2 { top: 12%; left: 9%; font-size: 11px; animation-delay: 1s; }
-        .star3 { top: 26%; right: 24%; font-size: 14px; animation-delay: 2.5s; }
-        .star4 { bottom: 30%; left: 12%; font-size: 10px; }
-        .star5 { bottom: 5%; right: 18%; font-size: 15px; animation-delay: 1.5s; }
-
-        @keyframes starTwinkle { 0%, 100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
-
-        /* 🪟 메인 컨테이너 레이아웃 */
-        #wrap { 
-            width: 100%; 
-            max-width: 540px; 
-            margin: 0 auto; 
-            padding: 50px 20px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
-            position: relative; 
-            z-index: 20; 
-        }
-
-        /* ✍️ "나의 사랑하는 우주에게" 타이틀 스타일 */
-        .main-title {
-            text-align: center;
-            font-size: 2.1rem;
-            font-weight: 300;
-            line-height: 1.5;
-            color: #F9F3E4;
-            letter-spacing: 2px;
-            margin-bottom: 40px;
-            text-shadow: 0 0 15px rgba(249, 243, 228, 0.5);
-        }
-        .main-title span { display: block; }
-
-        /* 🔘 이미지 속 UI 구성 요소 스태킹 */
-        .ui-container { width: 100%; display: flex; flex-direction: column; gap: 14px; margin-bottom: 35px; }
-
-        /* 둥근 버튼 및 입력창 공통 스타일 */
-        .btn-base {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #E2E8F0;
-            border-radius: 30px;
-            padding: 14px 20px;
-            font-size: 0.95rem;
-            text-align: center;
-            transition: all 0.25s ease;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-        button.btn-base { cursor: pointer; }
-        button.btn-base:hover { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.3); }
-
-        /* 최적화 모드 버튼 */
-        .opt-btn { color: #e2e8f0; font-size: 0.92rem; display: flex; align-items: center; justify-content: center; gap: 6px; }
-
-        /* 최신순 / 오래된순 / 초기화 3분할 행 */
-        .triple-row { display: flex; gap: 10px; width: 100%; }
-        .triple-row .btn-base { padding: 11px 10px; font-size: 0.9rem; }
-
-        /* 검색창 스타일 */
-        .search-input {
-            outline: none;
-            text-align: center;
-            color: #fff;
-        }
-        .search-input::placeholder { color: rgba(255, 255, 255, 0.3); font-size: 0.92rem; }
-        .search-input:focus { border-color: rgba(245, 230, 200, 0.5); background: rgba(255, 255, 255, 0.08); }
-
-        /* 편지 쓰기 버튼 (강조형) */
-        .write-btn {
-            background: rgba(255, 255, 255, 0.07);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            color: #FFE6BA;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        /* 📋 공지사항 포스트 카드 (첫 번째 이미지 형태) */
-        .post-card {
-            width: 100%;
-            background: rgba(9, 11, 28, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 30px 24px;
-            margin-bottom: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        }
-        .post-meta { color: #8A99AD; font-size: 0.85rem; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
-        .post-meta .pin { color: #FFE6BA; font-weight: bold; }
-        .post-title { color: #fff; font-size: 1.35rem; margin-bottom: 18px; font-weight: bold; }
-        .post-content { color: #D1D5DB; line-height: 1.8; font-size: 0.98rem; }
-        .post-content p { margin-bottom: 8px; }
-
-        /* ◀ 1 ▶ 페이지네이션 컨트롤 하단 배치 */
-        .pagination { display: flex; align-items: center; gap: 25px; margin-top: 10px; }
-        .page-arrow {
-            width: 36px; height: 36px; border-radius: 50%; background: #fff; border: none;
-            color: #000; font-size: 1rem; font-weight: bold; display: flex; align-items: center;
-            justify-content: center; cursor: pointer; transition: transform 0.2s;
-        }
-        .page-arrow:hover { transform: scale(1.1); }
-        .page-number { color: #FFE6BA; font-size: 1.1rem; font-weight: bold; }
-
-        /* ==========================================
-           ✨ 이스터에그 전용 특수 애니메이션 효과
-           ========================================== */
-        .easter-message-box {
-            position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%) scale(0.95);
-            background: rgba(12, 11, 36, 0.95); color: #FFE6BA; padding: 14px 28px;
-            border-radius: 30px; font-size: 1rem; text-align: center; pointer-events: none;
-            border: 1px solid rgba(255, 230, 186, 0.3); z-index: 10000; opacity: 0; transition: all 0.35s ease;
-        }
-        .easter-message-box.active { opacity: 1; transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 25px rgba(255, 230, 186, 0.2); }
-
-        .falling-easter-star {
-            position: absolute; top: -20px; color: #FFE6BA; user-select: none; pointer-events: none; z-index: 9999;
-            animation: fallAndSpin linear forwards;
-        }
-        @keyframes fallAndSpin {
-            0% { top: -20px; transform: translateX(0) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.9; }
-            90% { opacity: 0.9; }
-            100% { top: 105vh; transform: translateX(var(--sway)) rotate(var(--angle)); opacity: 0; }
-        }
-
-        /* ⚡ 최적화 모드 동작 시 애니메이션 및 별 제거 제어 */
-        body.optimized .falling-easter-star, body.optimized .star-bright { display: none !important; animation: none !important; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="space-background">
         <div class="star-universe"></div>
-        <div class="star-bright star1">✦</div>
-        <div class="star-bright star2">✦</div>
-        <div class="star-bright star3">✦</div>
-        <div class="star-bright star4">✦</div>
-        <div class="star-bright star5">✦</div>
     </div>
 
     <div id="easter-stars-container"></div>
-    <div id="easter-message" class="easter-message-box">🌌 우주의 은하수가 쏟아집니다.</div>
+    <div id="easter-message" class="easter-message-box">✨ 너는 나만의 소중한 우주야 ✨</div>
 
     <div id="wrap">
         
-        <h1 class="main-title">
+        <h1 class="main-title" onclick="triggerUniverseEasterEgg()">
             <span>나의 사랑하는</span>
             <span>우주에게</span>
         </h1>
 
         <div class="ui-container">
-            <button class="btn-base opt-btn" onclick="toggleOptimization(event)">
-                ⚙️ <span id="opt-text">최적화 모드: OFF (애니메이션 켜짐)</span>
-            </button>
-            
             <div class="triple-row">
-                <button class="btn-base" onclick="triggerEasterEgg(event)">최신 순</button>
-                <button class="btn-base" onclick="triggerEasterEgg(event)">오래된 순</button>
-                <button class="btn-base" onclick="triggerEasterEgg(event)">초기화</button>
+                <button class="btn-base active" id="sort-latest" onclick="changeSort('latest')">최신 순</button>
+                <button class="btn-base" id="sort-oldest" onclick="changeSort('oldest')">오래된 순</button>
+                <button class="btn-base" onclick="resetFilters()">초기화</button>
             </div>
 
-            <input type="text" class="btn-base search-input" placeholder="빛의 기록의 제목을 검색해보세요...">
+            <div class="filter-row">
+                <input type="date" id="filter-date" onchange="renderPosts()">
+                <input type="text" id="filter-author" placeholder="글 쓴 사람 검색..." oninput="renderPosts()">
+                <select id="filter-fav" onchange="renderPosts()">
+                    <option value="all">모든 편지</option>
+                    <option value="fav">⭐ 즐겨찾기</option>
+                </select>
+            </div>
 
-            <button class="btn-base write-btn" onclick="triggerEasterEgg(event)">
+            <input type="text" id="search-title" class="btn-base search-input" placeholder="빛의 기록의 제목을 검색해보세요..." oninput="renderPosts()">
+
+            <button class="btn-base write-btn" onclick="openModal('writeModal')">
                 🚀 하은이에게 편지 쓰기
             </button>
         </div>
 
-        <div class="post-card">
-            <div class="post-meta"><span class="pin">📌 고정됨</span> | 하은 | 2026-05-20 18:22</div>
-            <h2 class="post-title">공지사항!</h2>
-            <div class="post-content">
-                <p>편지 쓰려고 여기까지 와줘서 고마워~</p>
-                <p>편지는 너희가 이름 설정하면 되니까</p>
-                <p>편하게 하고 싶은 말 적고 가주라!</p>
-                <p>이름 공개하기 싫으면 아무 말이나 적어줘~</p>
-            </div>
+        <div class="mailbox-container">
+            <button class="admin-entry-btn" onclick="openModal('adminAuthModal')">관리자 모드 진입</button>
+            
+            <div id="posts-mailbox-feed"></div>
         </div>
 
         <div class="pagination">
-            <button class="page-arrow" onclick="triggerEasterEgg(event)">‹</button>
+            <button class="page-arrow">‹</button>
             <span class="page-number">1</span>
-            <button class="page-arrow" onclick="triggerEasterEgg(event)">›</button>
+            <button class="page-arrow">›</button>
         </div>
 
     </div>
 
-    <script>
-        // 1. 최적화 모드 기능 토글
-        function toggleOptimization(e) {
-            e.stopPropagation(); // 배경 클릭 이벤트 전파 차단
-            document.body.classList.toggle('optimized');
-            const optText = document.getElementById('opt-text');
-            
-            if(document.body.classList.contains('optimized')) {
-                optText.innerText = "최적화 모드: ON (애니메이션 꺼짐)";
-            } else {
-                optText.innerText = "최적화 모드: OFF (애니메이션 켜짐)";
-            }
-        }
+    <div id="adminAuthModal" class="modal-overlay">
+        <div class="modal-window">
+            <h3>관리자 보안 인증</h3>
+            <input type="password" id="admin-password-input" placeholder="비밀번호를 입력하세요...">
+            <div class="modal-buttons">
+                <button class="submit-btn" onclick="checkAdminPassword()">인증</button>
+                <button class="cancel-btn" onclick="closeModal('adminAuthModal')">취소</button>
+            </div>
+        </div>
+    </div>
 
-        // 2. 버튼 클릭 및 화면 클릭 시 나타나는 이스터에그 핵심 연동 함수
-        function triggerEasterEgg(event) {
-            if (document.body.classList.contains('optimized')) return;
+    <div id="adminNameModal" class="modal-overlay">
+        <div class="modal-window">
+            <h3>관리자 활동명 설정</h3>
+            <p style="font-size:0.85rem; color:#aaa; text-align:center;">게시글 작성 시 표시될 이름을 입력하세요.</p>
+            <input type="text" id="admin-name-input" placeholder="예: 하은, SYSTEM">
+            <div class="modal-buttons">
+                <button class="submit-btn" onclick="saveAdminProfile()">설정 완료</button>
+            </div>
+        </div>
+    </div>
 
-            // 중앙 알림 문구 상자 일시 표출
-            const messageBox = document.getElementById('easter-message');
-            messageBox.classList.add('active');
-            setTimeout(() => messageBox.classList.remove('active'), 2000);
+    <div id="writeModal" class="modal-overlay">
+        <div class="modal-window">
+            <h3 id="write-modal-title">나의 우주에게 편지 쓰기</h3>
+            <input type="text" id="post-author" placeholder="작성자 이름 (비어있을 시 익명)">
+            <input type="text" id="post-title" placeholder="빛의 기록 제목">
+            <textarea id="post-content" placeholder="이곳에 따스한 마음을 남겨주세요..."></textarea>
+            <div class="modal-buttons">
+                <button class="submit-btn" onclick="submitPost()">보내기</button>
+                <button class="cancel-btn" onclick="closeModal('writeModal')">닫기</button>
+            </div>
+        </div>
+    </div>
 
-            // 잔별 투하 애니메이션 오브젝트 실시간 동적 생성
-            const container = document.getElementById('easter-stars-container');
-            
-            for (let i = 0; i < 4; i++) {
-                const star = document.createElement('div');
-                star.className = 'falling-easter-star';
-                // 다양한 형태의 별들을 믹스 매치
-                star.innerText = ['✦', '✧', '★', '.*.', '✰'][Math.floor(Math.random() * 5)];
-                
-                // 클릭 위치 기준 분산 생성 혹은 상단 무작위 생성
-                const startLeft = event.clientX ? (event.clientX + (Math.random() * 100 - 50)) : (Math.random() * window.innerWidth);
-                star.style.left = startLeft + 'px';
-                star.style.fontSize = (Math.random() * 12 + 10) + 'px';
-                
-                // 좌우 흔들림 및 회전각 속성 부여 (CSS 변수 활용)
-                star.style.setProperty('--sway', (Math.random() * 160 - 80) + 'px');
-                star.style.setProperty('--angle', (Math.random() * 360 - 180) + 'deg');
-                
-                // 떨어지는 시간 랜덤 배정 (2초 ~ 4.5초)
-                star.style.animationDuration = (Math.random() * 2.5 + 2) + 's';
-                
-                container.appendChild(star);
-                
-                // 바닥으로 떨어지면 요소 자동 파괴 처리
-                star.addEventListener('animationend', () => star.remove());
-            }
-        }
-
-        // 3. 편의 기능: 버튼이 아닌 일반 배경 빈 곳을 눌러도 이스터에그 별이 떨어짐
-        document.body.addEventListener('click', (e) => {
-            if(e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') {
-                triggerEasterEgg(e);
-            }
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
