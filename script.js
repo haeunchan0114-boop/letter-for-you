@@ -587,7 +587,6 @@ function toggleStarLetter(letterId, currentStarredStatus) {
         filterMailbox(); 
     }).catch((e) => console.error("즐겨찾기 실패:", e));
 }
-
 // 타이틀 클릭 시 이스터에그 발동 함수
 function triggerSpaceEasterEgg() {
     const msgBox = document.getElementById('easter-egg-message');
@@ -624,12 +623,13 @@ function triggerSpaceEasterEgg() {
 
         setTimeout(() => { star.remove(); }, (duration + delay) * 1000);
     }
-}
+} // 👈 triggerSpaceEasterEgg 함수의 중괄호가 여기서 확실하게 닫혀야 합니다!
+
 
 // ==========================================
-// 🌌 화면 전체 적용: 연노랑 단색 특수기호 트레일 (마우스/터치)
+// 🌌 [구조 독립] 화면 전체 적용: 연노랑 단색 특수기호 트레일 (마우스/터치)
 // ==========================================
-// IIFE 익명함수 처리하여 이벤트가 꼬이거나 무시되지 않고 최우선 구동되도록 변경
+// 이스터에그 함수 밖으로 탈출시켜 페이지 로드와 동시에 무조건 실행되도록 고정했습니다.
 (function() {
     const spaceSymbols = ['✦', '★', '✧', '•', '﹡', '⁺'];
     
@@ -637,6 +637,7 @@ function triggerSpaceEasterEgg() {
         const x = e.touches ? e.touches[0].clientX : e.clientX;
         const y = e.touches ? e.touches[0].clientY : e.clientY;
         
+        // 너무 빽빽하게 생겨서 지저분해지는 것을 방지 (스폰 확률 조절)
         if (Math.random() > 0.4) return;
 
         const particle = document.createElement('span');
@@ -645,7 +646,7 @@ function triggerSpaceEasterEgg() {
         particle.style.position = 'fixed';
         particle.style.left = x + 'px';
         particle.style.top = y + 'px';
-        particle.style.color = '#F5E6C8'; 
+        particle.style.color = '#F5E6C8'; /* 연노랑 단색 고정 */
         particle.style.fontSize = (Math.random() * 6 + 10) + 'px'; 
         particle.style.pointerEvents = 'none';
         particle.style.zIndex = '999999';
@@ -668,6 +669,7 @@ function triggerSpaceEasterEgg() {
         setTimeout(() => { particle.remove(); }, 950);
     };
 
+    // 마우스 및 모바일 터치 이벤트 감지기를 브라우저 창에 즉시 결합
     window.addEventListener('mousemove', handleMove, { passive: true });
     window.addEventListener('touchmove', handleMove, { passive: true });
 })();
