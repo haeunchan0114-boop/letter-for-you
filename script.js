@@ -174,15 +174,28 @@ function searchTitle(value) {
 
 function applyFilters() {
     let filtered = [...myPosts];
+    
+    // 모바일 대응 날짜 검색 핵심 수정
     if (selectedDate) {
-        filtered = filtered.filter(p => p.date.substring(0, 10) === selectedDate);
+        const targetDateObj = parseSafeDate(selectedDate);
+        const targetYear = targetDateObj.getFullYear();
+        const targetMonth = String(targetDateObj.getMonth() + 1).padStart(2, '0');
+        const targetDay = String(targetDateObj.getDate()).padStart(2, '0');
+        const formattedTarget = `${targetYear}-${targetMonth}-${targetDay}`;
+
+        filtered = filtered.filter(p => {
+            if (!p.date) return false;
+            const postDatePart = p.date.substring(0, 10).trim();
+            return postDatePart === formattedTarget;
+        });
     }
+
     if (searchQuery) {
         filtered = filtered.filter(p => p.title.toLowerCase().includes(searchQuery));
     }
 
     filtered.sort((a, b) => {
-        return currentSort === 'newest' ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date);
+        return currentSort === 'newest' ? parseSafeDate(b.date) - parseSafeDate(a.date) : parseSafeDate(a.date) - parseSafeDate(b.date);
     });
     filtered.sort((a, b) => (b.pinned || false) - (a.pinned || false));
 
