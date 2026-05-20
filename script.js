@@ -1,4 +1,4 @@
-// ✍️ [기록 데이터] 여기에 새 글 코드를 복사해서 붙여넣으세요.
+// ✍️ [기록 데이터]기에 새 글 코드를 복사해서 붙여넣으세요.
 let myPosts = [
     { title: "첫 번째 우주의 기록", date: "2026-05-20", content: "여기는 아주 조용하고 평화로운 나만의 우주입니다." },
     { title: "겨울 밤바다의 소리", date: "2026-01-15", content: "차가운 파도가 하얗게 부서지는 소리가 들려옵니다." },
@@ -23,7 +23,7 @@ function startSnowing() {
         snowflake.className = 'snowflake';
         snowflake.innerHTML = '❄';
         snowflake.style.left = Math.random() * 100 + 'vw';
-        snowflake.style.animationDuration = (Math.random() * 4 + 5) + 's'; // 5~9초간 천천히 떨어짐
+        snowflake.style.animationDuration = (Math.random() * 4 + 5) + 's';
         snowflake.style.animationDelay = Math.random() * 6 + 's';
         snowflake.style.opacity = Math.random() * 0.5 + 0.2;
         snowflake.style.fontSize = (Math.random() * 8 + 10) + 'px';
@@ -31,29 +31,36 @@ function startSnowing() {
     }
 }
 
-// 구조물 로드 후 즉각 대처
+// 🚀 페이지가 열리자마자 가장 먼저 실행되는 구역
 document.addEventListener("DOMContentLoaded", function() {
+    // 1. 배경 눈내림 작동
     startSnowing();
 
+    // 2. 관리자 인증 절차 및 주소 파라미터(?mode=sea) 감지
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('mode') === 'sea') {
-        const passwordInput = prompt("관리자 비밀번호를 입력하세요:");
+        
+        // 브라우저 로딩 직후 즉시 암호 알림창 실행
+        const passwordInput = prompt("관리자 인증이 필요합니다.\n비밀번호를 입력하세요:");
         
         if (passwordInput) {
+            // 입력값을 SHA-256 구조로 변환
             const inputHash = CryptoJS.SHA256(passwordInput).toString();
             
+            // 기존 오타 수정: style.style.display -> style.display
             if (inputHash === SECRET_HASH) {
                 document.getElementById('admin-area').style.display = 'block'; 
-                alert("우주의 중심에 오신 것을 환영합니다.");
+                alert("인증되었습니다. 우주의 글쓰기 권한이 활성화됩니다.");
             } else {
                 alert("비밀번호가 올바르지 않습니다.");
-                window.location.href = window.location.pathname; 
+                window.location.href = window.location.pathname; // 비밀번호 틀리면 즉시 메인으로 튕김
             }
         } else {
-            window.location.href = window.location.pathname;
+            window.location.href = window.location.pathname; // 취소 누르면 메인으로 이동
         }
     }
 
+    // 3. 메인 콘텐츠 렌더링
     render();
 });
 
@@ -86,7 +93,7 @@ function render() {
     document.getElementById('page-indicator').innerText = currentPage;
 }
 
-// 상단 컨트롤 기능들
+// 필터 및 페이지네이션 기능 함수들
 function setSort(type) { currentSort = type; currentPage = 1; render(); }
 function filterDate(date) { 
     if(!date) return;
