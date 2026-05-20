@@ -1,118 +1,176 @@
-// ✍️ [기록 데이터] 여기에 새 글 코드를 복사해서 붙여넣으세요.
-let myPosts = [
-    { title: "첫 번째 우주의 기록", date: "2026-05-20", content: "여기는 아주 조용하고 평화로운 나만의 우주입니다." },
-    { title: "겨울 밤바다의 소리", date: "2026-01-15", content: "차가운 파도가 하얗게 부서지는 소리가 들려옵니다." },
-    { title: "작은 별 하나", date: "2026-01-10", content: "가장 작게 빛나는 별에게 나의 마음을 전합니다." }
-];
+/* ==========================================
+   1. 기본 스타일 및 초기화
+   ========================================== */
+* { box-sizing: border-box; }
 
-let currentDisplayPosts = [...myPosts]; 
-let currentPage = 1;
-const postsPerPage = 3; 
-let currentSort = 'newest';
-
-// 🔒 암호화된 비밀번호 해시값 (원문: 0416haeunashi0416!*!26)
-const SECRET_HASH = "b901b0f590fc92716a4e320d709218671607f2e03bf305a468d66df19672750e";
-
-// ❄️ 실시간 눈 내리기 기능
-function startSnowing() {
-    const container = document.getElementById('snow-container');
-    if(!container) return;
-    
-    for (let i = 0; i < 40; i++) {
-        const snowflake = document.createElement('div');
-        snowflake.className = 'snowflake';
-        snowflake.innerHTML = '❄';
-        snowflake.style.left = Math.random() * 100 + 'vw';
-        snowflake.style.animationDuration = (Math.random() * 4 + 5) + 's'; // 5~9초간 천천히 떨어짐
-        snowflake.style.animationDelay = Math.random() * 6 + 's';
-        snowflake.style.opacity = Math.random() * 0.5 + 0.2;
-        snowflake.style.fontSize = (Math.random() * 8 + 10) + 'px';
-        container.appendChild(snowflake);
-    }
+body {
+    background-color: #02040a; /* 폰트 로드 전 기본 배경 */
+    color: #E2E8F0;
+    margin: 0; padding: 0;
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    min-height: 100vh;
 }
 
-// 사이트 활성화 즉시 실행
-document.addEventListener("DOMContentLoaded", function() {
-    // 1. 눈 내리는 효과 시작
-    startSnowing();
-
-    // 2. 관리자 모드 및 암호 체크 (?mode=sea)
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('mode') === 'sea') {
-        const passwordInput = prompt("관리자 비밀번호를 입력하세요:");
-        
-        if (passwordInput) {
-            const inputHash = CryptoJS.SHA256(passwordInput).toString();
-            
-            if (inputHash === SECRET_HASH) {
-                document.getElementById('admin-area').style.display = 'block'; 
-                alert("우주의 중심에 오신 것을 환영합니다.");
-            } else {
-                alert("비밀번호가 올바르지 않습니다.");
-                window.location.href = window.location.pathname; 
-            }
-        } else {
-            window.location.href = window.location.pathname;
-        }
-    }
-
-    // 3. 포스트 출력
-    render();
-});
-
-// 화면에 글 목록을 뿌려주는 기능
-function render() {
-    currentDisplayPosts.sort((a, b) => {
-        return currentSort === 'newest' ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date);
-    });
-
-    const start = (currentPage - 1) * postsPerPage;
-    const end = start + postsPerPage;
-    const pagedPosts = currentDisplayPosts.slice(start, end);
-    const container = document.getElementById('post-list');
-    container.innerHTML = '';
-
-    if(pagedPosts.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#718096; padding: 50px 0;">우주에 아직 기록이 없습니다.</p>';
-    }
-
-    pagedPosts.forEach(post => {
-        const card = document.createElement('div');
-        card.className = 'post-card';
-        card.innerHTML = `
-            <div class="post-date">${post.date}</div>
-            <h2 class="post-title">${post.title}</h2>
-            <p>${post.content}</p>
-        `;
-        container.appendChild(card);
-    });
-    document.getElementById('page-indicator').innerText = currentPage;
+#wrap { 
+    max-width: 650px; margin: 0 auto; padding: 80px 20px; 
+    position: relative; z-index: 20; /* 콘텐츠가 배경 위로 오도록 확실히 지정 */
 }
 
-// 기능 컨트롤 핸들러들
-function setSort(type) { currentSort = type; currentPage = 1; render(); }
-function filterDate(date) { 
-    if(!date) return;
-    currentDisplayPosts = myPosts.filter(p => p.date === date); 
-    currentPage = 1; 
-    render(); 
+h1 { 
+    text-align: center; color: #F5E6C8; font-weight: normal; 
+    letter-spacing: 4px; margin-bottom: 50px;
+    text-shadow: 0 0 25px rgba(245, 230, 200, 0.6), 0 0 50px rgba(245, 230, 200, 0.3);
 }
-function resetFilter() { 
-    document.getElementById('date-picker').value = ''; 
-    currentDisplayPosts = [...myPosts]; 
-    currentPage = 1; 
-    render(); 
-}
-function prevPage() { if (currentPage > 1) { currentPage--; window.scrollTo(0,0); render(); } }
-function nextPage() { if (currentPage * postsPerPage < currentDisplayPosts.length) { currentPage++; window.scrollTo(0,0); render(); } }
 
-// 새 글 코드 추출기
-function generateCode() {
-    const t = document.getElementById('new-title').value;
-    const d = document.getElementById('new-date').value;
-    const c = document.getElementById('new-content').value;
-    if(!t || !d || !c) return alert("내용을 모두 채워주세요.");
-    const code = `{ title: "${t}", date: "${d}", content: "${c.replace(/\n/g, '<br>')}" },`;
-    document.getElementById('code-output').value = code;
-    document.getElementById('code-output-box').style.display = 'block';
+/* ==========================================
+   2. 🌌 독자적인 밤하늘 아트웍 시스템 (가장 아래 레이어)
+   ========================================== */
+.space-background {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: -10; overflow: hidden; pointer-events: none;
+    /* 깊은 심해와 우주가 만나는 다크 그라데이션 */
+    background: linear-gradient(180deg, #02040f 0%, #050c24 35%, #0a1931 70%, #112647 100%);
 }
+
+/* 🟢 에메랄드 오로라 효과 */
+.aurora-green {
+    position: absolute; width: 200%; height: 70%; top: -20%; left: -50%;
+    background: radial-gradient(circle at 35% 25%, rgba(0, 255, 140, 0.15) 0%, rgba(0, 0, 0, 0) 60%);
+    filter: blur(70px); 
+    animation: auroraMovement 14s ease-in-out infinite alternate;
+}
+
+/* 🟣 신비로운 보라 오로라 효과 */
+.aurora-purple {
+    position: absolute; width: 180%; height: 60%; top: -10%; left: -30%;
+    background: radial-gradient(circle at 75% 35%, rgba(150, 0, 255, 0.12) 0%, rgba(0, 0, 0, 0) 55%);
+    filter: blur(90px); 
+    animation: auroraMovement 20s ease-in-out infinite alternate-reverse;
+}
+
+/* 수많은 작은 별들과 반짝임 */
+.star-universe {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background-image: 
+        radial-gradient(1.2px 1.2px at 30px 50px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1.5px 1.5px at 140px 210px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 280px 340px, #e2e8f0, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 390px 90px, #f5e6c8, rgba(0,0,0,0)),
+        radial-gradient(1.2px 1.2px at 510px 290px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1.8px 1.8px at 640px 430px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 760px 160px, #e2e8f0, rgba(0,0,0,0)),
+        radial-gradient(2.5px 2.5px at 880px 370px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1.2px 1.2px at 940px 110px, #fff, rgba(0,0,0,0));
+    background-size: 450px 450px; 
+    opacity: 0.6;
+    animation: starPulse 5s ease-in-out infinite;
+}
+
+/* 🌠 실시간으로 밤하늘을 긋는 별똥별 */
+.shooting-star {
+    position: absolute; top: -10%; left: 60%; width: 3px; height: 3px;
+    background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+    border-radius: 50%; opacity: 0; transform: rotate(-35deg);
+    animation: shootEffect 9s linear infinite;
+}
+.shooting-star:nth-child(1) { top: 2%; left: 15%; animation-delay: 0s; animation-duration: 7s; }
+.shooting-star:nth-child(2) { top: 12%; left: 55%; animation-delay: 2.5s; animation-duration: 10s; width: 4px; }
+.shooting-star:nth-child(3) { top: 0%; left: 35%; animation-delay: 4s; animation-duration: 8s; }
+.shooting-star:nth-child(4) { top: 20%; left: 8%; animation-delay: 6.5s; animation-duration: 9s; }
+.shooting-star:nth-child(5) { top: 6%; left: 75%; animation-delay: 1.2s; animation-duration: 12s; }
+
+/* ==========================================
+   3. 애니메이션 Keyframes 
+   ========================================== */
+@keyframes auroraMovement {
+    0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.6; }
+    100% { transform: translate(-4%, 6%) scale(1.08) rotate(3deg); opacity: 1; }
+}
+@keyframes starPulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.8; }
+}
+@keyframes shootEffect {
+    0% { transform: translateX(0) translateY(0) scale(0) rotate(-35deg); opacity: 0; width: 0px; }
+    1% { opacity: 1; width: 100px; scale: 1; }
+    8% { transform: translateX(-350px) translateY(245px) scale(1) rotate(-35deg); opacity: 0; width: 0px; }
+    100% { transform: translateX(-350px) translateY(245px) scale(0) rotate(-35deg); opacity: 0; }
+}
+
+/* ==========================================
+   4. ❄️ 하늘에서 흩날리는 눈송이
+   ========================================== */
+.snowflake {
+    position: fixed; top: -20px; color: white; opacity: 0.5;
+    user-select: none; pointer-events: none; z-index: 10;
+    animation: snowFall linear infinite;
+}
+@keyframes snowFall {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(105vh) rotate(360deg); }
+}
+
+/* ==========================================
+   5. 겨울 감성 UI 버튼 및 카드 (얼음 통유리 콘셉트)
+   ========================================== */
+.winter-btn, .page-btn, .winter-input {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #F5E6C8;
+    padding: 11px 22px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    margin: 5px;
+}
+
+.winter-btn:hover, .page-btn:hover {
+    background: rgba(245, 230, 200, 0.18);
+    border-color: #F5E6C8;
+    box-shadow: 0 0 20px rgba(245, 230, 200, 0.4);
+    transform: translateY(-2px);
+}
+
+.controls { display: flex; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; gap: 5px; }
+.date-group { display: flex; align-items: center; }
+.pagination { display: flex; justify-content: center; align-items: center; gap: 40px; margin-top: 50px; }
+#page-indicator { color: #F5E6C8; font-weight: bold; font-size: 1.2rem; text-shadow: 0 0 10px #F5E6C8; }
+
+/* 글 배치 카드 */
+.post-card {
+    background: rgba(8, 15, 36, 0.5); /* 패널 투명도 소폭 조정으로 밤하늘 투과율 향상 */
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 24px; padding: 40px; margin-bottom: 30px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+.post-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(245, 230, 200, 0.25);
+}
+.post-date { color: #55657e; font-size: 0.85rem; margin-bottom: 15px; letter-spacing: 1px; }
+.post-title { color: #F5E6C8; font-size: 1.45rem; margin: 0 0 14px 0; font-weight: normal; }
+.post-card p { color: #CBD5E0; line-height: 1.8; margin: 0; font-size: 1rem; }
+
+/* ==========================================
+   6. 관리자 제어 패널
+   ========================================== */
+#admin-area { 
+    background: rgba(245, 230, 200, 0.03); border: 1px dashed rgba(245, 230, 200, 0.35); 
+    border-radius: 24px; padding: 35px; margin-bottom: 40px;
+    backdrop-filter: blur(10px);
+}
+#admin-area input, #admin-area textarea { 
+    width: 100%; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); color: #fff; 
+    padding: 14px; margin-bottom: 14px; border-radius: 12px; box-sizing: border-box;
+}
+.admin-submit-btn { 
+    background: #F5E6C8 !important; color: #02040f !important; 
+    width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer;
+}
+#code-output { background: #050505; color: #A3E635; width: 100%; height: 80px; margin-top: 10px; border-radius: 8px; border: 1px solid #222; }
