@@ -31,6 +31,9 @@ function parseSafeDate(dateString) {
 
 // 눈송이 효과
 function startSnowingEffect() {
+    // ⚡ [최적화 가드] 최적화 모드가 활성화되어 있다면 눈송이를 생성하지 않습니다.
+    if (document.body.classList.contains('optimized')) return;
+
     const container = document.getElementById('snow-container');
     if (!container) return;
     container.innerHTML = '';
@@ -49,6 +52,9 @@ function startSnowingEffect() {
 
 // [핵심 엔진] 파이어베이스 연결과 시스템 인증을 무조건 안정적으로 호출해주는 총괄 스타터 함수
 window.initApp = function() {
+    // ⚡ [최적화 확인] 부팅 시 로컬 스토리지에 저장된 최적화 세팅이 있다면 먼저 상태를 복구합니다.
+    applySavedOptimization();
+    
     startSnowingEffect();
     initFirebaseListeners();
     checkAdminAuthentication();
@@ -481,7 +487,7 @@ function closeMailboxModal() { document.getElementById('mailbox-modal').style.di
 
 function getFormattedCurrentTime() {
     const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')} ${String(now.getMinutes()).padStart(2, '0')}`;
 }
 
 function savePost() {
@@ -587,8 +593,12 @@ function toggleStarLetter(letterId, currentStarredStatus) {
         filterMailbox(); 
     }).catch((e) => console.error("즐겨찾기 실패:", e));
 }
+
 // 타이틀 클릭 시 이스터에그 발동 함수
 function triggerSpaceEasterEgg() {
+    // ⚡ [최적화 가드] 최적화 모드가 켜져 있다면 이스터에그 파티클 연산을 실행하지 않습니다.
+    if (document.body.classList.contains('optimized')) return;
+
     const msgBox = document.getElementById('easter-egg-message');
     const starContainer = document.getElementById('easter-stars-container');
     if (!msgBox || !starContainer) return;
@@ -623,17 +633,64 @@ function triggerSpaceEasterEgg() {
 
         setTimeout(() => { star.remove(); }, (duration + delay) * 1000);
     }
-} // 👈 triggerSpaceEasterEgg 함수의 중괄호가 여기서 확실하게 닫혀야 합니다!
+}
+
+
+// ==========================================
+// ⚡ [NEW] 최적화 모드 토글 인터페이스 시스템
+// ==========================================
+function toggleOptimization() {
+    const body = document.body;
+    const btn = document.getElementById('opt-toggle-btn');
+    if (!btn) return;
+
+    // body 객체에 .optimized 클래스를 토글 결합합니다.
+    const isOptimized = body.classList.toggle('optimized');
+
+    if (isOptimized) {
+        // [최적화 ON 설정]
+        btn.innerHTML = `<i class="fa-solid fa-bolt"></i> 최적화 모드: ON (애니메이션 꺼짐)`;
+        
+        // 메모리 절약과 즉각적인 렉 방지를 위해 떠돌던 눈송이 돔 구조 전체 청소
+        const snowContainer = document.getElementById('snow-container');
+        if (snowContainer) snowContainer.innerHTML = '';
+        
+        localStorage.setItem('site-optimized', 'true');
+    } else {
+        // [최적화 OFF 설정]
+        btn.innerHTML = `<i class="fa-solid fa-gauge-high"></i> 최적화 모드: OFF (애니메이션 켜짐)`;
+        localStorage.setItem('site-optimized', 'false');
+        
+        // 다시 원래 스케줄대로 하늘에서 눈이 내리게 만듦
+        startSnowingEffect();
+    }
+}
+
+// 부팅 시 세션 데이터 복구용 보조 로직 함수
+function applySavedOptimization() {
+    if (localStorage.getItem('site-optimized') === 'true') {
+        const body = document.body;
+        const btn = document.getElementById('opt-toggle-btn');
+        body.classList.add('optimized');
+        if (btn) {
+            btn.innerHTML = `<i class="fa-solid fa-bolt"></i> 최적화 모드: ON (애니메이션 꺼짐)`;
+        }
+        const snowContainer = document.getElementById('snow-container');
+        if (snowContainer) snowContainer.innerHTML = '';
+    }
+}
 
 
 // ==========================================
 // 🌌 [구조 독립] 화면 전체 적용: 연노랑 단색 특수기호 트레일 (마우스/터치)
 // ==========================================
-// 이스터에그 함수 밖으로 탈출시켜 페이지 로드와 동시에 무조건 실행되도록 고정했습니다.
 (function() {
     const spaceSymbols = ['✦', '★', '✧', '•', '﹡', '⁺'];
     
     const handleMove = (e) => {
+        // ⚡ [최적화 가드] 최적화 상태가 설정되면 트레일 렌더링에 필요한 자원 소모를 전면 차단합니다.
+        if (document.body.classList.contains('optimized')) return;
+
         const x = e.touches ? e.touches[0].clientX : e.clientX;
         const y = e.touches ? e.touches[0].clientY : e.clientY;
         
