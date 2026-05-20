@@ -1,27 +1,35 @@
-```css
-/* 1. 우주와 밤바다 배경 */
+/* 1. 우주와 밤바다 배경 설정 */
 body {
-    background: #050814;
+    background: #030611;
     color: #E2E8F0;
     margin: 0; padding: 0;
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
 }
 
-/* 수많은 작은 별 생성 (박스 쉐도우 활용) */
-#stars-background {
-    position: fixed; top: 0; left: 0; width: 1px; height: 1px;
-    background: transparent;
-    box-shadow: 154px 342px #FFF, 654px 123px #FFF, 120px 800px #FFF, 850px 450px #FFF, 1200px 200px #FFF, 450px 650px #FFF, 980px 880px #FFF, 240px 150px #FFF, 1400px 700px #FFF, 320px 900px #FFF, 760px 40px #FFF; /* 별 위치 추가 가능 */
-    z-index: -1; opacity: 0.4;
+/* 수많은 작은 별 배경 */
+#stars-container {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -2;
+    background-image: 
+        radial-gradient(1px 1px at 20px 30px, #eee, rgba(0,0,0,0)),
+        radial-gradient(1.5px 1.5px at 40px 70px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 150px 150px, #ddd, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 250px 200px, #fff, rgba(0,0,0,0));
+    background-size: 300px 300px; /* 별들이 반복되는 간격 */
+    opacity: 0.3;
 }
 
-#wrap { max-width: 700px; margin: 0 auto; padding: 60px 20px; position: relative; }
+#wrap { max-width: 650px; margin: 0 auto; padding: 80px 20px; position: relative; z-index: 5; }
 
-h1 { text-align: center; color: #F5E6C8; font-weight: 300; letter-spacing: 2px; margin-bottom: 50px; text-shadow: 0 0 15px rgba(245, 230, 200, 0.4); }
+h1 { 
+    text-align: center; color: #F5E6C8; font-weight: normal; 
+    letter-spacing: 3px; margin-bottom: 60px;
+    text-shadow: 0 0 20px rgba(245, 230, 200, 0.4);
+}
 
-/* 2. 겨울 테마 버튼 디자인 */
+/* 2. 겨울 분위기 버튼 (Frosted Glass) */
 .winter-btn, .page-btn, .winter-input {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.15);
@@ -38,43 +46,64 @@ h1 { text-align: center; color: #F5E6C8; font-weight: 300; letter-spacing: 2px; 
 .winter-btn:hover, .page-btn:hover {
     background: rgba(245, 230, 200, 0.15);
     border-color: #F5E6C8;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(245, 230, 200, 0.2);
+    box-shadow: 0 0 15px rgba(245, 230, 200, 0.3);
 }
 
-.controls { display: flex; justify-content: center; flex-wrap: wrap; margin-bottom: 50px; }
-.pagination { display: flex; justify-content: center; align-items: center; gap: 30px; margin-top: 50px; }
-#page-indicator { color: #F5E6C8; font-weight: bold; font-size: 1.1rem; }
+.controls { display: flex; justify-content: center; flex-wrap: wrap; margin-bottom: 50px; gap: 10px; }
+.date-group { display: flex; align-items: center; }
+.pagination { display: flex; justify-content: center; align-items: center; gap: 40px; margin-top: 60px; }
+#page-indicator { color: #F5E6C8; font-weight: bold; font-size: 1.2rem; text-shadow: 0 0 10px #F5E6C8; }
 
 /* 3. 글 카드 스타일 */
 .post-card {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 20px; padding: 35px; margin-bottom: 30px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 20px; padding: 40px; margin-bottom: 30px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+    backdrop-filter: blur(5px);
 }
-.post-date { color: #64748b; font-size: 0.85rem; margin-bottom: 12px; }
-.post-title { color: #F5E6C8; font-size: 1.4rem; margin: 0 0 15px 0; font-weight: 400; }
-.post-card p { color: #94a3b8; line-height: 1.7; margin: 0; }
+.post-date { color: #718096; font-size: 0.85rem; margin-bottom: 15px; letter-spacing: 1px; }
+.post-title { color: #F5E6C8; font-size: 1.5rem; margin: 0 0 15px 0; font-weight: normal; }
+.post-card p { color: #CBD5E0; line-height: 1.8; margin: 0; font-size: 1rem; }
 
-/* 4. 로딩 화면 & 눈 내리는 애니메이션 */
-#loading-screen {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: #050814; z-index: 10000; display: flex; flex-direction: column;
-    justify-content: center; align-items: center; transition: opacity 0.8s ease;
-}
-.loading-text { color: #F5E6C8; margin-top: 30px; letter-spacing: 3px; z-index: 10; }
-
+/* 4. ❄️ 눈 내리는 애니메이션 */
 .snowflake {
-    position: absolute; top: -10px; color: white; opacity: 0.8;
+    position: fixed; top: -10px; color: white; opacity: 0.8;
+    user-select: none; pointer-events: none; z-index: 9999;
     animation: fall linear infinite;
 }
 
 @keyframes fall {
-    to { transform: translateY(100vh) translateX(20px); }
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(110vh) rotate(360deg); }
 }
 
-/* 관리자 영역 디자인 */
-#admin-area { background: rgba(245, 230, 200, 0.03); border: 1px dashed #F5E6C8; border-radius: 20px; padding: 30px; margin-bottom: 50px; }
-#admin-area input, #admin-area textarea { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 12px; margin-bottom: 10px; border-radius: 10px; }
-.admin-active { background: #F5E6C8 !important; color: #050814 !important; font-weight: bold; }
+/* 5. 로딩 화면 디자인 */
+#loading-screen {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: #03060d; z-index: 10000; display: flex; flex-direction: column;
+    justify-content: center; align-items: center; transition: opacity 1s ease;
+}
+.loading-content { text-align: center; z-index: 10001; }
+.star-icon { font-size: 3rem; margin-bottom: 20px; animation: pulse 2s infinite; }
+.loading-text { color: #F5E6C8; letter-spacing: 4px; font-size: 1.1rem; }
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* 6. 관리자 영역 */
+#admin-area { 
+    background: rgba(245, 230, 200, 0.05); border: 1px dashed rgba(245, 230, 200, 0.4); 
+    border-radius: 20px; padding: 30px; margin-bottom: 60px;
+}
+#admin-area input, #admin-area textarea { 
+    width: 100%; background: rgba(0,0,0,0.5); border: 1px solid #333; color: #fff; 
+    padding: 12px; margin-bottom: 12px; border-radius: 10px; box-sizing: border-box;
+}
+.admin-submit-btn { 
+    background: #F5E6C8 !important; color: #030611 !important; 
+    width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;
+}
+#code-output { background: #111; color: #A3E635; width: 100%; height: 80px; margin-top: 10px; }
