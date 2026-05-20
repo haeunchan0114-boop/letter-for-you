@@ -1,256 +1,226 @@
-// 기본 탑재 데이터
-const defaultPosts = [
-  { title: "첫 번째 우주의 기록", author: "은하 관리인", date: "2026-05-20 12:00", content: "여기는 아주 조용하고 평화로운 나만의 우주입니다.", pinned: false },
-  { title: "겨울 밤바다의 소리", author: "여행자", date: "2026-01-15 23:45", content: "차가운 파도가 하얗게 부서지는 소리가 들려옵니다.", pinned: false },
-  { title: "작은 별 하나", author: "스텔라", date: "2026-01-10 03:10", content: "가장 작게 빛나는 별에게 나의 마음을 전합니다.", pinned: false }
-];
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-let myPosts = JSON.parse(localStorage.getItem('galaxy_posts'));
-if (!myPosts) {
-    myPosts = defaultPosts;
-    localStorage.setItem('galaxy_posts', JSON.stringify(myPosts));
+body {
+    background-color: #010205; color: #E2E8F0;
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    min-height: 100vh; overflow-x: hidden;
 }
 
-let currentDisplayPosts = []; 
-let currentPage = 1;
-const postsPerPage = 3; 
-let currentSort = 'newest';
-let selectedDate = '';
-let searchQuery = '';
-let isAdminMode = false;
-let adminName = ''; // 실시간 유저 세션 닉네임 저장소
+#wrap { max-width: 650px; margin: 0 auto; padding: 80px 20px; position: relative; z-index: 20; }
 
-function startSnowingEffect() {
-    const container = document.getElementById('snow-container');
-    if (!container) return;
-    for (let i = 0; i < 40; i++) {
-        const snowflake = document.createElement('div');
-        snowflake.className = 'snowflake';
-        snowflake.innerHTML = '❄';
-        snowflake.style.left = Math.random() * 100 + 'vw';
-        snowflake.style.animationDuration = (Math.random() * 4 + 5) + 's'; 
-        snowflake.style.animationDelay = Math.random() * 6 + 's';
-        snowflake.style.opacity = Math.random() * 0.5 + 0.2;
-        snowflake.style.fontSize = (Math.random() * 8 + 10) + 'px';
-        container.appendChild(snowflake);
-    }
+h1 { 
+    text-align: center; color: #F5E6C8; font-weight: normal; letter-spacing: 5px; margin-bottom: 50px;
+    text-shadow: 0 0 20px rgba(245, 230, 200, 0.7), 0 0 40px rgba(245, 230, 200, 0.3);
 }
 
-// 초기화 구동 및 로그인 절차 제어 커널
-document.addEventListener("DOMContentLoaded", function() {
-    startSnowingEffect();
-
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('mode') === 'sea') {
-        setTimeout(function() {
-            const passwordInput = prompt("🔒 관리자 시스템 보안 인증\n비밀번호를 입력해 주세요:");
-            if (passwordInput === "0416haeunashi0416!*!26") {
-                
-                const nameInput = prompt("✍️ 우주에 새겨질 관리자 이름을 입력해 주세요:");
-                if(nameInput && nameInput.trim() !== "") {
-                    adminName = nameInput.trim();
-                } else {
-                    adminName = "무명 관리인"; 
-                }
-
-                isAdminMode = true;
-                document.getElementById('admin-wrapper').style.display = 'block';
-                const sheet = window.document.styleSheets[0];
-                sheet.insertRule('.admin-card-controls { display: flex !important; }', sheet.cssRules.length);
-                alert(`🔓 인증 성공. 반갑습니다, ${adminName}님.`);
-                applyFilters(); 
-            } else {
-                alert("❌ 비밀번호가 일치하지 않습니다.");
-                window.location.href = window.location.pathname; 
-            }
-        }, 200);
-    }
-    applyFilters();
-});
-
-// ✍️ 글쓰기 컴포넌트 여닫기 토글러 (버튼 <-> 입력창 전환 확실하게 보정)
-function toggleAdminForm() {
-    const form = document.getElementById('admin-area');
-    const toggleBtn = document.getElementById('admin-open-toggle');
-    
-    if (form.style.display === 'none') {
-        form.style.display = 'block';
-        toggleBtn.style.display = 'none';
-    } else {
-        form.style.display = 'none';
-        toggleBtn.style.display = 'block';
-    }
+/* ==========================================
+   🌌 애니메이션이 극대화된 딥 스페이스 시스템
+   ========================================== */
+.space-background {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -10; overflow: hidden; pointer-events: none;
+    background: linear-gradient(180deg, #010206 0%, #030717 25%, #061022 60%, #0c152b 100%);
 }
 
-function searchTitle(value) {
-    searchQuery = value.trim().toLowerCase();
-    currentPage = 1; 
-    applyFilters();
+.space-moon {
+    position: absolute; top: 10%; right: 12%; width: 75px; height: 75px;
+    border-radius: 50%; box-shadow: -14px 14px 0 0 #F5E6C8;
+    filter: drop-shadow(0 0 18px rgba(245, 230, 200, 0.55));
+    animation: moonFloat 9s ease-in-out infinite alternate;
+    opacity: 0.85;
 }
 
-function applyFilters() {
-    let filtered = [...myPosts];
-    if (selectedDate) {
-        filtered = filtered.filter(p => p.date.substring(0, 10) === selectedDate);
-    }
-    if (searchQuery) filtered = filtered.filter(p => p.title.toLowerCase().includes(searchQuery));
-
-    filtered.sort((a, b) => {
-        return currentSort === 'newest' ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date);
-    });
-    filtered.sort((a, b) => (b.pinned || false) - (a.pinned || false));
-
-    currentDisplayPosts = filtered;
-    renderPosts();
+/* 🌀 우주 성운 입체 회전 효과 */
+.nebula-pink {
+    position: absolute; width: 650px; height: 650px; top: 15%; left: -15%;
+    background: radial-gradient(circle, rgba(219, 39, 119, 0.09) 0%, rgba(0,0,0,0) 70%);
+    filter: blur(65px); animation: nebulaRotate 45s linear infinite;
+}
+.nebula-blue {
+    position: absolute; width: 750px; height: 750px; bottom: 5%; right: -15%;
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, rgba(0,0,0,0) 75%);
+    filter: blur(85px); animation: nebulaRotate 65s linear infinite reverse;
+}
+.nebula-purple {
+    position: absolute; width: 550px; height: 550px; top: -10%; right: 20%;
+    background: radial-gradient(circle, rgba(147, 51, 234, 0.06) 0%, rgba(0,0,0,0) 70%);
+    filter: blur(60px); animation: nebulaRotate 55s linear infinite;
 }
 
-// 피드 빌더
-function renderPosts() {
-    const start = (currentPage - 1) * postsPerPage;
-    const end = start + postsPerPage;
-    const pagedPosts = currentDisplayPosts.slice(start, end);
-    
-    const container = document.getElementById('post-list');
-    if (!container) return;
-    container.innerHTML = '';
-
-    if (pagedPosts.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#718096; padding: 50px 0;">조건에 맞는 기록을 찾을 수 없습니다.</p>';
-        return;
-    }
-
-    pagedPosts.forEach(post => {
-        const originalIndex = myPosts.findIndex(p => p.title === post.title && p.date === post.date && p.content === post.content);
-        const isPinned = post.pinned === true;
-        const authorDisplay = post.author ? post.author : "알 수 없음"; 
-
-        const card = document.createElement('div');
-        card.className = `post-card ${isPinned ? 'pinned' : ''}`;
-        card.innerHTML = `
-            <div class="post-date">
-                ${isPinned ? '<span class="pin-badge"><i class="fa-solid fa-thumbtack"></i> 고정됨</span> | ' : ''} 
-                <span class="author-tag"><i class="fa-solid fa-user-astronaut"></i> ${authorDisplay}</span> | ${post.date}
-            </div>
-            <h2 class="post-title">${post.title}</h2>
-            <p>${post.content}</p>
-            
-            <div class="admin-card-controls">
-                <button class="admin-mini-btn ${isPinned ? 'pin-active' : ''}" onclick="togglePin(${originalIndex})">
-                    <i class="fa-solid fa-thumbtack"></i> ${isPinned ? '고정해제' : '글고정'}
-                </button>
-                <button class="admin-mini-btn" onclick="startEditPost(${originalIndex})">
-                    <i class="fa-solid fa-pen"></i> 수정
-                </button>
-                <button class="admin-mini-btn del-btn" onclick="deletePost(${originalIndex})">
-                    <i class="fa-solid fa-trash-can"></i> 삭제
-                </button>
-            </div>
-        `;
-        container.appendChild(card);
-    });
-    
-    const pageIndicator = document.getElementById('page-indicator');
-    if (pageIndicator) pageIndicator.innerText = currentPage;
+/* 💚💜💙 넘실거리며 파도치는 오로라 애니메이션 */
+.aurora-green {
+    position: absolute; width: 200%; height: 65%; top: -20%; left: -40%;
+    background: radial-gradient(circle at 25% 15%, rgba(16, 185, 129, 0.16) 0%, rgba(0, 0, 0, 0) 55%);
+    filter: blur(85px); animation: auroraWave 14s ease-in-out infinite alternate;
+}
+.aurora-purple {
+    position: absolute; width: 180%; height: 55%; top: -15%; right: -30%;
+    background: radial-gradient(circle at 75% 25%, rgba(139, 92, 246, 0.15) 0%, rgba(0, 0, 0, 0) 60%);
+    filter: blur(95px); animation: auroraWave 19s ease-in-out infinite alternate-reverse;
+}
+.aurora-blue {
+    position: absolute; width: 150%; height: 50%; bottom: 20%; left: -20%;
+    background: radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.09) 0%, rgba(0, 0, 0, 0) 50%);
+    filter: blur(90px); animation: auroraWave 25s ease-in-out infinite alternate;
 }
 
-function syncStorage() {
-    localStorage.setItem('galaxy_posts', JSON.stringify(myPosts));
+/* ✨ 자연스러운 은하수 잔별 (왼쪽 상단 세로 나열 별 좌표 전면 제거 수정) */
+.star-universe {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background-image: 
+        radial-gradient(1.5px 1.5px at 150px 280px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 220px 140px, #e2e8f0, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 420px 390px, #f5e6c8, rgba(0,0,0,0)),
+        radial-gradient(1.2px 1.2px at 560px 190px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1.8px 1.8px at 680px 520px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1.5px 1.5px at 310px 610px, #fff, rgba(0,0,0,0)),
+        radial-gradient(2.5px 2.5px at 250px 450px, #f5e6c8, rgba(0,0,0,0)),
+        radial-gradient(2.2px 2.2px at 820px 220px, #f5e6c8, rgba(0,0,0,0));
+    background-size: 450px 450px; opacity: 0.6; animation: starPulse 6s ease-in-out infinite;
 }
 
-// 🕒 실시간 한국 표준 시간 포맷터
-function getFormattedCurrentTime() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day} ${hours}:${minutes}`;
+/* ✦ 반짝이는 대형 포인트 별 */
+.star-bright {
+    position: absolute; color: #FFFDF0; font-size: 14px; opacity: 0;
+    text-shadow: 0 0 8px #fff, 0 0 15px #F5E6C8;
+    animation: starTwinkle 4s ease-in-out infinite;
+}
+.star1 { top: 15%; left: 25%; animation-delay: 0s; } /* 왼쪽 상단 구석에서 살짝 오른쪽으로 이동 조정 */
+.star2 { top: 45%; right: 12%; animation-delay: 1.3s; font-size: 11px; }
+.star3 { bottom: 35%; left: 8%; animation-delay: 2.5s; font-size: 16px; }
+.star4 { top: 75%; right: 22%; animation-delay: 0.7s; }
+.star5 { top: 28%; right: 35%; animation-delay: 1.9s; font-size: 13px; }
+.star6 { bottom: 15%; right: 45%; animation-delay: 3.1s; font-size: 15px; }
+
+/* 🌠 생동감 넘치는 입체 별똥별 애니메이션 시스템 */
+.shooting-star {
+    position: absolute;
+    background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+    border-radius: 50%; opacity: 0;
+}
+/* 각 별똥별마다 시작점, 크기, 각도, 애니메이션 속도를 모두 다르게 부여 */
+.shooting-star:nth-child(1) { top: 5%; left: 30%; width: 4px; height: 4px; transform: rotate(-30deg); animation: shootingStarGlow 8s linear infinite; animation-delay: 0s; }
+.shooting-star:nth-child(2) { top: 12%; left: 65%; width: 5px; height: 4px; transform: rotate(-35deg); animation: shootingStarGlow 11s linear infinite; animation-delay: 2.5s; }
+.shooting-star:nth-child(3) { top: -2%; left: 45%; width: 3px; height: 3px; transform: rotate(-28deg); animation: shootingStarGlow 7s linear infinite; animation-delay: 4.5s; }
+.shooting-star:nth-child(4) { top: 20%; left: 20%; width: 5px; height: 5px; transform: rotate(-40deg); animation: shootingStarGlow 13s linear infinite; animation-delay: 6s; }
+.shooting-star:nth-child(5) { top: 2%; left: 85%; width: 4px; height: 4px; transform: rotate(-32deg); animation: shootingStarGlow 14s linear infinite; animation-delay: 1s; }
+.shooting-star:nth-child(6) { top: 35%; left: 55%; width: 3px; height: 3px; transform: rotate(-35deg); animation: shootingStarGlow 9s linear infinite; animation-delay: 3.5s; }
+.shooting-star:nth-child(7) { top: 50%; left: 25%; width: 4px; height: 4px; transform: rotate(-25deg); animation: shootingStarGlow 12s linear infinite; animation-delay: 7.5s; }
+
+/* ==========================================
+   🎬 우주 애니메이션 타임라인 정의 (키프레임)
+   ========================================== */
+@keyframes moonFloat { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(-8px) rotate(-3deg); } }
+@keyframes nebulaRotate { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.08); } 100% { transform: rotate(360deg) scale(1); } }
+@keyframes starPulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.8; } }
+@keyframes starTwinkle { 0%, 100% { opacity: 0; transform: scale(0.6); } 50% { opacity: 0.95; transform: scale(1.1); } }
+
+/* 🌊 오로라가 일렁이며 이동하는 고유 물결 연산 */
+@keyframes auroraWave {
+    0% { transform: translate(0, 0) scale(1) rotate(0deg) skewX(0deg); opacity: 0.6; }
+    50% { transform: translate(-2%, 3%) scale(1.04) rotate(1.5deg) skewX(3deg); opacity: 0.85; }
+    100% { transform: translate(1%, -2%) scale(0.97) rotate(-1deg) skewX(-2deg); opacity: 0.7; }
 }
 
-// 글 저장 액션 핸들러
-function savePost() {
-    const titleVal = document.getElementById('new-title').value.trim();
-    const contentVal = document.getElementById('new-content').value.trim();
-    const editIndex = document.getElementById('edit-index').value;
-
-    if (!titleVal || !contentVal) {
-        return alert("기록 양식을 빠짐없이 기입해 주세요.");
-    }
-
-    const cleanContent = contentVal.replace(/\n/g, '<br>');
-
-    if (editIndex !== "") {
-        myPosts[parseInt(editIndex)].title = titleVal;
-        myPosts[parseInt(editIndex)].content = cleanContent;
-        alert("기록이 수정되었습니다.");
-    } else {
-        const autoDateTime = getFormattedCurrentTime();
-        myPosts.unshift({
-            title: titleVal,
-            author: adminName, 
-            date: autoDateTime, 
-            content: cleanContent,
-            pinned: false
-        });
-        alert("빛나는 새로운 기록이 보존되었습니다.");
-    }
-
-    // 저장 완료 후 창을 닫고 이전 버튼(글쓰기 버튼)을 복구하도록 순서 조정
-    clearAdminForm();
-    toggleAdminForm(); 
-    syncStorage();
-    applyFilters();
+/* 🌠 별똥별이 떨어지며 순간적으로 빛나고 꼬리가 흐려지는 애니메이션 */
+@keyframes shootingStarGlow {
+    0% { transform: translateX(0) translateY(0) scale(0); opacity: 0; width: 0px; }
+    1.5% { opacity: 1; width: 110px; scale: 1; }
+    8% { transform: translateX(-420px) translateY(294px) scale(0.8); opacity: 0; width: 0px; }
+    100% { transform: translateX(-420px) translateY(294px) scale(0); opacity: 0; }
 }
 
-function startEditPost(index) {
-    const post = myPosts[index];
-    const form = document.getElementById('admin-area');
-    if (form.style.display === 'none') toggleAdminForm();
+.snowflake { position: fixed; top: -20px; color: #ffffff; opacity: 0.35; user-select: none; pointer-events: none; z-index: 10; animation: snowDown linear infinite; }
+@keyframes snowDown { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(105vh) rotate(360deg); } }
 
-    document.getElementById('new-title').value = post.title;
-    document.getElementById('new-content').value = post.content.replace(/<br>/g, '\n');
-    document.getElementById('edit-index').value = index;
+/* ==========================================
+   🛡️ 고대비 가독성 확보 보장용 글래스모피즘
+   ========================================== */
+.post-card {
+    position: relative; 
+    background: rgba(4, 7, 19, 0.86); 
+    border: 1px solid rgba(255, 255, 255, 0.09); 
+    border-radius: 26px; 
+    padding: 45px 40px; 
+    margin-bottom: 35px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,255,255,0.02);
+    backdrop-filter: blur(20px); 
+    -webkit-backdrop-filter: blur(20px); 
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s;
+}
+.post-card.pinned {
+    border: 1px solid rgba(245, 230, 200, 0.45);
+    background: rgba(8, 13, 33, 0.92);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), inset 0 0 25px rgba(245, 230, 200, 0.06);
+}
+.post-card:hover { transform: translateY(-4px); border-color: rgba(245, 230, 200, 0.35); }
 
-    document.getElementById('admin-panel-title').innerText = "우주의 기록 수정하기";
-    document.getElementById('admin-main-btn').innerHTML = '<i class="fa-solid fa-check"></i> 빛의 기록 수정 완료하기';
-    
-    window.scrollTo({ top: document.getElementById('admin-wrapper').offsetTop - 30, behavior: 'smooth' });
+.post-date { color: #7F8EA3; font-size: 0.88rem; margin-bottom: 16px; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+.author-tag { color: #F5E6C8; font-weight: bold; margin-right: 4px; }
+.pin-badge { color: #F5E6C8; font-weight: bold; }
+.post-title { color: #F5E6C8; font-size: 1.5rem; margin: 0 0 16px 0; font-weight: normal; padding-right: 140px; line-height: 1.4; }
+.post-card p { color: #E2E8F0; line-height: 1.85; margin: 0; font-size: 1.02rem; word-break: break-all; }
+
+/* UI 제어판 디자인 */
+.winter-btn, .page-btn, .winter-input {
+    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.16); color: #F5E6C8;
+    padding: 11px 22px; border-radius: 25px; cursor: pointer; font-size: 0.9rem;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); margin: 5px;
+}
+.winter-btn:hover, .page-btn:hover {
+    background: rgba(245, 230, 200, 0.2); border-color: #F5E6C8; box-shadow: 0 0 20px rgba(245, 230, 200, 0.4); transform: translateY(-2px);
+}
+.controls { display: flex; justify-content: center; flex-wrap: wrap; margin-bottom: 15px; gap: 5px; }
+.date-group { display: flex; align-items: center; }
+
+.search-container { display: flex; justify-content: center; margin-bottom: 45px; width: 100%; padding: 0 5px; }
+.search-box { position: relative; max-width: 535px; width: 100%; display: flex; align-items: center; }
+.search-icon { position: absolute; left: 22px; color: rgba(245, 230, 200, 0.6); font-size: 0.95rem; pointer-events: none; }
+.search-input-field { width: 100%; padding-left: 48px !important; margin: 0; }
+
+.pagination { display: flex; justify-content: center; align-items: center; gap: 40px; margin-top: 50px; }
+#page-indicator { color: #F5E6C8; font-weight: bold; font-size: 1.2rem; text-shadow: 0 0 10px #F5E6C8; }
+
+.admin-card-controls { position: absolute; top: 42px; right: 35px; display: none; gap: 6px; }
+.admin-mini-btn {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #CBD5E0;
+    padding: 6px 13px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; transition: all 0.2s;
+}
+.admin-mini-btn.pin-active { color: #02040f; background: #F5E6C8; border-color: #F5E6C8; box-shadow: 0 0 10px rgba(245,230,200,0.3); }
+.admin-mini-btn:hover { border-color: #F5E6C8; color: #fff; background: rgba(245, 230, 200, 0.1); }
+.admin-mini-btn.del-btn:hover { border-color: #ef4444; color: #fff; background: rgba(239, 68, 68, 0.25); }
+
+/* ==========================================
+   🔒 관리자 전용 제어 폼 레이아웃
+   ========================================== */
+#admin-wrapper { margin-bottom: 45px; width: 100%; text-align: center; }
+
+.admin-write-toggle-btn {
+    background: rgba(245, 230, 200, 0.08); border: 1px solid rgba(245, 230, 200, 0.25); color: #F5E6C8;
+    padding: 15px 30px; border-radius: 30px; font-size: 1rem; cursor: pointer; transition: all 0.3s;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); font-family: inherit; width: 100%; letter-spacing: 1px;
+}
+.admin-write-toggle-btn:hover {
+    background: rgba(245, 230, 200, 0.22); border-color: #F5E6C8; box-shadow: 0 0 25px rgba(245, 230, 200, 0.35); transform: translateY(-1px);
 }
 
-function deletePost(index) {
-    if (confirm("정말로 이 기록을 우주에서 완전히 삭제하시겠습니까?")) {
-        myPosts.splice(index, 1);
-        syncStorage();
-        applyFilters();
-        alert("기록이 우주 너머로 소멸되었습니다.");
-    }
+#admin-area { 
+    background: rgba(5, 10, 26, 0.92); border: 1px solid rgba(245, 230, 200, 0.35); border-radius: 26px; padding: 40px; margin-top: 20px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.85); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); text-align: left;
 }
+.admin-title { color: #F5E6C8; font-size: 1.3rem; margin-top: 0; margin-bottom: 25px; font-weight: normal; text-align: center; letter-spacing: 1px; }
+.admin-input { 
+    width: 100%; background: rgba(0, 0, 0, 0.5) ; border: 1px solid rgba(255, 255, 255, 0.12); color: #ffffff; 
+    padding: 15px 18px; margin-bottom: 16px; border-radius: 14px; box-sizing: border-box; font-size: 0.95rem; font-family: inherit; transition: all 0.3s;
+}
+.admin-input:focus { outline: none; border-color: #F5E6C8; background: rgba(0, 0, 0, 0.7); box-shadow: 0 0 10px rgba(245,230,200,0.2); }
 
-function togglePin(index) {
-    myPosts[index].pinned = !myPosts[index].pinned;
-    syncStorage();
-    applyFilters();
+.admin-btn-group { display: flex; gap: 10px; }
+.admin-submit-btn { 
+    background: linear-gradient(135deg, #F5E6C8 0%, #ffeed0 100%) !important; color: #02040f !important; width: 100%; padding: 16px; border: none; border-radius: 14px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.2s;
 }
+.admin-submit-btn:hover { background: #ffffff !important; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245, 230, 200, 0.4); }
 
-// 입력 폼 청소 리셋 기능
-function clearAdminForm() {
-    document.getElementById('new-title').value = "";
-    document.getElementById('new-content').value = "";
-    document.getElementById('edit-index').value = "";
-    document.getElementById('admin-panel-title').innerText = "새로운 우주의 기록";
-    document.getElementById('admin-main-btn').innerHTML = '<i class="fa-solid fa-star"></i> 나의 우주에게 빛을 전하기';
+.admin-cancel-btn {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 16px 22px; border-radius: 14px; font-size: 1.1rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
 }
-
-function setSort(type) { currentSort = type; currentPage = 1; applyFilters(); }
-function filterDate(date) { selectedDate = date; currentPage = 1; applyFilters(); }
-function resetFilter() { 
-    const picker = document.getElementById('date-picker');
-    const searcher = document.getElementById('search-input');
-    if (picker) picker.value = ''; 
-    if (searcher) searcher.value = ''; 
-    selectedDate = ''; searchQuery = ''; currentSort = 'newest';
-    currentPage = 1; applyFilters(); 
-}
-function prevPage() { if (currentPage > 1) { currentPage--; window.scrollTo({ top: 0, behavior: 'smooth' }); renderPosts(); } }
-function nextPage() { if (currentPage * postsPerPage < currentDisplayPosts.length) { currentPage++; window.scrollTo({ top: 0, behavior: 'smooth' }); renderPosts(); } }
+.admin-cancel-btn:hover { background: rgba(255,255,255,0.18); border-color: #F5E6C8; }
