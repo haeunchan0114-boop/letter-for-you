@@ -55,27 +55,26 @@ button.btn-base:hover { background: rgba(255, 255, 255, 0.12); border-color: rgb
 .triple-row .btn-base { padding: 11px 10px; font-size: 0.9rem; }
 .triple-row .btn-base.active { background: rgba(255, 230, 186, 0.2); border-color: #FFE6BA; color: #FFE6BA; }
 
-/* 필터 박스 행 */
-.filter-row { display: flex; width: 100%; }
-.filter-row select { 
-    width: 100%; background: #121438; border: 1px solid rgba(255, 255, 255, 0.15); 
-    color: #fff; padding: 12px; border-radius: 30px; font-size: 0.9rem; outline: none; text-align-last: center; cursor: pointer;
-}
-
 .search-input { outline: none; text-align: center; color: #fff; }
 .search-input::placeholder { color: rgba(255, 255, 255, 0.3); font-size: 0.92rem; }
 
 /* 하은이에게 편지 쓰기 버튼 */
 .write-btn { background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.25); color: #FFE6BA; font-weight: 500; }
 
+/* 📋 별빛 우체통 상단 상태 텍스트 */
+.mailbox-status-text {
+    width: 100%; font-size: 1.1rem; color: #FFE6BA; font-weight: bold; margin-bottom: 10px; padding-left: 5px;
+    text-shadow: 0 0 8px rgba(255, 230, 186, 0.4);
+}
+
 /* 📋 별빛 우체통 */
-.mailbox-container { width: 100%; display: flex; flex-direction: column; gap: 25px; position: relative; }
+.mailbox-container { width: 100%; display: flex; flex-direction: column; gap: 10px; position: relative; margin-top: 10px; }
 #posts-mailbox-feed { width: 100%; display: flex; flex-direction: column; gap: 20px; }
 
 /* 관리자 창 가기 버튼 */
 .admin-entry-btn {
-    position: absolute; top: -30px; right: 5px; background: none; border: none;
-    color: rgba(255, 255, 255, 0.4); font-size: 0.82rem; cursor: pointer; text-decoration: underline;
+    position: absolute; top: 2px; right: 5px; background: none; border: none;
+    color: rgba(255, 255, 255, 0.4); font-size: 0.82rem; cursor: pointer; text-decoration: underline; z-index: 30;
 }
 .admin-entry-btn:hover { color: #FFE6BA; }
 
@@ -86,9 +85,14 @@ button.btn-base:hover { background: rgba(255, 255, 255, 0.12); border-color: rgb
     position: relative;
 }
 .post-card.pinned { border: 1px solid rgba(255, 230, 186, 0.4); background: rgba(14, 16, 43, 0.9); }
+/* 수신받은 비밀 편지(global_letters) 전용 스타일 효과 */
+.post-card.secret-type { border: 1px dashed rgba(167, 139, 250, 0.5); background: rgba(18, 12, 46, 0.9); }
+
 .post-meta { color: #8A99AD; font-size: 0.85rem; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
 .post-meta .meta-info { display: flex; align-items: center; gap: 6px; }
 .post-meta .pin-tag { color: #FFE6BA; font-weight: bold; }
+.post-meta .secret-tag { color: #A78BFA; font-weight: bold; background: rgba(167,139,250,0.15); padding: 2px 6px; border-radius: 6px; }
+
 .post-meta .fav-btn { background: none; border: none; color: rgba(255,255,255,0.2); font-size: 1.1rem; cursor: pointer; }
 .post-meta .fav-btn.active { color: #FFE6BA; text-shadow: 0 0 8px #FFE6BA; }
 
@@ -122,7 +126,7 @@ button.btn-base:hover { background: rgba(255, 255, 255, 0.12); border-color: rgb
 .modal-buttons .submit-btn { background: #FFE6BA; color: #0d0e2d; font-weight: bold; }
 .modal-buttons .cancel-btn { background: rgba(255,255,255,0.1); color: #fff; }
 
-/* ◀ 1 2 3 4 5 ▶ 페이지네이션 디자인 고도화 */
+/* 페이지네이션 디자인 */
 .pagination { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 30px; user-select: none; }
 .page-arrow, .page-num-btn {
     min-width: 36px; height: 36px; padding: 0 6px; border-radius: 50%; background: transparent; border: 1px solid rgba(255,255,255,0.15);
