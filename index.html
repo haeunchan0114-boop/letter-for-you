@@ -38,13 +38,14 @@
         </header>
 
         <div id="admin-area" style="display: none;">
-            <h3>✍️ 새로운 우주의 기록 (관리자)</h3>
-            <input type="text" id="new-title" placeholder="기록의 제목">
-            <input type="date" id="new-date">
-            <textarea id="new-content" placeholder="우주에게 전할 이야기를 적으세요..." rows="5"></textarea>
-            <button onclick="generateCode()" class="admin-submit-btn">시스템 코드 생성하기</button>
+            <h3 class="admin-title">✍️ 새로운 우주의 기록 (관리자)</h3>
+            <input type="text" id="new-title" class="admin-input" placeholder="기록의 제목을 입력하세요">
+            <input type="date" id="new-date" class="admin-input">
+            <textarea id="new-content" class="admin-input" placeholder="우주에게 전할 이야기를 적으세요..." rows="6"></textarea>
+            <button onclick="generateCode()" class="admin-submit-btn"><i class="fa-solid fa-wand-magic-sparkles"></i> 시스템 코드 생성하기</button>
+            
             <div id="code-output-box" style="display:none;">
-                <p>💡 아래 코드를 복사해서 script.js의 [myPosts] 안에 넣으세요.</p>
+                <p class="code-guide">💡 아래 코드를 복사해서 script.js의 [myPosts] 안에 넣으세요.</p>
                 <textarea id="code-output" readonly></textarea>
             </div>
         </div>
