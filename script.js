@@ -31,7 +31,6 @@ let mailboxLetters = [];
 let currentMailboxPage = 1;
 const lettersPerPage = 4;
 let mailboxFilterKeyword = "";
-let currentReplyTargetId = null; 
 
 // 🔒 핵심 마스터 보안 비밀번호 설정
 const ADMIN_MASTER_PASSWORD = "0416haeunashi0416!*!26";
@@ -40,10 +39,11 @@ const ADMIN_MASTER_PASSWORD = "0416haeunashi0416!*!26";
 window.addEventListener('DOMContentLoaded', () => {
     checkAdminMode();
     listenFirebasePosts();
+    listenFirebaseMailbox(); // 📬 global_letters 전용 리스너 추가 고정
     initSnowFall();
 });
 
-// 관리자 진입 인증 게이트 (비밀번호 검증식 추가)
+// 관리자 진입 인증 게이트
 window.enterAdminMode = function(event) {
     if (event) event.preventDefault();
     
@@ -72,7 +72,6 @@ function checkAdminMode() {
             activateAdminLayout();
         } else {
             alert("암호 오류. 일반 모드로 강제 전환됩니다.");
-            // 주소창 초기화
             window.history.replaceState({}, document.title, window.location.pathname);
         }
     }
@@ -83,7 +82,6 @@ function activateAdminLayout() {
     isAdminMode = true;
     document.getElementById('admin-wrapper').style.display = 'block';
     
-    // 관리자용 메일박스 테마 체인지
     const mailBtn = document.getElementById('global-mailbox-btn');
     if (mailBtn) {
         mailBtn.className = "winter-btn main-mailbox-trigger admin-mailbox-theme";
@@ -91,29 +89,40 @@ function activateAdminLayout() {
     }
 }
 
-// 파이어베이스 데이터 실시간 바인딩 리스너
+// 1. 일반 메인 피드 글(posts) 실시간 리스너
 function listenFirebasePosts() {
     const postsRef = ref(db, 'posts');
     onValue(postsRef, (snapshot) => {
         const data = snapshot.val();
         myPosts = [];
-        mailboxLetters = [];
 
         if (data) {
             Object.keys(data).forEach(key => {
                 const item = { id: key, ...data[key] };
-                
-                // 데이터 분류 필터링 설계
-                if (item.type === 'reply' || item.type === 'global' || item.targetTitle) {
-                    // 편지 및 답장 관련 글들은 오직 관리자 우체통 저장소로 분리 격리
-                    mailboxLetters.push(item);
-                } else {
-                    // 순수 일반 posts 글만 메인 피드 저장소로 확보
+                // 기존에 posts에 잘못 섞여 들어간 편지가 있다면 제외하고 순수 포스트만 골라냄
+                if (item.type !== 'reply' && item.type !== 'global' && !item.targetTitle) {
                     myPosts.push(item);
                 }
             });
         }
         applyFilters();
+    });
+}
+
+// 2. 📬 진짜 방문자 우체통(global_letters) 실시간 리스너 (강력 연동 부품)
+function listenFirebaseMailbox() {
+    const mailboxRef = ref(db, 'global_letters');
+    onValue(mailboxRef, (snapshot) => {
+        const data = snapshot.val();
+        mailboxLetters = [];
+
+        if (data) {
+            Object.keys(data).forEach(key => {
+                mailboxLetters.push({ id: key, ...data[key] });
+            });
+        }
+        
+        // 관리자 모드 상태에서 우체통 모달이 열려있다면 실시간 화면 새로고침
         if (isAdminMode && document.getElementById('reply-modal').style.display === 'flex') {
             renderMailboxLetters();
         }
@@ -124,26 +133,23 @@ function listenFirebasePosts() {
 function applyFilters() {
     let filtered = [...myPosts];
 
-    // 1차 검색어 필터
     if (searchQuery) {
         filtered = filtered.filter(p => p.title && p.title.toLowerCase().includes(searchQuery));
     }
     
-    // 2차 날짜 기반 정렬 필터
     filtered.sort((a, b) => {
         const dateA = new Date(a.date || 0);
         const dateB = new Date(b.date || 0);
         return currentSort === 'newest' ? dateB - dateA : dateA - dateB;
     });
     
-    // 3차 최상단 상단 고정(Pinned) 요소 강제 전치 배열
     filtered.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
     
     currentDisplayPosts = filtered;
     renderPosts();
 }
 
-// 메인 피드 목록 엘리먼트 렌더링 함수
+// 메인 피드 목록 엘리먼트 렌더링
 function renderPosts() {
     const listEl = document.getElementById('post-list');
     listEl.innerHTML = '';
@@ -168,7 +174,6 @@ function renderPosts() {
         const card = document.createElement('div');
         card.className = `post-card ${post.pinned ? 'pinned' : ''}`;
         
-        // 비밀글 제어 장치 변수선언
         const isLocked = post.password && post.password.trim() !== "";
         let displayContent = post.content || "";
         
@@ -196,7 +201,6 @@ function renderPosts() {
 
         listEl.appendChild(card);
         
-        // 관리자 모드인 경우 제어 버튼 레이어 노출
         if (isAdminMode) {
             const ctrlBox = document.getElementById(`controls-${post.id}`);
             if (ctrlBox) ctrlBox.style.display = 'flex';
@@ -204,7 +208,7 @@ function renderPosts() {
     });
 }
 
-// 페이징 제어 함수 핸들러
+// 페이징 제어
 window.nextPage = function() {
     const totalPages = Math.ceil(currentDisplayPosts.length / postsPerPage);
     if (currentPage < totalPages) { currentPage++; applyFilters(); }
@@ -213,7 +217,7 @@ window.prevPage = function() {
     if (currentPage > 1) { currentPage--; applyFilters(); }
 };
 
-// 정렬 및 검색 처리 기능 바인딩
+// 정렬 및 검색 처리
 window.setSort = function(sortType) { currentSort = sortType; applyFilters(); };
 window.searchTitle = function(val) { searchQuery = val.toLowerCase().trim(); currentPage = 1; applyFilters(); };
 window.resetFilter = function() {
@@ -221,7 +225,7 @@ window.resetFilter = function() {
     searchQuery = ""; currentSort = 'newest'; currentPage = 1; applyFilters();
 };
 
-// 관리자 글쓰기 패널 토글 스위치
+// 관리자 글쓰기 패널 토글
 window.toggleAdminForm = function() {
     const area = document.getElementById('admin-area');
     const toggleBtn = document.getElementById('admin-open-toggle');
@@ -244,7 +248,7 @@ function clearAdminForm() {
     document.getElementById('admin-panel-title').innerHTML = '<i class="fa-solid fa-feather"></i> 우주에 새로운 빛의 기록 남기기';
 }
 
-// 기록 생성 및 수정 반영 로직 (글쓰기)
+// 기록 저장 및 수정
 window.savePost = function() {
     const id = document.getElementById('edit-id').value;
     const title = document.getElementById('new-title').value.trim();
@@ -275,7 +279,6 @@ window.savePost = function() {
     }
 };
 
-// 기존 기록 데이터 수정 폼 컴파일로드
 window.editPost = function(id) {
     const post = myPosts.find(p => p.id === id);
     if (!post) return;
@@ -293,20 +296,18 @@ window.editPost = function(id) {
     window.scrollTo({ top: area.offsetTop - 40, behavior: 'smooth' });
 };
 
-// 데이터 완전 파기 프로세스
 window.deletePost = function(id) {
     if (confirm('이 기록을 우주 공간에서 영구히 삭제하시겠습니까?')) {
         remove(ref(db, `posts/${id}`));
     }
 };
 
-// 최상단 상단 노드 고정 변경 함수
 window.togglePin = function(id, currentStatus) {
     set(ref(db, `posts/${id}/pinned`), !currentStatus);
 };
 
 // ==========================================
-// 📬 통합 메일박스 우체통 제어 시스템 
+// 📬 통합 메일박스 우체통 제어 시스템 (global_letters 연동)
 // ==========================================
 window.handleMailboxClick = function() {
     const modal = document.getElementById('reply-modal');
@@ -314,7 +315,7 @@ window.handleMailboxClick = function() {
 
     if (isAdminMode) {
         document.getElementById('modal-form-title').innerText = "🌌 은하수 관리자 우체통";
-        document.getElementById('modal-form-desc').innerText = "방문자들이 남긴 모든 익명 편지 리스트입니다.";
+        document.getElementById('modal-form-desc').innerText = "global_letters 노드에 수신된 익명 편지 목록입니다.";
         document.getElementById('mailbox-admin-view').style.display = 'block';
         document.getElementById('mailbox-user-form').style.display = 'none';
         document.getElementById('reply-submit-btn').style.display = 'none';
@@ -335,6 +336,7 @@ window.closeReplyModal = function() {
     document.getElementById('reply-content').value = '';
 };
 
+// 사용자가 편지를 쓰면 이제 정확하게 'global_letters' 경로로 들어갑니다!
 window.submitLetterOrReply = function() {
     const author = document.getElementById('reply-author').value.trim();
     const content = document.getElementById('reply-content').value.trim();
@@ -342,18 +344,19 @@ window.submitLetterOrReply = function() {
     if (!author || !content) { alert('이름과 편지 내용을 모두 기입해 주세요.'); return; }
 
     const letterData = {
-        type: 'global',
         author: author,
         content: content,
         date: new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
     };
 
-    push(ref(db, 'posts'), letterData).then(() => {
+    // 🚀 저장 경로를 posts에서 global_letters로 명확하게 정정
+    push(ref(db, 'global_letters'), letterData).then(() => {
         alert('편지가 우주 공간을 지나 안전하게 발송되었습니다.');
         closeReplyModal();
     });
 };
 
+// global_letters 기반의 관리자 우체통 뷰 렌더링
 function renderMailboxLetters() {
     const container = document.getElementById('mailbox-letters-list');
     container.innerHTML = '';
@@ -363,6 +366,7 @@ function renderMailboxLetters() {
         filteredLetters = filteredLetters.filter(l => l.author && l.author.toLowerCase().includes(mailboxFilterKeyword));
     }
 
+    // 최신 편지가 위로 오게 날짜순 정렬
     filteredLetters.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
 
     if (filteredLetters.length === 0) {
@@ -406,14 +410,15 @@ window.moveMailboxPage = function(dir) {
     renderMailboxLetters();
 };
 
+// global_letters 경로에서 진짜 편지 원본 데이터 삭제
 window.deleteMailboxLetter = function(id) {
     if (confirm('이 우체통 편지를 데이터베이스에서 영구히 삭제합니까?')) {
-        remove(ref(db, `posts/${id}`));
+        remove(ref(db, `global_letters/${id}`));
     }
 };
 
 // ==========================================
-// ✨ 비주얼 부가 효과 (최적화 토글 및 눈송이)
+// 비주얼 부가 효과 (최적화 토글 및 눈송이)
 // ==========================================
 window.toggleOptimization = function() {
     document.body.classList.toggle('optimized');
