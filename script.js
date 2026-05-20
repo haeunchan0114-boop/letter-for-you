@@ -145,44 +145,62 @@ function handleMailboxClick() {
 }
 
 // [수정] 관리자 창 토글 함수 (비밀번호 딱 '한 번'만 확인하도록 고정)
-// [최종 진화형] 중복 실행을 원천 차단하는 관리자 토글 함수
-let isAdminChecking = false; // 중복 클릭 방어막 변수
+// ==========================================
+// 🔐 관리자 인증 및 창 토글 시스템 (완전 개정판)
+// ==========================================
+
+// 1. 보안을 위한 전역 변수 설정
+window.isAdminAuthenticated = false; // 관리자 인증 여부 플래그
+let isPromptOpening = false;         // 중복 창 열림 방지 락
 
 function toggleAdminForm() {
-    // 만약 이미 비번 창이 뜨고 있는 상태라면, 뒤이어 들어오는 두 번째 실행은 즉시 무시합니다.
-    if (isAdminChecking) return;
+    // 이미 프롬프트가 뜨고 있다면 중복 실행 차단
+    if (isPromptOpening) return;
 
     const adminArea = document.getElementById('admin-area');
-    const adminWrapper = document.getElementById('admin-wrapper');
     const toggleBtn = document.getElementById('admin-open-toggle');
 
     if (!adminArea) return;
 
-    // 현재 관리자 창이 닫혀있을 때만 비밀번호 검증
-    if (adminArea.style.display === 'none') {
-        isAdminChecking = true; // 방어막 가동 (두 번째 터치 차단)
-
-        // 브라우저가 프롬프트를 띄우는 타이밍을 아주 미세하게 늦추어 중복 이벤트를 한 번 더 걸러줍니다.
-        setTimeout(() => {
-            const password = prompt("관리자 비밀번호를 입력해주세요:");
-            
-            // 지정할 비밀번호를 아래 "여기에지정할비밀번호" 칸에 적어주세요.
-            if (password === "여기에지정할비밀번호") { 
-                adminArea.style.display = 'block';
-                if (toggleBtn) toggleBtn.style.display = 'none';
-            } else if (password !== null) {
-                alert("비밀번호가 올바르지 않습니다.");
-            }
-
-            isAdminChecking = false; // 검증이 끝났으므로 방어막 해제
-        }, 50);
-
-    } else {
-        // 이미 열려있는 상태에서 취소/닫기를 누르면 비번 안 묻고 바로 닫기
+    // 이미 관리자 창이 열려있는 상태라면 비번 안 묻고 바로 닫기
+    if (adminArea.style.display === 'block') {
         adminArea.style.display = 'none';
         if (toggleBtn) toggleBtn.style.display = 'block';
-        isAdminChecking = false;
+        return;
     }
+
+    // 관리자 창이 닫혀있을 때 실행
+    isPromptOpening = true;
+
+    // 모바일 터치 중복 이벤트를 안전하게 분리하기 위해 50ms 미세 딜레이 후 실행
+    setTimeout(() => {
+        const password = prompt("관리자 비밀번호를 입력해주세요:");
+        
+        // 여기에 본인이 사용할 실제 비밀번호를 적어주세요 (예: "1234")
+        const correctPassword = "여기에지정할비밀번호"; 
+
+        if (password === correctPassword) {
+            // [핵심] 인증 성공 시 전역 플래그를 확실하게 true로 고정
+            window.isAdminAuthenticated = true;
+            
+            // UI 전환
+            adminArea.style.display = 'block';
+            if (toggleBtn) toggleBtn.style.display = 'none';
+            
+            // 글쓰기 폼 초기화 (기존 수정 데이터 잔상 제거)
+            if (document.getElementById('edit-id')) document.getElementById('edit-id').value = '';
+            if (document.getElementById('new-title')) document.getElementById('new-title').value = '';
+            if (document.getElementById('new-content')) document.getElementById('new-content').value = '';
+            
+            alert("우주 기록자님, 환영합니다.");
+        } else if (password !== null) {
+            // 취소를 누른 게 아니라 틀린 비밀번호를 입력했을 때
+            window.isAdminAuthenticated = false;
+            alert("비밀번호가 올바르지 않습니다.");
+        }
+
+        isPromptOpening = false; // 락 해제
+    }, 50);
 }
 
 function searchTitle(value) {
@@ -475,32 +493,53 @@ function getFormattedCurrentTime() {
 }
 
 function savePost() {
-    const titleVal = document.getElementById('new-title').value.trim();
-    const contentVal = document.getElementById('new-content').value.trim();
-    const editId = document.getElementById('edit-id').value;
-
-    if (!titleVal || !contentVal) return alert("기록 양식을 빠짐없이 기입해 주세요.");
-    const cleanContent = contentVal.replace(/\n/g, '<br>');
-
-    if (editId !== "") {
-        window.fbUpdate(window.fbRef(window.fbDB, `posts/${editId}`), {
-            title: titleVal,
-            content: cleanContent
-        }).then(() => alert("기록이 수정되었습니다."));
-    } else {
-        const autoDateTime = getFormattedCurrentTime();
-        const newPostRef = window.fbPush(window.fbRef(window.fbDB, 'posts'));
-        window.fbSet(newPostRef, {
-            title: titleVal,
-            author: adminName, 
-            date: autoDateTime, 
-            content: cleanContent,
-            pinned: false
-        }).then(() => alert("빛나는 새로운 기록이 보존되었습니다."));
+    // 전역 인증 플래그가 false라면 저장을 원천 차단
+    if (!window.isAdminAuthenticated) {
+        alert("권한이 없습니다. 관리자 인증을 다시 진행해주세요.");
+        return;
     }
 
-    clearAdminForm();
-    toggleAdminForm(); 
+    const titleInput = document.getElementById('new-title');
+    const contentInput = document.getElementById('new-content');
+    const editIdInput = document.getElementById('edit-id');
+
+    if (!titleInput || !contentInput) return;
+
+    const title = titleInput.value.trim();
+    const content = contentInput.value.trim();
+    const editId = editIdInput ? editIdInput.value : '';
+
+    if (!title || !content) {
+        alert("제목과 내용을 모두 입력해주세요.");
+        return;
+    }
+
+    // --- 파이어베이스 저장 로직 구역 ---
+    // (여기에 기존에 사용하시던 Firebase push 또는 set 코드를 그대로 두시면 됩니다)
+    // 예시:
+    try {
+        if (editId) {
+            // 수정 모드
+            const postRef = window.fbRef(window.fbDB, `posts/${editId}`);
+            window.fbUpdate(postRef, { title, content, updatedAt: Date.now() });
+        } else {
+            // 새 글 작성
+            const postsRef = window.fbRef(window.fbDB, 'posts');
+            const newPostRef = window.fbPush(postsRef);
+            window.fbSet(newPostRef, {
+                title,
+                content,
+                createdAt: Date.now()
+            });
+        }
+        
+        alert("우주에 빛의 기록이 새겨졌습니다.");
+        clearAdminForm();
+        toggleAdminForm(); // 창 닫기
+    } catch (error) {
+        console.error("저장 실패:", error);
+        alert("데이터베이스 연결에 실패했습니다.");
+    }
 }
 
 function startEditPost(postId) {
@@ -533,11 +572,9 @@ function togglePin(postId, currentPinnedStatus) {
 }
 
 function clearAdminForm() {
-    document.getElementById('new-title').value = "";
-    document.getElementById('new-content').value = "";
-    document.getElementById('edit-id').value = "";
-    document.getElementById('admin-panel-title').innerText = "새로운 우주의 빛의 기록";
-    document.getElementById('admin-main-btn').innerHTML = '<i class="fa-solid fa-star"></i> 나의 우주에게 빛을 보내기';
+    if (document.getElementById('edit-id')) document.getElementById('edit-id').value = '';
+    if (document.getElementById('new-title')) document.getElementById('new-title').value = '';
+    if (document.getElementById('new-content')) document.getElementById('new-content').value = '';
 }
 
 function setSort(type) { currentSort = type; currentPage = 1; applyFilters(); }
