@@ -72,7 +72,7 @@ function listenToFirebase() {
                     nodeType: 'global_letters',
                     id: data[key].id || Date.now(),
                     author: data[key].writer || "익명",  
-                    title: data[key].title || "별빛 편지",
+                    title: data[key].title || "비밀 편지 조각",
                     content: data[key].text || "",       
                     date: data[key].date || "",         
                     isPinned: data[key].isPinned || false,
@@ -103,13 +103,13 @@ function mergeAndRender() {
         adminWriteBtn.style.display = 'block';
         secretMailIcon.style.display = 'inline-flex'; 
         passwordInput.style.display = 'block'; 
-        noticeZone.style.display = 'flex'; // 💡 관리자 모드일 때 공지 설정 체크박스 활성화
+        noticeZone.style.display = 'flex'; 
     } else {
         userWriteBtn.style.display = 'block';
         adminWriteBtn.style.display = 'none';
         secretMailIcon.style.display = 'none';
         passwordInput.style.display = 'none';  
-        noticeZone.style.display = 'none';  // 일반 유저에겐 숨김
+        noticeZone.style.display = 'none';  
     }
     renderPosts();
 }
@@ -126,7 +126,7 @@ function renderSecretMailboxWindow() {
     container.innerHTML = "";
 
     if (globalLetters.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.85rem;">별빛 우체통에 도착한 편지가 없습니다.</div>`;
+        container.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.85rem;">비밀 우체통에 도착한 편지가 없습니다.</div>`;
         return;
     }
 
@@ -172,14 +172,22 @@ function renderPosts() {
         return post.title.toLowerCase().includes(searchTitleVal);
     });
 
+    // 💡 [정렬 알고리즘 전면 교체] 공지글 고정 및 완벽한 시간 우선 정렬 
     filtered.sort((a, b) => {
+        // 1. 둘 중 하나만 공지글(isPinned)일 경우, 공지글을 최상단으로 올림
         if (a.isPinned && !b.isPinned) return -1;
         if (!a.isPinned && b.isPinned) return 1;
         
+        // 2. 둘 다 공지글이거나, 둘 다 일반 글일 경우 선택한 정렬 기준(시간)을 엄격히 적용
+        const timeA = new Date(a.date).getTime() || 0;
+        const timeB = new Date(b.date).getTime() || 0;
+        
         if (currentSort === 'latest') {
-            return new Date(b.date) - new Date(a.date) || b.id - a.id;
+            if (timeB !== timeA) return timeB - timeA; // 최신 시간이 위로
+            return b.id - a.id; // 시간이 완전히 같다면 최신 등록 ID 순
         } else {
-            return new Date(a.date) - new Date(b.date) || a.id - b.id;
+            if (timeA !== timeB) return timeA - timeB; // 오래된 시간이 위로
+            return a.id - b.id; // 시간이 완전히 같다면 과거 등록 ID 순
         }
     });
 
@@ -192,7 +200,7 @@ function renderPosts() {
     const pagePosts = filtered.slice(startIndex, endIndex);
 
     if(pagePosts.length === 0) {
-        feed.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.9rem;">우체통이 조용합니다. 일치하는 글이 없습니다.</div>`;
+        feed.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.9rem;">우체통이 고요합니다. 일치하는 글이 없습니다.</div>`;
         renderPaginationControls(totalPages);
         return;
     }
@@ -209,7 +217,7 @@ function renderPosts() {
         const card = document.createElement('div');
         card.className = `post-card ${post.isPinned ? 'pinned' : ''}`;
         
-        // 비밀번호 처리 로직
+        // 비밀번호 처리 로직 (비밀번호 존재 여부와 무관하게 정렬 성능은 완전 유지됨)
         const isLocked = post.postPassword && !isAdminMode && !unlockedPostIds.includes(post.firebaseKey);
         
         let displayContent = "";
@@ -322,13 +330,13 @@ function resetFilters() {
 function openModal(id) {
     if (id === 'writeModal') {
         if (!editingPostId && !replyingPostId) {
-            document.getElementById('write-modal-title').innerText = isAdminMode ? "빛의 기록 기록하기" : "하은이에게 편지 보내기";
+            document.getElementById('write-modal-title').innerText = isAdminMode ? "✍️ 관리자 우주 조각 기록하기" : "나의 우주에게 편지 쓰기";
             document.getElementById('post-author').value = isAdminMode ? currentAdminName : "";
             document.getElementById('post-author').disabled = isAdminMode;
             document.getElementById('post-title').value = "";
             document.getElementById('post-content').value = "";
             document.getElementById('post-password').value = ""; 
-            document.getElementById('post-is-pinned').checked = false; // 💡 기본 베이스는 공지 미체크 상태!
+            document.getElementById('post-is-pinned').checked = false; 
         }
     }
     document.getElementById(id).classList.add('active');
@@ -349,7 +357,7 @@ function checkAdminPassword() {
         closeModal('adminAuthModal');
         openModal('adminNameModal');
     } else {
-        alert("비밀번호가 일치하지 않습니다.");
+        alert("비밀번호가 일치하지 않습니다 우주인님.");
     }
 }
 
@@ -359,7 +367,7 @@ function saveAdminProfile() {
     isAdminMode = true;
     
     closeModal('adminNameModal');
-    alert(`어서와~! 편지지 아이콘을 누르면 도착한 편지를 읽을 수 있어~!`);
+    alert(`인증 성공! 우측 상단 단색 우체통 아이콘(📨)을 누르면 별도의 독립 창에서 수신 편지들을 열람할 수 있습니다.`);
     
     document.querySelector('.admin-entry-btn').innerText = `관리자 모드 (${currentAdminName})`;
     mergeAndRender();
@@ -378,7 +386,7 @@ function submitPost() {
     const title = document.getElementById('post-title').value.trim();
     const content = document.getElementById('post-content').value.trim();
     const postPassword = document.getElementById('post-password').value.trim(); 
-    const isPinned = document.getElementById('post-is-pinned').checked; // 💡 체크박스 상태 수집
+    const isPinned = document.getElementById('post-is-pinned').checked; 
 
     if(!title || !content) {
         alert("제목과 내용을 모두 기입해주세요.");
@@ -402,7 +410,7 @@ function submitPost() {
             updateData.title = title;
             updateData.content = content;
             updateData.postPassword = postPassword; 
-            updateData.isPinned = isPinned; // 수정 시 공지 상태도 반영
+            updateData.isPinned = isPinned; 
         }
         database.ref(`${editingTargetNode}/${editingPostId}`).update(updateData).then(() => {
             closeModal('writeModal');
@@ -429,7 +437,7 @@ function submitPost() {
                 title: title,
                 content: content,
                 date: today,
-                isPinned: isPinned, // 💡 관리자가 체크한 상태값 그대로 저장 (미체크면 false)
+                isPinned: isPinned, 
                 isFavorite: false,
                 postPassword: postPassword 
             }).then(() => closeModal('writeModal'));
@@ -465,6 +473,7 @@ function togglePin(nodeType, firebaseKey, currentStatus) {
     });
 }
 
+// 글 수정 기능 모달 바인딩 파트
 function openEditModal(nodeType, firebaseKey) {
     const pool = nodeType === 'posts' ? publicPosts : globalLetters;
     const post = pool.find(p => p.firebaseKey === firebaseKey);
@@ -474,14 +483,14 @@ function openEditModal(nodeType, firebaseKey) {
     editingTargetNode = nodeType;
     
     openModal('writeModal');
-    document.getElementById('write-modal-title').innerText = "빛의 기록 수정하기";
+    document.getElementById('write-modal-title').innerText = "기록 수정하기";
     document.getElementById('post-author').value = post.author;
     document.getElementById('post-author').disabled = true;
     document.getElementById('post-title').value = post.title;
     document.getElementById('post-content').value = post.content;
     if(nodeType === 'posts') {
         document.getElementById('post-password').value = post.postPassword || "";
-        document.getElementById('post-is-pinned').checked = post.isPinned || false; // 기존 공지 상태 로드
+        document.getElementById('post-is-pinned').checked = post.isPinned || false; 
     }
 }
 
