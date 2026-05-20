@@ -237,19 +237,24 @@ h1 {
 .admin-cancel-btn:hover { background: rgba(255,255,255,0.18); border-color: #F5E6C8; }
 
 /* ==========================================
-   📬 우체통 및 답장 시스템 스타일 테마
+   📬 통합 글로벌 우체통 전용 컴포넌트 CSS 스타일
    ========================================== */
-.reply-zone { margin-top: 18px; display: flex; justify-content: flex-start; }
-
-/* 방문자 답장 버튼 및 관리자 우체통 버튼 통일성 정렬 */
-.visitor-reply-btn, .mailbox-view-btn {
-    margin: 0; padding: 10px 20px; font-size: 0.85rem; border-radius: 20px;
+.main-mailbox-trigger {
+    font-weight: bold; transition: all 0.3s;
 }
-.mailbox-view-btn {
-    border-color: rgba(139, 92, 246, 0.4); color: #c084fc;
+/* 유저 전용 디자인 */
+.visitor-mailbox-theme {
+    background: rgba(245, 230, 200, 0.05); border: 1px solid rgba(245, 230, 200, 0.3); color: #F5E6C8;
 }
-.mailbox-view-btn:hover {
-    background: rgba(139, 92, 246, 0.25); border-color: #c084fc; box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+.visitor-mailbox-theme:hover {
+    background: rgba(245, 230, 200, 0.18); box-shadow: 0 0 15px rgba(245, 230, 200, 0.35);
+}
+/* 관리자 전용 디자인 */
+.admin-mailbox-theme {
+    background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.45); color: #c084fc;
+}
+.admin-mailbox-theme:hover {
+    background: rgba(139, 92, 246, 0.22); border-color: #c084fc; box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
 }
 
 /* 암전 오버레이 모달 배경 */
