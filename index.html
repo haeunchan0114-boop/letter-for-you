@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>나의 사랑하는 우주에게</title>
     <link rel="stylesheet" href="style.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
 
@@ -30,13 +33,13 @@
             </div>
 
             <div class="filter-row">
-                <select id="filter-fav" onchange="renderPosts()">
+                <select id="filter-fav" onchange="changePage(1)">
                     <option value="all">모든 편지 보기</option>
                     <option value="fav">⭐ 즐겨찾기 조각만 보기</option>
                 </select>
             </div>
 
-            <input type="text" id="search-title" class="btn-base search-input" placeholder="빛의 기록의 제목을 검색해보세요..." oninput="renderPosts()">
+            <input type="text" id="search-title" class="btn-base search-input" placeholder="빛의 기록의 제목을 검색해보세요..." oninput="changePage(1)">
 
             <button class="btn-base write-btn" onclick="openModal('writeModal')">
                 🚀 하은이에게 편지 쓰기
@@ -49,11 +52,7 @@
             <div id="posts-mailbox-feed"></div>
         </div>
 
-        <div class="pagination">
-            <button class="page-arrow">‹</button>
-            <span class="page-number">1</span>
-            <button class="page-arrow">›</button>
-        </div>
+        <div class="pagination" id="pagination-control"></div>
 
     </div>
 
