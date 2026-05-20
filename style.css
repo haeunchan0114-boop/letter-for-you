@@ -335,3 +335,125 @@ h1 {
     -webkit-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
 }
+/* ==========================================
+   ✨ 초호화 감성 우주 별똥별 (Shooting Stars) CSS
+   ========================================== */
+
+/* 별똥별 공통 기본 뼈대 스타일 */
+.shooting-star {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    background: linear-gradient(-45deg, rgba(245, 230, 200, 1), rgba(255, 255, 255, 0));
+    border-radius: 999px;
+    filter: drop-shadow(0 0 8px rgba(245, 230, 200, 0.8));
+    animation: tail-fade 4s ease-in-out infinite, shooting-trajectory 4s ease-in-out infinite;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* 별똥별이 떨어질 때 빛나는 긴 꼬리(빛줄기) 구현 */
+.shooting-star::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 120px;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(245, 230, 200, 0.9), rgba(255, 255, 255, 0));
+}
+
+/* 🌠 개별 별똥별 커스텀 (위치, 크기, 각도, 시간차 딜레이 부여) */
+.s-star1 {
+    top: -5%;
+    left: 30%;
+    animation-delay: 0s;
+    animation-duration: 5.5s;
+}
+.s-star2 {
+    top: -10%;
+    left: 60%;
+    transform: scale(0.8);
+    animation-delay: 1.8s;
+    animation-duration: 4.2s;
+    background: linear-gradient(-45deg, #FFD1DC, rgba(255, 255, 255, 0)); /* 연분홍빛 별똥별 */
+}
+.s-star2::before { background: linear-gradient(90deg, #FFD1DC, rgba(255, 255, 255, 0)); }
+
+.s-star3 {
+    top: 5%;
+    left: 85%;
+    transform: scale(1.2);
+    animation-delay: 3.5s;
+    animation-duration: 6s;
+}
+.s-star4 {
+    top: -8%;
+    left: 15%;
+    transform: scale(0.6);
+    animation-delay: 5.2s;
+    animation-duration: 4.8s;
+    background: linear-gradient(-45deg, #E2F0CB, rgba(255, 255, 255, 0)); /* 오로라빛 은은한 초록별 */
+}
+.s-star4::before { background: linear-gradient(90deg, #E2F0CB, rgba(255, 255, 255, 0)); }
+
+.s-star5 {
+    top: -2%;
+    left: 45%;
+    transform: scale(1.1);
+    animation-delay: 7s;
+    animation-duration: 5.2s;
+}
+.s-star6 {
+    top: -12%;
+    left: 75%;
+    transform: scale(0.7);
+    animation-delay: 8.8s;
+    animation-duration: 3.9s;
+}
+.s-star7 {
+    top: 10%;
+    left: 20%;
+    transform: scale(1);
+    animation-delay: 11s;
+    animation-duration: 6.5s;
+}
+
+/* 🎬 궤적 움직임 애니메이션 핵심 함수 (대각선 우하향으로 쓸려 내려가는 효과) */
+@keyframes shooting-trajectory {
+    0% {
+        transform: rotate(-35deg) translateX(0);
+    }
+    30%, 100% {
+        transform: rotate(-35deg) translateX(-1200px); /* 왼쪽 위에서 우측 아래로 스치듯 이동 */
+    }
+}
+
+/* 🎬 빛 흐려짐 애니메이션 함수 (스르륵 나타났다가 꼬리 남기며 번쩍 사라짐) */
+@keyframes tail-fade {
+    0% {
+        opacity: 0;
+    }
+    5% {
+        opacity: 1;
+    }
+    20% {
+        opacity: 0.8;
+    }
+    28%, 100% {
+        opacity: 0;
+        width: 0;
+    }
+}
+
+/* 가상 키보드가 켜질 때 별똥별 렌더링 부하로 인한 깜빡임 방지용 하드웨어 가속 */
+.shooting-star {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0) rotate(-35deg);
+    will-change: transform, opacity;
+}
