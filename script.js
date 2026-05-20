@@ -224,6 +224,7 @@ function applyFilters() {
     renderPosts();
 }
 
+// [수정 완성본] 비밀번호 소유 여부에 따른 카드 본문 조건부 렌더링 시스템 구현
 function renderPosts() {
     const start = (currentPage - 1) * postsPerPage;
     const end = start + postsPerPage;
@@ -241,11 +242,39 @@ function renderPosts() {
     pagedPosts.forEach(post => {
         const isPinned = post.pinned === true;
         const authorDisplay = post.author ? post.author : "알 수 없음"; 
+        
+        // 데이터베이스 상에 유효한 잠금 비밀번호가 정의되어 있는지 판별
+        const hasPassword = post.password && post.password.trim() !== "";
+
+        let displayContent = post.content;
+        let lockClass = "";
+        let lockControlsHTML = "";
+
+        // 관리자가 아니며 기밀 번호가 매핑된 상태일 때 원문 가림막 및 특수 안내 처리
+        if (hasPassword && !isAdminMode) {
+            lockClass = "post-locked";
+            displayContent = `<span class="lock-text" style="color: #e2e8f0; font-weight: 500; font-size:1.05rem; letter-spacing:0.3px;"><i class="fa-solid fa-lock" style="color:#f6ad55; margin-right:6px;"></i> 빛을 보려면 암호가 필요해!</span>`;
+            
+            lockControlsHTML = `
+                <div class="lock-btn-zone" style="margin-top: 15px;">
+                    <button class="winter-btn lock-unlock-btn" style="background: rgba(246,173,85,0.15); border-color:#f6ad55; color:#f6ad55;" onclick="unlockPost('${post.id}', '${post.password}')">
+                        <i class="fa-solid fa-key"></i> 암호 입력하고 빛 확인하기
+                    </button>
+                </div>
+            `;
+        }
+
+        // 해당 클라이언트 세션에서 패스워드가 매칭 성공으로 마킹 완료된 경우 표출 복구
+        if (window[`unlocked_${post.id}`]) {
+            displayContent = post.content;
+            lockControlsHTML = `<div style="color:#48bb78; font-size:0.85rem; margin-top:12px; font-weight:bold;"><i class="fa-solid fa-lock-open"></i> 암호가 해제되어 투명해진 기록입니다.</div>`;
+        }
 
         let replyBtnHTML = '';
-        if (!isAdminMode) {
+        // 관리자이거나 비밀번호가 없거나 혹은 비밀번호를 맞춘 상태에서만 답장 가능하게 보완
+        if (!isAdminMode && (!hasPassword || window[`unlocked_${post.id}`])) {
             replyBtnHTML = `
-                <div class="reply-zone">
+                <div class="reply-zone" style="margin-top: 15px;">
                     <button class="winter-btn card-reply-trigger-btn" onclick="openPostReplyModal('${post.title.replace(/'/g, "\\'")}')">
                         <i class="fa-solid fa-reply"></i> 답장 보내기
                     </button>
@@ -254,15 +283,17 @@ function renderPosts() {
         }
 
         const card = document.createElement('div');
-        card.className = `post-card ${isPinned ? 'pinned' : ''}`;
+        card.className = `post-card ${isPinned ? 'pinned' : ''} ${lockClass}`;
         card.innerHTML = `
             <div class="post-date">
                 ${isPinned ? '<span class="pin-badge"><i class="fa-solid fa-thumbtack"></i> 고정됨</span> | ' : ''} 
                 <span class="author-tag">${authorDisplay}</span> | ${post.date}
+                ${hasPassword ? ' | <span style="color:#f6ad55; font-weight:bold;"><i class="fa-solid fa-lock"></i> 비밀글</span>' : ''}
             </div>
             <h2 class="post-title">${post.title}</h2>
-            <p>${post.content}</p>
+            <p id="content-${post.id}" style="line-height: 1.6; white-space: pre-wrap;">${displayContent}</p>
             
+            ${lockControlsHTML}
             ${replyBtnHTML}
             
             <div class="admin-card-controls">
@@ -282,6 +313,20 @@ function renderPosts() {
     
     if(document.getElementById('page-indicator')) {
         document.getElementById('page-indicator').innerText = currentPage;
+    }
+}
+
+// 🌌 [신규 완성본] 비밀번호 입력 시 매칭 후 실시간으로 해당 글을 열어주는 연동 스크립트
+function unlockPost(postId, correctPassword) {
+    const userInput = prompt("이 기록의 빛을 밝힐 암호(숫자 4자리)를 입력하세요:");
+    if (userInput === null) return; 
+
+    if (userInput.trim() === correctPassword) {
+        alert("암호가 일치합니다. 빛의 기록이 열립니다.");
+        window[`unlocked_${postId}`] = true; 
+        renderPosts(); 
+    } else {
+        alert("암호가 올바르지 않습니다. 빛이 완강히 거부합니다.");
     }
 }
 
@@ -307,7 +352,6 @@ function clearFormFields() {
     if(document.getElementById('reply-content')) document.getElementById('reply-content').value = "";
 }
 
-// 모달 외부 클릭 감지 차단 및 정상 닫기용 함수
 function closeReplyModal() {
     document.getElementById('reply-modal').style.display = 'none';
 }
@@ -491,6 +535,7 @@ function getFormattedCurrentTime() {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 }
 
+// [수정 완성본] 글 저장 프로세스 내에 기밀 번호 필드 유효성 믹스인 처리 완료
 function savePost() {
     if (!window.isAdminAuthenticated) {
         alert("권한이 없습니다. 페이지를 새로고침 후 다시 로그인해 주세요.");
@@ -500,31 +545,40 @@ function savePost() {
     const titleInput = document.getElementById('new-title');
     const contentInput = document.getElementById('new-content');
     const editIdInput = document.getElementById('edit-id');
+    const passwordInput = document.getElementById('new-password'); 
 
     if (!titleInput || !contentInput) return;
 
     const title = titleInput.value.trim();
     const content = contentInput.value.trim();
     const editId = editIdInput ? editIdInput.value : '';
+    let password = passwordInput ? passwordInput.value.trim() : '';
 
     if (!title || !content) {
         alert("제목과 내용을 모두 입력해주세요.");
         return;
     }
 
+    // 비밀번호 숫자 4자리 검증 가드 배치
+    if (password !== "" && !/^\d{4}$/.test(password)) {
+        alert("비밀번호는 반드시 숫자 4자리 구조로 설정하셔야 안전합니다!");
+        return;
+    }
+
     try {
         if (editId) {
             const postRef = window.fbRef(window.fbDB, `posts/${editId}`);
-            window.fbUpdate(postRef, { title, content, author: adminName, updatedAt: Date.now() });
+            window.fbUpdate(postRef, { title, content, password: password, author: adminName, updatedAt: Date.now() });
         } else {
             const postsRef = window.fbRef(window.fbDB, 'posts');
             const newPostRef = window.fbPush(postsRef);
             window.fbSet(newPostRef, {
                 title,
                 content,
-                author: adminName, // 등록한 이름 강제 바인딩
+                password: password,
+                author: adminName, 
                 createdAt: Date.now(),
-                date: getFormattedCurrentTime().substring(0, 10) // 리스트 출력 안정성을 위한 날짜 필드 보완
+                date: getFormattedCurrentTime().substring(0, 10)
             });
         }
         
@@ -542,6 +596,7 @@ function savePost() {
     }
 }
 
+// [수정 완성본] 수정 트리거 작동 시 기존 매핑 비밀번호 세팅 연계 완료
 function startEditPost(postId) {
     const post = myPosts.find(p => p.id === postId);
     if (!post) return;
@@ -552,6 +607,9 @@ function startEditPost(postId) {
     document.getElementById('new-title').value = post.title;
     document.getElementById('new-content').value = post.content.replace(/<br>/g, '\n');
     document.getElementById('edit-id').value = postId;
+    if (document.getElementById('new-password')) {
+        document.getElementById('new-password').value = post.password ? post.password : '';
+    }
 
     document.getElementById('admin-panel-title').innerText = "우주 속 빛의 기록 수정하기";
     document.getElementById('admin-main-btn').innerHTML = '<i class="fa-solid fa-check"></i> 빛의 기록 수정 완료하기';
@@ -571,10 +629,12 @@ function togglePin(postId, currentPinnedStatus) {
     });
 }
 
+// [수정 완성본] 클리어 패널 양식에 비밀번호 엘리먼트 초기화 루틴 탑재
 function clearAdminForm() {
     if (document.getElementById('edit-id')) document.getElementById('edit-id').value = '';
     if (document.getElementById('new-title')) document.getElementById('new-title').value = '';
     if (document.getElementById('new-content')) document.getElementById('new-content').value = '';
+    if (document.getElementById('new-password')) document.getElementById('new-password').value = ''; 
     if (document.getElementById('admin-panel-title')) document.getElementById('admin-panel-title').innerText = "우주에 새로운 빛의 기록 남기기";
     if (document.getElementById('admin-main-btn')) document.getElementById('admin-main-btn').innerHTML = '<i class="fa-solid fa-feather"></i> 우주에 빛의 기록 새겨넣기';
 }
@@ -600,7 +660,6 @@ function toggleStarLetter(letterId, currentStarredStatus) {
 
 // 타이틀 클릭 시 이스터에그 발동 함수
 function triggerSpaceEasterEgg() {
-    // ⚡ [최적화 가드] 최적화 모드가 켜져 있다면 이스터에그 파티클 연산을 실행하지 않습니다.
     if (document.body.classList.contains('optimized')) return;
 
     const msgBox = document.getElementById('easter-egg-message');
@@ -639,38 +698,28 @@ function triggerSpaceEasterEgg() {
     }
 }
 
-
 // ==========================================
-// ⚡ [NEW] 최적화 모드 토글 인터페이스 시스템
+// ⚡ 최적화 모드 토글 인터페이스 시스템
 // ==========================================
 function toggleOptimization() {
     const body = document.body;
     const btn = document.getElementById('opt-toggle-btn');
     if (!btn) return;
 
-    // body 객체에 .optimized 클래스를 토글 결합합니다.
     const isOptimized = body.classList.toggle('optimized');
 
     if (isOptimized) {
-        // [최적화 ON 설정]
         btn.innerHTML = `<i class="fa-solid fa-bolt"></i> 최적화 모드: ON (애니메이션 꺼짐)`;
-        
-        // 메모리 절약과 즉각적인 렉 방지를 위해 떠돌던 눈송이 돔 구조 전체 청소
         const snowContainer = document.getElementById('snow-container');
         if (snowContainer) snowContainer.innerHTML = '';
-        
         localStorage.setItem('site-optimized', 'true');
     } else {
-        // [최적화 OFF 설정]
         btn.innerHTML = `<i class="fa-solid fa-gauge-high"></i> 최적화 모드: OFF (애니메이션 켜짐)`;
         localStorage.setItem('site-optimized', 'false');
-        
-        // 다시 원래 스케줄대로 하늘에서 눈이 내리게 만듦
         startSnowingEffect();
     }
 }
 
-// 부팅 시 세션 데이터 복구용 보조 로직 함수
 function applySavedOptimization() {
     if (localStorage.getItem('site-optimized') === 'true') {
         const body = document.body;
@@ -684,21 +733,18 @@ function applySavedOptimization() {
     }
 }
 
-
 // ==========================================
-// 🌌 [구조 독립] 화면 전체 적용: 연노랑 단색 특수기호 트레일 (마우스/터치)
+// 🌌 화면 전체 적용: 연노랑 단색 특수기호 트레일 (마우스/터치)
 // ==========================================
 (function() {
     const spaceSymbols = ['✦', '★', '✧', '•', '﹡', '⁺'];
     
     const handleMove = (e) => {
-        // ⚡ [최적화 가드] 최적화 상태가 설정되면 트레일 렌더링에 필요한 자원 소모를 전면 차단합니다.
         if (document.body.classList.contains('optimized')) return;
 
         const x = e.touches ? e.touches[0].clientX : e.clientX;
         const y = e.touches ? e.touches[0].clientY : e.clientY;
         
-        // 너무 빽빽하게 생겨서 지저분해지는 것을 방지 (스폰 확률 조절)
         if (Math.random() > 0.4) return;
 
         const particle = document.createElement('span');
@@ -707,7 +753,7 @@ function applySavedOptimization() {
         particle.style.position = 'fixed';
         particle.style.left = x + 'px';
         particle.style.top = y + 'px';
-        particle.style.color = '#F5E6C8'; /* 연노랑 단색 고정 */
+        particle.style.color = '#F5E6C8'; 
         particle.style.fontSize = (Math.random() * 6 + 10) + 'px'; 
         particle.style.pointerEvents = 'none';
         particle.style.zIndex = '999999';
@@ -730,7 +776,6 @@ function applySavedOptimization() {
         setTimeout(() => { particle.remove(); }, 950);
     };
 
-    // 마우스 및 모바일 터치 이벤트 감지기를 브라우저 창에 즉시 결합
     window.addEventListener('mousemove', handleMove, { passive: true });
     window.addEventListener('touchmove', handleMove, { passive: true });
 })();
