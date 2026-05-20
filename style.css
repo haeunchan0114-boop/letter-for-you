@@ -457,3 +457,50 @@ h1 {
     transform: translate3d(0, 0, 0) rotate(-35deg);
     will-change: transform, opacity;
 }
+/* ==========================================
+   📱 안드로이드/삼성폰 입력창 검정 깜빡임 최종 해결책
+   ========================================== */
+
+/* 1. 키보드가 올라와도 우주 배경 화면 전체가 수축/팽창하지 않도록 강제 고정 */
+html, body, .space-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100% !important; /* vh 대신 %를 사용하여 키보드로 인한 높이 변화 방지 */
+    overflow-x: hidden;
+    -webkit-text-size-adjust: none;
+}
+
+/* 2. 글을 쓸 때 배경 레이어들이 그래픽 카드를 거치지 않고 가만히 있도록 락(Lock) */
+.space-background div, 
+.space-background::before, 
+.space-background::after {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000;
+    -webkit-perspective: 1000;
+}
+
+/* 3. 글 쓰는 칸(input, textarea) 자체의 안드로이드 고질병 버그 제거 */
+.admin-input, .winter-input, textarea, input[type="text"] {
+    /* 터치 시 브라우저가 강제로 씌우는 반투명한 검정/파란색 음영 레이어 제거 */
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
+    -webkit-tap-highlight-color: transparent !important;
+    
+    /* 포커스(커서가 깜빡일 때) 브라우저 자체 아웃라인 잔상 제거 */
+    outline: none !important;
+    
+    /* 일부 안드로이드 하드웨어 가속 충돌 방지 */
+    transform: translateZ(0);
+}
+
+/* 4. 글씨 입력 시 모달창 전체가 위아래로 꿀렁거리는 현상 방지 */
+.reply-modal-overlay, .reply-modal-content {
+    -webkit-transform: translate3d(0,0,0);
+    transform: translate3d(0,0,0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
