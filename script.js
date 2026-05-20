@@ -1,8 +1,8 @@
-// 기본 탑재 데이터
+// 기본 탑재 데이터 (답장 보관용 replies 배열 확장)
 const defaultPosts = [
-  { title: "첫 번째 우주의 기록", author: "은하 관리인", date: "2026-05-20 12:00", content: "여기는 아주 조용하고 평화로운 나만의 우주입니다.", pinned: false },
-  { title: "겨울 밤바다의 소리", author: "여행자", date: "2026-01-15 23:45", content: "차가운 파도가 하얗게 부서지는 소리가 들려옵니다.", pinned: false },
-  { title: "작은 별 하나", author: "스텔라", date: "2026-01-10 03:10", content: "가장 작게 빛나는 별에게 나의 마음을 전합니다.", pinned: false }
+  { title: "첫 번째 우주의 기록", author: "은하 관리인", date: "2026-05-20 12:00", content: "여기는 아주 조용하고 평화로운 나만의 우주입니다.", pinned: false, replies: [] },
+  { title: "겨울 밤바다의 소리", author: "여행자", date: "2026-01-15 23:45", content: "차가운 파도가 하얗게 부서지는 소리가 들려옵니다.", pinned: false, replies: [] },
+  { title: "작은 별 하나", author: "스텔라", date: "2026-01-10 03:10", content: "가장 작게 빛나는 별에게 나의 마음을 전합니다.", pinned: false, replies: [] }
 ];
 
 let myPosts = JSON.parse(localStorage.getItem('galaxy_posts'));
@@ -19,6 +19,8 @@ let selectedDate = '';
 let searchQuery = '';
 let isAdminMode = false;
 let adminName = ''; 
+
+let activePostIndexForReply = null; // 현재 답장을 쓰거나 확인중인 글의 인덱스
 
 function startSnowingEffect() {
     const container = document.getElementById('snow-container');
@@ -54,10 +56,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
 
                 isAdminMode = true;
-                // 관리자 인증 성공 시 글쓰기 감싸는 영역 표시
                 document.getElementById('admin-wrapper').style.display = 'block';
                 
-                // 관리자 전용 제어 단추(수정/삭제/고정) 스타일 강제 활성화
                 const sheet = window.document.styleSheets[0];
                 sheet.insertRule('.admin-card-controls { display: flex !important; }', sheet.cssRules.length);
                 
@@ -72,7 +72,6 @@ document.addEventListener("DOMContentLoaded", function() {
     applyFilters();
 });
 
-// 글쓰기 컴포넌트 여닫기 토글러
 function toggleAdminForm() {
     const form = document.getElementById('admin-area');
     const toggleBtn = document.getElementById('admin-open-toggle');
@@ -108,7 +107,7 @@ function applyFilters() {
     renderPosts();
 }
 
-// 피드 빌더 (이름 옆에 ⭐ 이모지 배치 완료)
+// 피드 빌더 (답장 단추 vs 편지지 아이콘 분기 로직 탑재)
 function renderPosts() {
     const start = (currentPage - 1) * postsPerPage;
     const end = start + postsPerPage;
@@ -127,6 +126,25 @@ function renderPosts() {
         const originalIndex = myPosts.findIndex(p => p.title === post.title && p.date === post.date && p.content === post.content);
         const isPinned = post.pinned === true;
         const authorDisplay = post.author ? post.author : "알 수 없음"; 
+        const replyCount = post.replies ? post.replies.length : 0;
+
+        // 📬 모드에 따른 답장 UI 분기처리
+        let replyButtonHTML = '';
+        if (isAdminMode) {
+            // 관리자: 답장 보내기 버튼이 없고 대신 답장을 확인하는 [편지지 아이콘] 등장
+            replyButtonHTML = `
+                <button class="mailbox-view-btn" onclick="openMailboxModal(${originalIndex})">
+                    <i class="fa-solid fa-envelope-open-text"></i> 편지함 (${replyCount})
+                </button>
+            `;
+        } else {
+            // 방문자: [답장 보내기] 버튼 제공
+            replyButtonHTML = `
+                <button class="visitor-reply-btn" onclick="openReplyModal(${originalIndex})">
+                    <i class="fa-solid fa-paper-plane"></i> 답장 보내기
+                </button>
+            `;
+        }
 
         const card = document.createElement('div');
         card.className = `post-card ${isPinned ? 'pinned' : ''}`;
@@ -137,6 +155,10 @@ function renderPosts() {
             </div>
             <h2 class="post-title">${post.title}</h2>
             <p>${post.content}</p>
+            
+            <div class="reply-zone">
+                ${replyButtonHTML}
+            </div>
             
             <div class="admin-card-controls">
                 <button class="admin-mini-btn ${isPinned ? 'pin-active' : ''}" onclick="togglePin(${originalIndex})">
@@ -157,11 +179,100 @@ function renderPosts() {
     if (pageIndicator) pageIndicator.innerText = currentPage;
 }
 
+/* ==========================================
+   📬 방문자용 답장 프로세서 구동부
+   ========================================== */
+function openReplyModal(index) {
+    activePostIndexForReply = index;
+    document.getElementById('reply-target-title').innerText = `원문: "${myPosts[index].title}"`;
+    document.getElementById('reply-author').value = "";
+    document.getElementById('reply-content').value = "";
+    document.getElementById('reply-modal').style.display = 'flex';
+}
+
+function closeReplyModal() {
+    document.getElementById('reply-modal').style.display = 'none';
+}
+
+function submitReply() {
+    const author = document.getElementById('reply-author').value.trim();
+    const content = document.getElementById('reply-content').value.trim();
+
+    if (!author || !content) {
+        return alert("이름과 답장 내용을 모두 채워주세요.");
+    }
+
+    if (!myPosts[activePostIndexForReply].replies) {
+        myPosts[activePostIndexForReply].replies = [];
+    }
+
+    // 답장 저장
+    myPosts[activePostIndexForReply].replies.push({
+        writer: author,
+        text: content.replace(/\n/g, '<br>'),
+        date: getFormattedCurrentTime()
+    });
+
+    syncStorage();
+    closeReplyModal();
+    alert("🚀 답장이 별빛을 타고 전송되었습니다!");
+    applyFilters();
+}
+
+/* ==========================================
+   📨 관리자 전용 우체통 열람 제어 모듈
+   ========================================== */
+function openMailboxModal(index) {
+    activePostIndexForReply = index;
+    const post = myPosts[index];
+    document.getElementById('mailbox-target-title').innerText = `"${post.title}" 글에 도착한 편지`;
+    
+    const listContainer = document.getElementById('mailbox-list');
+    listContainer.innerHTML = "";
+
+    const replies = post.replies || [];
+    if (replies.length === 0) {
+        listContainer.innerHTML = `<p style="text-align:center; color:#a0aec0; padding:30px 0;">아직 도착한 우주 편지가 없습니다.</p>`;
+    } else {
+        // 최신 답장이 위로 오도록 반대로 표시
+        [...replies].reverse().forEach((reply, revIdx) => {
+            // 거꾸로 돌렸으므로 실제 원본 인덱스 연산
+            const realReplyIndex = replies.length - 1 - revIdx;
+            
+            const item = document.createElement('div');
+            item.className = 'mailbox-item';
+            item.innerHTML = `
+                <div class="mailbox-item-meta">
+                    <span style="color:#F5E6C8; font-weight:bold;">✍️ ${reply.writer}</span>
+                    <span style="font-size:0.8rem; color:#718096;">${reply.date}</span>
+                </div>
+                <p class="mailbox-item-text">${reply.text}</p>
+                <button class="reply-delete-btn" onclick="deleteReply(${realReplyIndex})">편지 소멸</button>
+            `;
+            listContainer.appendChild(item);
+        });
+    }
+    document.getElementById('mailbox-modal').style.display = 'flex';
+}
+
+function closeMailboxModal() {
+    document.getElementById('mailbox-modal').style.display = 'none';
+}
+
+function deleteReply(replyIndex) {
+    if (confirm("이 답장 편지를 영구히 삭제하시겠습니까?")) {
+        myPosts[activePostIndexForReply].replies.splice(replyIndex, 1);
+        syncStorage();
+        // 편지함 내용 실시간 갱신
+        openMailboxModal(activePostIndexForReply);
+        applyFilters();
+    }
+}
+
 function syncStorage() {
     localStorage.setItem('galaxy_posts', JSON.stringify(myPosts));
 }
 
-// 🕒 실시간 한국 표준 시간 포맷터
 function getFormattedCurrentTime() {
     const now = new Date();
     const year = now.getFullYear();
@@ -172,7 +283,6 @@ function getFormattedCurrentTime() {
     return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
 
-// 글 저장 액션 핸들러
 function savePost() {
     const titleVal = document.getElementById('new-title').value.trim();
     const contentVal = document.getElementById('new-content').value.trim();
@@ -195,7 +305,8 @@ function savePost() {
             author: adminName, 
             date: autoDateTime, 
             content: cleanContent,
-            pinned: false
+            pinned: false,
+            replies: [] // 새 글 생성 시에도 답장 리스트 빈 배열로 확보
         });
         alert("빛나는 새로운 기록이 보존되었습니다.");
     }
