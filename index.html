@@ -4,12 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>사랑하는 나의 우주에게 ⭐</title>
-    
     <link rel="stylesheet" href="style.css">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </head>
 <body>
 
@@ -41,6 +37,13 @@
                 <div class="date-group">
                     <input type="date" id="date-picker" class="winter-input" onchange="filterDate(this.value)">
                     <button class="winter-btn" onclick="resetFilter()">전체보기</button>
+                </div>
+            </div>
+
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="search-input" class="winter-input search-input-field" placeholder="기록의 제목을 검색해 보세요..." oninput="searchTitle(this.value)">
                 </div>
             </div>
         </header>
