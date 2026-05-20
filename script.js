@@ -1,8 +1,8 @@
 // 기본 탑재 데이터
 const defaultPosts = [
-  { title: "첫 번째 우주의 기록", author: "은하 관리인", date: "2026-05-20 12:00", content: "여기는 아주 조용하고 평화로운 나만의 우주입니다.", pinned: false, replies: [] },
-  { title: "겨울 밤바다의 소리", author: "여행자", date: "2026-01-15 23:45", content: "차가운 파도가 하얗게 부서지는 소리가 들려옵니다.", pinned: false, replies: [] },
-  { title: "작은 별 하나", author: "스텔라", date: "2026-01-10 03:10", content: "가장 작게 빛나는 별에게 나의 마음을 전합니다.", pinned: false, replies: [] }
+  { title: "첫 번째 우주의 기록", author: "은하 관리인", date: "2026-05-20 12:00", content: "여기는 아주 조용하고 평화로운 나만의 우주입니다.", pinned: false },
+  { title: "겨울 밤바다의 소리", author: "여행자", date: "2026-01-15 23:45", content: "차가운 파도가 하얗게 부서지는 소리가 들려옵니다.", pinned: false },
+  { title: "작은 별 하나", author: "스텔라", date: "2026-01-10 03:10", content: "가장 작게 빛나는 별에게 나의 마음을 전합니다.", pinned: false }
 ];
 
 let myPosts = JSON.parse(localStorage.getItem('galaxy_posts'));
@@ -10,6 +10,9 @@ if (!myPosts) {
     myPosts = defaultPosts;
     localStorage.setItem('galaxy_posts', JSON.stringify(myPosts));
 }
+
+// 📬 글로벌 통합 편지 데이터 레이어 스토리지 연동
+let globalLetters = JSON.parse(localStorage.getItem('galaxy_global_letters')) || [];
 
 let currentDisplayPosts = []; 
 let currentPage = 1;
@@ -20,13 +23,10 @@ let searchQuery = '';
 let isAdminMode = false;
 let adminName = ''; 
 
-// 📬 편지함(우체통) 내부 제어 전용 상태 변수들
-let activePostIndexForReply = null;
-let mailboxFilteredReplies = [];
+// 📨 통합 우체통 모달 전용 상태 제어 변수
+let mailboxFilteredLetters = [];
 let mailboxCurrentPage = 1;
-const mailboxRepliesPerPage = 3; // 3개씩 끊어 넘기기 규칙 적용
-let mailboxSearchQuery = '';
-let mailboxSelectedDate = '';
+const mailboxLettersPerPage = 3; 
 
 function startSnowingEffect() {
     const container = document.getElementById('snow-container');
@@ -50,10 +50,10 @@ document.addEventListener("DOMContentLoaded", function() {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('mode') === 'sea') {
         setTimeout(function() {
-            const passwordInput = prompt("🔒 관리자 시스템 보안 인증\n비밀번호를 입력해 주세요:");
+            const passwordInput = prompt("관리자 시스템 보안 인증! \n비밀번호를 입력해 주세요:");
             if (passwordInput === "0416haeunashi0416!*!26") {
                 
-                const nameInput = prompt("✍️ 우주에 새겨질 기록자 이름을 입력해 주세요:");
+                const nameInput = prompt("우주에 새겨질 빛의 기록자 이름을 입력해 주세요:");
                 if(nameInput && nameInput.trim() !== "") {
                     adminName = nameInput.trim();
                 } else {
@@ -66,16 +66,42 @@ document.addEventListener("DOMContentLoaded", function() {
                 const sheet = window.document.styleSheets[0];
                 sheet.insertRule('.admin-card-controls { display: flex !important; }', sheet.cssRules.length);
                 
-                alert(`별빛 인증 성공! ${adminName}님, 빛의 우주선에 오신 것을 환영해요!.`);
+                alert(`빛의 기록자 ${adminName}님! 어서오세요~!`);
+                updateMailboxButtonUI();
                 applyFilters(); 
             } else {
-                alert("비밀번호가 일치하지 않아요.. 다시 확인해주세요!");
+                alert("비밀번호가 일치하지 않아요..ㅜ 다시 확인해주세요");
                 window.location.href = window.location.pathname; 
             }
         }, 200);
+    } else {
+        updateMailboxButtonUI();
     }
     applyFilters();
 });
+
+// 상단 우체통 제어 단추를 모드에 맞게 동적 바인딩하는 로직
+function updateMailboxButtonUI() {
+    const btn = document.getElementById('global-mailbox-btn');
+    if (!btn) return;
+
+    if (isAdminMode) {
+        btn.innerHTML = `<i class="fa-solid fa-envelope-open-text"></i> 📬 빛의 우체통 (${globalLetters.length})`;
+        btn.className = "winter-btn main-mailbox-trigger admin-mailbox-theme";
+    } else {
+        btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> ✉️ 하은이에게 편지 쓰기`;
+        btn.className = "winter-btn main-mailbox-trigger visitor-mailbox-theme";
+    }
+}
+
+// 메인 우체통 버튼 클릭 시 분기 커널
+function handleMailboxClick() {
+    if (isAdminMode) {
+        openMailboxModal();
+    } else {
+        openReplyModal();
+    }
+}
 
 function toggleAdminForm() {
     const form = document.getElementById('admin-area');
@@ -122,7 +148,7 @@ function renderPosts() {
     container.innerHTML = '';
 
     if (pagedPosts.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#718096; padding: 50px 0;">별빛의 기록을 찾을 수 없습니다..ㅜ</p>';
+        container.innerHTML = '<p style="text-align:center; color:#718096; padding: 50px 0;">빛의 기록을 찾을 수 없습니다.</p>';
         return;
     }
 
@@ -130,22 +156,6 @@ function renderPosts() {
         const originalIndex = myPosts.findIndex(p => p.title === post.title && p.date === post.date && p.content === post.content);
         const isPinned = post.pinned === true;
         const authorDisplay = post.author ? post.author : "알 수 없음"; 
-        const replyCount = post.replies ? post.replies.length : 0;
-
-        let replyButtonHTML = '';
-        if (isAdminMode) {
-            replyButtonHTML = `
-                <button class="winter-btn mailbox-view-btn" onclick="openMailboxModal(${originalIndex})">
-                    <i class="fa-solid fa-envelope-open-text"></i> 편지함 (${replyCount})
-                </button>
-            `;
-        } else {
-            replyButtonHTML = `
-                <button class="winter-btn visitor-reply-btn" onclick="openReplyModal(${originalIndex})">
-                    <i class="fa-solid fa-paper-plane"></i> 답장 보내기
-                </button>
-            `;
-        }
 
         const card = document.createElement('div');
         card.className = `post-card ${isPinned ? 'pinned' : ''}`;
@@ -156,10 +166,6 @@ function renderPosts() {
             </div>
             <h2 class="post-title">${post.title}</h2>
             <p>${post.content}</p>
-            
-            <div class="reply-zone">
-                ${replyButtonHTML}
-            </div>
             
             <div class="admin-card-controls">
                 <button class="admin-mini-btn ${isPinned ? 'pin-active' : ''}" onclick="togglePin(${originalIndex})">
@@ -181,11 +187,9 @@ function renderPosts() {
 }
 
 /* ==========================================
-   📬 방문자용 답장 입력 파트
+   📬 방문자 전용 글로벌 편지 전송 파트
    ========================================== */
-function openReplyModal(index) {
-    activePostIndexForReply = index;
-    document.getElementById('reply-target-title').innerText = `원문: "${myPosts[index].title}"`;
+function openReplyModal() {
     document.getElementById('reply-author').value = "";
     document.getElementById('reply-content').value = "";
     document.getElementById('reply-modal').style.display = 'flex';
@@ -195,38 +199,31 @@ function closeReplyModal() {
     document.getElementById('reply-modal').style.display = 'none';
 }
 
-function submitReply() {
+function submitGlobalLetter() {
     const author = document.getElementById('reply-author').value.trim();
     const content = document.getElementById('reply-content').value.trim();
 
     if (!author || !content) {
-        return alert("이름과 답장 내용을 모두 채워주세요.");
+        return alert("이름과 편지 내용을 모두 채워주세요.");
     }
 
-    if (!myPosts[activePostIndexForReply].replies) {
-        myPosts[activePostIndexForReply].replies = [];
-    }
-
-    myPosts[activePostIndexForReply].replies.push({
+    // 전역 편지 배열에 삽입
+    globalLetters.push({
         writer: author,
         text: content.replace(/\n/g, '<br>'),
         date: getFormattedCurrentTime()
     });
 
-    syncStorage();
+    localStorage.setItem('galaxy_global_letters', JSON.stringify(globalLetters));
     closeReplyModal();
-    alert("답장이 별빛을 타고 전송되었습니다!");
-    applyFilters();
+    alert("🚀 편지가 빛의 길을 따라 하은이에게 전송되었어!");
+    updateMailboxButtonUI();
 }
 
 /* ==========================================
-   📨 관리자용 우체통 코어 엔진 (검색/필터/3개씩 넘기기)
+   📨 관리자 전용 통합 우체통 관제 모듈 (검색, 페이징 포함)
    ========================================== */
-function openMailboxModal(index) {
-    activePostIndexForReply = index;
-    // 필터 데이터 초기화
-    mailboxSearchQuery = '';
-    mailboxSelectedDate = '';
+function openMailboxModal() {
     mailboxCurrentPage = 1;
     
     const searchInput = document.getElementById('mailbox-search');
@@ -234,8 +231,6 @@ function openMailboxModal(index) {
     if(searchInput) searchInput.value = '';
     if(dateInput) dateInput.value = '';
 
-    document.getElementById('mailbox-target-title').innerText = `"${myPosts[index].title}" 글에 도착한 편지`;
-    
     filterMailbox();
     document.getElementById('mailbox-modal').style.display = 'flex';
 }
@@ -244,24 +239,18 @@ function filterMailbox() {
     const searchVal = document.getElementById('mailbox-search').value.trim().toLowerCase();
     const dateVal = document.getElementById('mailbox-date').value;
     
-    const post = myPosts[activePostIndexForReply];
-    let baseReplies = post.replies ? [...post.replies] : [];
-    
-    // 원본 데이터의 진짜 고유 인덱스를 기억하기 위해 맵핑 변환 수행
-    let indexedReplies = baseReplies.map((r, idx) => ({ ...r, originalIndex: idx }));
-    
-    // 기본적으로 최신순 역순 정렬
-    indexedReplies.reverse();
+    // 원본 위치 추적을 위한 데이터 맵 가공 및 최신편지 상단 역순 배치
+    let indexedLetters = globalLetters.map((l, idx) => ({ ...l, originalIndex: idx }));
+    indexedLetters.reverse();
 
-    // 조건별 필터링 분기
     if (searchVal) {
-        indexedReplies = indexedReplies.filter(r => r.writer.toLowerCase().includes(searchVal));
+        indexedLetters = indexedLetters.filter(l => l.writer.toLowerCase().includes(searchVal));
     }
     if (dateVal) {
-        indexedReplies = indexedReplies.filter(r => r.date.substring(0, 10) === dateVal);
+        indexedLetters = indexedLetters.filter(l => l.date.substring(0, 10) === dateVal);
     }
 
-    mailboxFilteredReplies = indexedReplies;
+    mailboxFilteredLetters = indexedLetters;
     renderMailboxPosts();
 }
 
@@ -270,39 +259,36 @@ function renderMailboxPosts() {
     const pageZone = document.getElementById('mailbox-page-zone');
     listContainer.innerHTML = "";
 
-    const post = myPosts[activePostIndexForReply];
-    const rawTotalCount = post.replies ? post.replies.length : 0;
-
-    // 1. 답장 자체가 아예 없는 완전 공백 우체통 처리 규칙
-    if (rawTotalCount === 0) {
-        listContainer.innerHTML = `<p style="text-align:center; color:#e2e8f0; font-size:1.05rem; padding:40px 0; font-weight:bold; letter-spacing:0.5px;">☄️ 도착한 답장이 없어!</p>`;
+    // 1. 편지함 자체가 완전히 비어있을 때 표출 조건 (요청 사안 완벽 가동)
+    if (globalLetters.length === 0) {
+        listContainer.innerHTML = `<p style="text-align:center; color:#e2e8f0; font-size:1.05rem; padding:40px 0; font-weight:bold; letter-spacing:0.5px;"> 도착한 답장이 없어!</p>`;
         pageZone.style.display = 'none';
         return;
     }
 
-    // 2. 답장은 존재하나 검색 결과가 맞지 않는 처리 규칙
-    if (mailboxFilteredReplies.length === 0) {
+    // 2. 편지는 있으나 검색 결과에 매칭되는 게 없을 때 조건
+    if (mailboxFilteredLetters.length === 0) {
         listContainer.innerHTML = `<p style="text-align:center; color:#a0aec0; padding:40px 0;">검색 조건에 맞는 편지가 없습니다.</p>`;
         pageZone.style.display = 'none';
         return;
     }
 
-    // 3개씩 분할 페이징 슬라이싱 연산
+    // 3개 단위 스케일링 슬라이싱 연산 진행
     pageZone.style.display = 'flex';
-    const start = (mailboxCurrentPage - 1) * mailboxRepliesPerPage;
-    const end = start + mailboxRepliesPerPage;
-    const pagedReplies = mailboxFilteredReplies.slice(start, end);
+    const start = (mailboxCurrentPage - 1) * mailboxLettersPerPage;
+    const end = start + mailboxLettersPerPage;
+    const pagedLetters = mailboxFilteredLetters.slice(start, end);
 
-    pagedReplies.forEach(reply => {
+    pagedLetters.forEach(letter => {
         const item = document.createElement('div');
         item.className = 'mailbox-item';
         item.innerHTML = `
             <div class="mailbox-item-meta">
-                <span style="color:#F5E6C8; font-weight:bold;">✍️ ${reply.writer}</span>
-                <span style="font-size:0.8rem; color:#718096;">${reply.date}</span>
+                <span style="color:#F5E6C8; font-weight:bold;">✍️ ${letter.writer}</span>
+                <span style="font-size:0.8rem; color:#718096;">${letter.date}</span>
             </div>
-            <p class="mailbox-item-text">${reply.text}</p>
-            <button class="reply-delete-btn" onclick="deleteReply(${reply.originalIndex})">편지 소멸</button>
+            <p class="mailbox-item-text">${letter.text}</p>
+            <button class="reply-delete-btn" onclick="deleteGlobalLetter(${letter.originalIndex})">편지 소멸</button>
         `;
         listContainer.appendChild(item);
     });
@@ -318,7 +304,7 @@ function prevMailboxPage() {
 }
 
 function nextMailboxPage() {
-    if (mailboxCurrentPage * mailboxRepliesPerPage < mailboxFilteredReplies.length) {
+    if (mailboxCurrentPage * mailboxLettersPerPage < mailboxFilteredLetters.length) {
         mailboxCurrentPage++;
         renderMailboxPosts();
     }
@@ -331,19 +317,18 @@ function resetMailboxFilter() {
     filterMailbox();
 }
 
-function deleteReply(originalIndex) {
-    if (confirm("이 답장 편지를 영구히 삭제하시겠습니까?")) {
-        myPosts[activePostIndexForReply].replies.splice(originalIndex, 1);
-        syncStorage();
+function deleteGlobalLetter(originalIndex) {
+    if (confirm("이 우주 편지를 영구히 소멸시키겠습니까?")) {
+        globalLetters.splice(originalIndex, 1);
+        localStorage.setItem('galaxy_global_letters', JSON.stringify(globalLetters));
         
-        // 데이터가 유실되어 현재 페이지 범위를 초과할 때 안전 서라운딩 안전 제어
-        const maxPage = Math.ceil((myPosts[activePostIndexForReply].replies.length) / mailboxRepliesPerPage);
+        const maxPage = Math.ceil(globalLetters.length / mailboxLettersPerPage);
         if (mailboxCurrentPage > maxPage && maxPage > 0) {
             mailboxCurrentPage = maxPage;
         }
         
         filterMailbox();
-        applyFilters();
+        updateMailboxButtonUI();
     }
 }
 
@@ -387,8 +372,7 @@ function savePost() {
             author: adminName, 
             date: autoDateTime, 
             content: cleanContent,
-            pinned: false,
-            replies: []
+            pinned: false
         });
         alert("빛나는 새로운 기록이 보존되었습니다.");
     }
@@ -433,8 +417,8 @@ function clearAdminForm() {
     document.getElementById('new-title').value = "";
     document.getElementById('new-content').value = "";
     document.getElementById('edit-index').value = "";
-    document.getElementById('admin-panel-title').innerText = "새로운 빛의 기록";
-    document.getElementById('admin-main-btn').innerHTML = '<i class="fa-solid fa-star"></i> 나의 우주에게 빛을 전하기';
+    document.getElementById('admin-panel-title').innerText = "새로운 우주의 기록";
+    document.getElementById('admin-main-btn').innerHTML = '<i class="fa-solid fa-star"></i> 나의 우주에게 빛을 보내기';
 }
 
 function setSort(type) { currentSort = type; currentPage = 1; applyFilters(); }
