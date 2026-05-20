@@ -61,6 +61,10 @@ function listenToFirebase() {
             }
         }
         mergeAndRender();
+        // 💡 공지 모아보기 창이 열려있다면 실시간 갱신 보장
+        if (document.getElementById('noticeMailboxModal') && document.getElementById('noticeMailboxModal').classList.contains('active')) {
+            renderNoticeMailboxWindow();
+        }
     });
 
     // 2. global_letters 데이터 파싱
@@ -182,6 +186,65 @@ function renderSecretMailboxWindow() {
     });
 }
 
+// 💡 1. 공지사항 모아보기 독립 창 열기 기능 추가
+function toggleNoticeLetters() {
+    openModal('noticeMailboxModal');
+    renderNoticeMailboxWindow();
+}
+
+// 💡 2. 공지사항 전용 독립 창 렌더러 추가 (기존 메인 피드에서 삭제하지 않고 데이터만 가져옴)
+function renderNoticeMailboxWindow() {
+    const container = document.getElementById('notice-letters-container');
+    if (!container) return;
+    container.innerHTML = "";
+
+    // 메인 피드 글(publicPosts) 중 고정된 공지글(isPinned)만 필터링
+    const noticePosts = publicPosts.filter(post => post.isPinned);
+
+    if (noticePosts.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.85rem;">고정된 별빛 공지사항이 없습니다.</div>`;
+        return;
+    }
+
+    // 고정 버튼 누른 순서(최신 고정 순)대로 정렬
+    const sortedNotices = noticePosts.sort((a, b) => b.pinnedAt - a.pinnedAt);
+
+    sortedNotices.forEach(post => {
+        let formattedDate = post.date ? post.date.trim() : "";
+        if (/\d{4}-\d{2}-\d{2}\s\d{2}\s\d{2}/.test(formattedDate)) {
+            const parts = formattedDate.split(/\s+/);
+            if(parts.length >= 3) {
+                formattedDate = `${parts[0]} ${parts[1]}:${parts[2]}`;
+            }
+        }
+
+        const isLocked = post.postPassword && !isAdminMode && !unlockedPostIds.includes(post.firebaseKey);
+        let displayContent = isLocked 
+            ? `<p style="color:rgba(255,255,255,0.4); font-size:0.85rem; text-align:center; padding:10px; background:rgba(0,0,0,0.1); border-radius:6px;">🔒 메인 피드에서 잠금을 해제해야 볼 수 있습니다.</p>`
+            : `<div class="mini-content">${post.content}</div>`;
+
+        const miniCard = document.createElement('div');
+        miniCard.className = 'secret-mini-card notice-mini-card'; // 디자인 커스텀용 클래스 부여
+        miniCard.style.borderLeft = "3px solid #FFE6BA"; // 공지 강조용 왼쪽 선 추가
+        miniCard.innerHTML = `
+            <div class="mini-meta">
+                <span>📌 공지사항 | 작성자: <b>${post.author}</b></span>
+            </div>
+            <div class="mini-title" style="color:#FFE6BA;">${post.title}</div>
+            ${displayContent}
+            <div class="mini-center-date">— ${formattedDate} —</div>
+            <div class="mini-actions">
+                <button onclick="openReplyModal('${post.nodeType}', '${post.firebaseKey}')" ${isLocked ? 'disabled style="opacity:0.5;"' : ''}>답장</button>
+                ${isAdminMode ? `
+                    <button onclick="togglePin('${post.nodeType}', '${post.firebaseKey}', true)">고정 해제</button>
+                    <button onclick="openEditModal('${post.nodeType}', '${post.firebaseKey}')">수정</button>
+                ` : ''}
+            </div>
+        `;
+        container.appendChild(miniCard);
+    });
+}
+
 // 메인 화면 피드 렌더링 출력부
 function renderPosts() {
     const feed = document.getElementById('posts-mailbox-feed');
@@ -290,6 +353,7 @@ function unlockPost(firebaseKey, correctPassword) {
     if (inputVal === correctPassword) {
         unlockedPostIds.push(firebaseKey); 
         renderPosts(); 
+        if (document.getElementById('noticeMailboxModal').classList.contains('active')) renderNoticeMailboxWindow();
     } else {
         alert("비밀번호가 일치하지 않습니다.");
     }
@@ -406,7 +470,6 @@ function togglePin(nodeType, firebaseKey, currentStatus) {
     });
 }
 
-// 📡 🛠️ 파이어베이스 업로드 후 수동 창 닫힘 누락 버그 해결 완료 파트
 function submitPost() {
     const author = document.getElementById('post-author').value.trim() || "익명의 우주";
     const title = document.getElementById('post-title').value.trim();
@@ -447,7 +510,6 @@ function submitPost() {
         });
         
     } else if (replyingPostId) {
-        // 💡 [버그 수정] 관리자가 답장 작성 시 데이터 전송 후 즉시 모달이 닫히도록 바인딩
         database.ref('posts').push({
             id: Date.now(),
             author: currentAdminName || "관리자",
@@ -464,7 +526,6 @@ function submitPost() {
         
     } else {
         if (isAdminMode) {
-            // 💡 [버그 수정] 관리자 모드에서 새 글을 업로드한 후 즉시 모달이 닫히도록 수정
             database.ref('posts').push({
                 id: Date.now(),
                 author: author,
@@ -479,7 +540,6 @@ function submitPost() {
                 closeModal('writeModal');
             });
         } else {
-            // 💡 [버그 수정] 일반 사용자가 하은이에게 편지를 보낸 후 즉시 모달이 닫히도록 수정
             database.ref('global_letters').push({
                 id: Date.now(),
                 writer: author,
@@ -491,7 +551,7 @@ function submitPost() {
                 isFavorite: false
             }).then(() => {
                 closeModal('writeModal');
-                alert("편지가 은하수를 건너 전달되었습니다.✨"); // 사용자 전송 성공 안내 추가
+                alert("편지가 은하수를 건너 전달되었습니다.✨"); 
             });
         }
     }
