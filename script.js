@@ -148,13 +148,18 @@ function handleMailboxClick() {
 // ==========================================
 // 🔐 관리자 인증 및 창 토글 시스템 (완전 개정판)
 // ==========================================
+// ==========================================
+// 🔐 [최종 해결] 관리자 인증 및 글쓰기 전송 시스템
+// ==========================================
 
-// 1. 보안을 위한 전역 변수 설정
-window.isAdminAuthenticated = false; // 관리자 인증 여부 플래그
-let isPromptOpening = false;         // 중복 창 열림 방지 락
+// 브라우저가 관리자 인증 성공을 기억하도록 전역 변수 설정
+if (window.isAdminAuthenticated === undefined) {
+    window.isAdminAuthenticated = false;
+}
+let isPromptOpening = false; 
 
+// 1. 오직 '관리자 창을 열고 닫을 때만' 작동하는 함수 (글 보낼 땐 절대 실행 안 됨)
 function toggleAdminForm() {
-    // 이미 프롬프트가 뜨고 있다면 중복 실행 차단
     if (isPromptOpening) return;
 
     const adminArea = document.getElementById('admin-area');
@@ -162,47 +167,35 @@ function toggleAdminForm() {
 
     if (!adminArea) return;
 
-    // 이미 관리자 창이 열려있는 상태라면 비번 안 묻고 바로 닫기
+    // 이미 열려있다면 비밀번호 묻지 않고 바로 닫기
     if (adminArea.style.display === 'block') {
         adminArea.style.display = 'none';
         if (toggleBtn) toggleBtn.style.display = 'block';
         return;
     }
 
-    // 관리자 창이 닫혀있을 때 실행
     isPromptOpening = true;
 
-    // 모바일 터치 중복 이벤트를 안전하게 분리하기 위해 50ms 미세 딜레이 후 실행
     setTimeout(() => {
         const password = prompt("관리자 비밀번호를 입력해주세요:");
         
-        // 여기에 본인이 사용할 실제 비밀번호를 적어주세요 (예: "1234")
+        // ✨ 본인의 실제 비밀번호를 입력하세요 (예: "1234")
         const correctPassword = "여기에지정할비밀번호"; 
 
         if (password === correctPassword) {
-            // [핵심] 인증 성공 시 전역 플래그를 확실하게 true로 고정
-            window.isAdminAuthenticated = true;
+            window.isAdminAuthenticated = true; // 대문짝만하게 관리자 도장 쾅!
             
-            // UI 전환
             adminArea.style.display = 'block';
             if (toggleBtn) toggleBtn.style.display = 'none';
-            
-            // 글쓰기 폼 초기화 (기존 수정 데이터 잔상 제거)
-            if (document.getElementById('edit-id')) document.getElementById('edit-id').value = '';
-            if (document.getElementById('new-title')) document.getElementById('new-title').value = '';
-            if (document.getElementById('new-content')) document.getElementById('new-content').value = '';
-            
+            clearAdminForm();
             alert("우주 기록자님, 환영합니다.");
         } else if (password !== null) {
-            // 취소를 누른 게 아니라 틀린 비밀번호를 입력했을 때
             window.isAdminAuthenticated = false;
             alert("비밀번호가 올바르지 않습니다.");
         }
-
-        isPromptOpening = false; // 락 해제
+        isPromptOpening = false;
     }, 50);
 }
-
 function searchTitle(value) {
     searchQuery = value.trim().toLowerCase();
     currentPage = 1; 
@@ -493,9 +486,9 @@ function getFormattedCurrentTime() {
 }
 
 function savePost() {
-    // 전역 인증 플래그가 false라면 저장을 원천 차단
+    // 이미 로그인 도장이 찍혀있는지 확인
     if (!window.isAdminAuthenticated) {
-        alert("권한이 없습니다. 관리자 인증을 다시 진행해주세요.");
+        alert("권한이 없습니다. 페이지를 새로고침 후 다시 로그인해 주세요.");
         return;
     }
 
@@ -514,16 +507,12 @@ function savePost() {
         return;
     }
 
-    // --- 파이어베이스 저장 로직 구역 ---
-    // (여기에 기존에 사용하시던 Firebase push 또는 set 코드를 그대로 두시면 됩니다)
-    // 예시:
     try {
+        // 파이어베이스 저장 구역
         if (editId) {
-            // 수정 모드
             const postRef = window.fbRef(window.fbDB, `posts/${editId}`);
             window.fbUpdate(postRef, { title, content, updatedAt: Date.now() });
         } else {
-            // 새 글 작성
             const postsRef = window.fbRef(window.fbDB, 'posts');
             const newPostRef = window.fbPush(postsRef);
             window.fbSet(newPostRef, {
@@ -534,8 +523,15 @@ function savePost() {
         }
         
         alert("우주에 빛의 기록이 새겨졌습니다.");
+        
+        // 폼 내용만 지우고 창을 닫습니다. (비번 함수를 다시 부르지 않고 UI만 직접 조작)
         clearAdminForm();
-        toggleAdminForm(); // 창 닫기
+        
+        const adminArea = document.getElementById('admin-area');
+        const toggleBtn = document.getElementById('admin-open-toggle');
+        if (adminArea) adminArea.style.display = 'none';
+        if (toggleBtn) toggleBtn.style.display = 'block';
+
     } catch (error) {
         console.error("저장 실패:", error);
         alert("데이터베이스 연결에 실패했습니다.");
