@@ -18,6 +18,7 @@ const database = firebase.database();
 let publicPosts = [];      // 'posts' 노드의 데이터 (메인 피드용 공지글)
 let globalLetters = [];    // 'global_letters' 노드의 데이터 (독립 우체통 창 전용 편지)
 let displayPosts = [];     // 메인 피드 화면에 최종 출력될 배열
+let unlockedPostIds = [];  // 💡 사용자가 비밀번호를 입력해 잠금 해제한 글 ID 배열
 
 let currentSort = 'latest';
 let isAdminMode = false;
@@ -52,14 +53,15 @@ function listenToFirebase() {
                     content: data[key].content || "",
                     date: data[key].date || "",
                     isPinned: data[key].isPinned || false,
-                    isFavorite: data[key].isFavorite || false
+                    isFavorite: data[key].isFavorite || false,
+                    postPassword: data[key].postPassword || "" // 💡 글 비밀번호 필드 추가
                 });
             }
         }
         mergeAndRender();
     });
 
-    // 2. global_letters 데이터 파싱 (writer -> author, text -> content 완벽 매핑)
+    // 2. global_letters 데이터 파싱
     database.ref('global_letters').on('value', (snapshot) => {
         const data = snapshot.val();
         globalLetters = [];
@@ -69,41 +71,42 @@ function listenToFirebase() {
                     firebaseKey: key,
                     nodeType: 'global_letters',
                     id: data[key].id || Date.now(),
-                    author: data[key].writer || "익명",  // writer 매핑
+                    author: data[key].writer || "익명",  
                     title: data[key].title || "비밀 편지 조각",
-                    content: data[key].text || "",       // text 매핑
+                    content: data[key].text || "",       
                     date: data[key].date || "",         
                     isPinned: data[key].isPinned || false,
                     isFavorite: data[key].isFavorite || false
                 });
             }
         }
-        // 💡 따로 열려있는 독립 팝업 창이 켜져 있는 상태라면 실시간으로 리스트를 자동 갱신해 줍니다.
         if (document.getElementById('secretMailboxModal').classList.contains('active')) {
             renderSecretMailboxWindow();
         }
     });
 }
 
-// 🧩 데이터 통합 및 관리자 인터페이스 분리 구조 (메인 화면 피드 제어)
+// 🧩 데이터 통합 및 관리자 인터페이스 분리 구조
 function mergeAndRender() {
     const userWriteBtn = document.getElementById('user-write-btn');
     const adminWriteBtn = document.getElementById('admin-write-btn');
     const secretMailIcon = document.getElementById('secret-mailbox-icon');
+    const passwordInput = document.getElementById('post-password');
 
     document.getElementById('mailbox-status-title').innerText = `🌌 별빛 우체통`;
 
-    // 💡 이제 메인 피드에는 관리자 모드 여부와 관계없이 순수 공지글(posts 노드)만 깔끔히 로드됩니다.
     displayPosts = [...publicPosts];
 
     if (isAdminMode) {
         userWriteBtn.style.display = 'none';
         adminWriteBtn.style.display = 'block';
-        secretMailIcon.style.display = 'inline-flex'; // 📨 아이콘 버튼 활성화
+        secretMailIcon.style.display = 'inline-flex'; 
+        passwordInput.style.display = 'block'; // 💡 관리자 모드일 때 비밀번호 입력칸 노출
     } else {
         userWriteBtn.style.display = 'block';
         adminWriteBtn.style.display = 'none';
         secretMailIcon.style.display = 'none';
+        passwordInput.style.display = 'none';  // 일반 모드일 땐 숨김
     }
     renderPosts();
 }
@@ -114,7 +117,7 @@ function toggleSecretLetters() {
     renderSecretMailboxWindow();
 }
 
-// 💡 [독립 렌더러 함수] 따로 열린 팝업 창 내부에 비밀 편지만 모아서 빌드하는 로직
+// 💡 독립 우체통 창 렌더러
 function renderSecretMailboxWindow() {
     const container = document.getElementById('secret-letters-container');
     container.innerHTML = "";
@@ -124,11 +127,9 @@ function renderSecretMailboxWindow() {
         return;
     }
 
-    // 최신 비밀 편지가 상단에 오도록 정렬
     const sortedLetters = [...globalLetters].sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
 
     sortedLetters.forEach(letter => {
-        // 💡 날짜 중간에 공백이 있거나 콜론(:)이 누락되어 있다면 자동으로 보정해 줍니다.
         let formattedDate = letter.date ? letter.date.trim() : "";
         if (/\d{4}-\d{2}-\d{2}\s\d{2}\s\d{2}/.test(formattedDate)) {
             const parts = formattedDate.split(/\s+/);
@@ -146,9 +147,7 @@ function renderSecretMailboxWindow() {
             </div>
             <div class="mini-title">${letter.title}</div>
             <div class="mini-content">${letter.content}</div>
-            
             <div class="mini-center-date">— ${formattedDate} —</div>
-            
             <div class="mini-actions">
                 <button onclick="openReplyModal('${letter.nodeType}', '${letter.firebaseKey}')">답장</button>
                 <button onclick="openEditModal('${letter.nodeType}', '${letter.firebaseKey}')">수정</button>
@@ -159,7 +158,7 @@ function renderSecretMailboxWindow() {
     });
 }
 
-// 메인 화면 피드 렌더링 출력부 (공지 및 작성글 표시 전용)
+// 메인 화면 피드 렌더링 출력부
 function renderPosts() {
     const feed = document.getElementById('posts-mailbox-feed');
     feed.innerHTML = "";
@@ -207,21 +206,42 @@ function renderPosts() {
         const card = document.createElement('div');
         card.className = `post-card ${post.isPinned ? 'pinned' : ''}`;
         
+        // 💡 비밀번호 처리 핵심 로직
+        // 글에 비밀번호가 설정되어 있고 + 현재 관리자가 아니며 + 잠금 해제 리스트에 없는 경우 본문을 숨깁니다.
+        const isLocked = post.postPassword && !isAdminMode && !unlockedPostIds.includes(post.firebaseKey);
+        
+        let displayContent = "";
+        if (isLocked) {
+            displayContent = `
+                <div class="locked-zone" style="text-align:center; padding:15px; background:rgba(0,0,0,0.2); border-radius:10px; margin:10px 0;">
+                    <p style="color:rgba(255,255,255,0.5); font-size:0.9rem; margin-bottom:10px;">🔒 비밀번호로 보호된 기록입니다.</p>
+                    <div style="display:flex; gap:5px; justify-content:center;">
+                        <input type="password" id="unlock-pw-${post.firebaseKey}" placeholder="비밀번호 입력" style="padding:4px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.05); color:#fff; font-size:0.8rem; width:120px;">
+                        <button onclick="unlockPost('${post.firebaseKey}', '${post.postPassword}')" style="padding:4px 10px; background:#FFE6BA; border:none; border-radius:6px; color:#0d0e2d; font-size:0.8rem; cursor:pointer; font-weight:bold;">해제</button>
+                    </div>
+                </div>
+            `;
+        } else {
+            displayContent = `<div class="post-content">${post.content}</div>`;
+        }
+
         card.innerHTML = `
             <div class="post-meta">
                 <div class="meta-info">
                     ${post.isPinned ? '<span class="pin-tag">📌 고정됨</span> | ' : ''}
                     <span>작성자: ${post.author}</span>
+                    ${post.postPassword ? ' <span style="font-size:0.8rem; color:#8A99AD;">🔒 잠금설정됨</span>' : ''}
                 </div>
                 <button class="fav-btn ${post.isFavorite ? 'active' : ''}" onclick="toggleFavorite('${post.nodeType}', '${post.firebaseKey}', ${post.isFavorite}, event)">★</button>
             </div>
             <h2 class="post-title">${post.title}</h2>
-            <div class="post-content">${post.content}</div>
+            
+            ${displayContent}
             
             <div class="post-center-date">— ${formattedDate} —</div>
             
             <div class="card-actions">
-                <button class="reply-btn" onclick="openReplyModal('${post.nodeType}', '${post.firebaseKey}')">답장 보내기</button>
+                <button class="reply-btn" onclick="openReplyModal('${post.nodeType}', '${post.firebaseKey}')" ${isLocked ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>답장 보내기</button>
                 ${isAdminMode ? `
                     <button onclick="togglePin('${post.nodeType}', '${post.firebaseKey}', ${post.isPinned})">${post.isPinned ? '고정 해제' : '글 고정'}</button>
                     <button onclick="openEditModal('${post.nodeType}', '${post.firebaseKey}')">수정</button>
@@ -233,6 +253,17 @@ function renderPosts() {
     });
 
     renderPaginationControls(totalPages);
+}
+
+// 💡 사용자가 입력한 비번 검증 후 본문 열어주는 함수
+function unlockPost(firebaseKey, correctPassword) {
+    const inputVal = document.getElementById(`unlock-pw-${firebaseKey}`).value;
+    if (inputVal === correctPassword) {
+        unlockedPostIds.push(firebaseKey); // 해제 목록에 등록
+        renderPosts(); // 화면 재호출
+    } else {
+        alert("비밀번호가 올치하지 않습니다.");
+    }
 }
 
 // 하단 페이지네이션 바 제어
@@ -294,6 +325,7 @@ function openModal(id) {
             document.getElementById('post-author').disabled = isAdminMode;
             document.getElementById('post-title').value = "";
             document.getElementById('post-content').value = "";
+            document.getElementById('post-password').value = ""; // 초기화
         }
     }
     document.getElementById(id).classList.add('active');
@@ -342,13 +374,13 @@ function submitPost() {
     const author = document.getElementById('post-author').value.trim() || "익명의 우주";
     const title = document.getElementById('post-title').value.trim();
     const content = document.getElementById('post-content').value.trim();
+    const postPassword = document.getElementById('post-password').value.trim(); // 💡 입력된 글 비밀번호 수집
 
     if(!title || !content) {
         alert("제목과 내용을 모두 기입해주세요.");
         return;
     }
 
-    // 💡 신규 작성 시 현재 날짜를 처음부터 ":" 콜론이 확실하게 부착된 완벽한 포맷으로 제작합니다.
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -365,6 +397,7 @@ function submitPost() {
         } else {
             updateData.title = title;
             updateData.content = content;
+            updateData.postPassword = postPassword; // 수정 시 비밀번호 반영
         }
         database.ref(`${editingTargetNode}/${editingPostId}`).update(updateData).then(() => {
             closeModal('writeModal');
@@ -379,7 +412,8 @@ function submitPost() {
             content: content,
             date: today,
             isPinned: false,
-            isFavorite: false
+            isFavorite: false,
+            postPassword: "" // 답장글엔 기본 비밀번호 없음
         }).then(() => closeModal('writeModal'));
         
     } else {
@@ -391,7 +425,8 @@ function submitPost() {
                 content: content,
                 date: today,
                 isPinned: true, 
-                isFavorite: false
+                isFavorite: false,
+                postPassword: postPassword // 💡 관리자가 설정한 글 비밀번호 저장
             }).then(() => closeModal('writeModal'));
         } else {
             database.ref('global_letters').push({
@@ -439,6 +474,9 @@ function openEditModal(nodeType, firebaseKey) {
     document.getElementById('post-author').disabled = true;
     document.getElementById('post-title').value = post.title;
     document.getElementById('post-content').value = post.content;
+    if(nodeType === 'posts') {
+        document.getElementById('post-password').value = post.postPassword || "";
+    }
 }
 
 function deletePost(nodeType, firebaseKey) {
