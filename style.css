@@ -14,7 +14,7 @@ h1 {
 }
 
 /* ==========================================
-   🌌 이펙트가 대폭 추가된 딥 스페이스 시스템
+   🌌 애니메이션이 극대화된 딥 스페이스 시스템
    ========================================== */
 .space-background {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -10; overflow: hidden; pointer-events: none;
@@ -29,7 +29,7 @@ h1 {
     opacity: 0.85;
 }
 
-/* 성운 효과 확대 추가 (Pink, Blue, Purple) */
+/* 🌀 우주 성운 입체 회전 효과 */
 .nebula-pink {
     position: absolute; width: 650px; height: 650px; top: 15%; left: -15%;
     background: radial-gradient(circle, rgba(219, 39, 119, 0.09) 0%, rgba(0,0,0,0) 70%);
@@ -46,28 +46,27 @@ h1 {
     filter: blur(60px); animation: nebulaRotate 55s linear infinite;
 }
 
-/* 오로라 광원 추가 및 밀도 상향 */
+/* 💚💜💙 넘실거리며 파도치는 오로라 애니메이션 */
 .aurora-green {
     position: absolute; width: 200%; height: 65%; top: -20%; left: -40%;
-    background: radial-gradient(circle at 25% 15%, rgba(16, 185, 129, 0.15) 0%, rgba(0, 0, 0, 0) 55%);
-    filter: blur(85px); animation: auroraMovement 11s ease-in-out infinite alternate;
+    background: radial-gradient(circle at 25% 15%, rgba(16, 185, 129, 0.16) 0%, rgba(0, 0, 0, 0) 55%);
+    filter: blur(85px); animation: auroraWave 14s ease-in-out infinite alternate;
 }
 .aurora-purple {
     position: absolute; width: 180%; height: 55%; top: -15%; right: -30%;
-    background: radial-gradient(circle at 75% 25%, rgba(139, 92, 246, 0.14) 0%, rgba(0, 0, 0, 0) 60%);
-    filter: blur(95px); animation: auroraMovement 16s ease-in-out infinite alternate-reverse;
+    background: radial-gradient(circle at 75% 25%, rgba(139, 92, 246, 0.15) 0%, rgba(0, 0, 0, 0) 60%);
+    filter: blur(95px); animation: auroraWave 19s ease-in-out infinite alternate-reverse;
 }
 .aurora-blue {
     position: absolute; width: 150%; height: 50%; bottom: 20%; left: -20%;
-    background: radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.08) 0%, rgba(0, 0, 0, 0) 50%);
-    filter: blur(90px); animation: auroraMovement 22s ease-in-out infinite alternate;
+    background: radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.09) 0%, rgba(0, 0, 0, 0) 50%);
+    filter: blur(90px); animation: auroraWave 25s ease-in-out infinite alternate;
 }
 
-/* 은하수 배경 밀도 강화 */
+/* ✨ 자연스러운 은하수 잔별 (왼쪽 상단 세로 나열 별 좌표 전면 제거 수정) */
 .star-universe {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background-image: 
-        radial-gradient(1.2px 1.2px at 40px 80px, #fff, rgba(0,0,0,0)),
         radial-gradient(1.5px 1.5px at 150px 280px, #fff, rgba(0,0,0,0)),
         radial-gradient(1px 1px at 220px 140px, #e2e8f0, rgba(0,0,0,0)),
         radial-gradient(2px 2px at 420px 390px, #f5e6c8, rgba(0,0,0,0)),
@@ -79,43 +78,55 @@ h1 {
     background-size: 450px 450px; opacity: 0.6; animation: starPulse 6s ease-in-out infinite;
 }
 
-/* 반짝이는 포인트 별 개수 증가 */
+/* ✦ 반짝이는 대형 포인트 별 */
 .star-bright {
     position: absolute; color: #FFFDF0; font-size: 14px; opacity: 0;
     text-shadow: 0 0 8px #fff, 0 0 15px #F5E6C8;
     animation: starTwinkle 4s ease-in-out infinite;
 }
-.star1 { top: 15%; left: 20%; animation-delay: 0s; }
+.star1 { top: 15%; left: 25%; animation-delay: 0s; } /* 왼쪽 상단 구석에서 살짝 오른쪽으로 이동 조정 */
 .star2 { top: 45%; right: 12%; animation-delay: 1.3s; font-size: 11px; }
 .star3 { bottom: 35%; left: 8%; animation-delay: 2.5s; font-size: 16px; }
 .star4 { top: 75%; right: 22%; animation-delay: 0.7s; }
 .star5 { top: 28%; right: 35%; animation-delay: 1.9s; font-size: 13px; }
 .star6 { bottom: 15%; right: 45%; animation-delay: 3.1s; font-size: 15px; }
 
-/* 별똥별 빈도 증폭 */
+/* 🌠 생동감 넘치는 입체 별똥별 애니메이션 시스템 */
 .shooting-star {
-    position: absolute; top: -10%; left: 70%; width: 4px; height: 4px;
+    position: absolute;
     background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
-    border-radius: 50%; opacity: 0; transform: rotate(-35deg); animation: shootingStarRun 9s linear infinite;
+    border-radius: 50%; opacity: 0;
 }
-.shooting-star:nth-child(1) { top: 5%; left: 20%; animation-delay: 0s; animation-duration: 7s; }
-.shooting-star:nth-child(2) { top: 15%; left: 60%; animation-delay: 2.5s; animation-duration: 10s; }
-.shooting-star:nth-child(3) { top: -2%; left: 40%; animation-delay: 4.5s; animation-duration: 8s; }
-.shooting-star:nth-child(4) { top: 25%; left: 15%; animation-delay: 6s; animation-duration: 11s; }
-.shooting-star:nth-child(5) { top: 8%; left: 80%; animation-delay: 1s; animation-duration: 13s; }
-.shooting-star:nth-child(6) { top: 40%; left: 50%; animation-delay: 3.5s; animation-duration: 9s; }
-.shooting-star:nth-child(7) { top: 60%; left: 20%; animation-delay: 7.5s; animation-duration: 12s; }
+/* 각 별똥별마다 시작점, 크기, 각도, 애니메이션 속도를 모두 다르게 부여 */
+.shooting-star:nth-child(1) { top: 5%; left: 30%; width: 4px; height: 4px; transform: rotate(-30deg); animation: shootingStarGlow 8s linear infinite; animation-delay: 0s; }
+.shooting-star:nth-child(2) { top: 12%; left: 65%; width: 5px; height: 4px; transform: rotate(-35deg); animation: shootingStarGlow 11s linear infinite; animation-delay: 2.5s; }
+.shooting-star:nth-child(3) { top: -2%; left: 45%; width: 3px; height: 3px; transform: rotate(-28deg); animation: shootingStarGlow 7s linear infinite; animation-delay: 4.5s; }
+.shooting-star:nth-child(4) { top: 20%; left: 20%; width: 5px; height: 5px; transform: rotate(-40deg); animation: shootingStarGlow 13s linear infinite; animation-delay: 6s; }
+.shooting-star:nth-child(5) { top: 2%; left: 85%; width: 4px; height: 4px; transform: rotate(-32deg); animation: shootingStarGlow 14s linear infinite; animation-delay: 1s; }
+.shooting-star:nth-child(6) { top: 35%; left: 55%; width: 3px; height: 3px; transform: rotate(-35deg); animation: shootingStarGlow 9s linear infinite; animation-delay: 3.5s; }
+.shooting-star:nth-child(7) { top: 50%; left: 25%; width: 4px; height: 4px; transform: rotate(-25deg); animation: shootingStarGlow 12s linear infinite; animation-delay: 7.5s; }
 
+/* ==========================================
+   🎬 우주 애니메이션 타임라인 정의 (키프레임)
+   ========================================== */
 @keyframes moonFloat { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(-8px) rotate(-3deg); } }
 @keyframes nebulaRotate { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.08); } 100% { transform: rotate(360deg) scale(1); } }
-@keyframes auroraMovement { 0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.65; } 100% { transform: translate(-3%, 4%) scale(1.05) rotate(2deg); opacity: 1; } }
 @keyframes starPulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.8; } }
 @keyframes starTwinkle { 0%, 100% { opacity: 0; transform: scale(0.6); } 50% { opacity: 0.95; transform: scale(1.1); } }
-@keyframes shootingStarRun {
-    0% { transform: translateX(0) translateY(0) scale(0) rotate(-35deg); opacity: 0; width: 0px; }
-    1% { opacity: 1; width: 95px; scale: 1; }
-    7% { transform: translateX(-380px) translateY(266px) scale(1) rotate(-35deg); opacity: 0; width: 0px; }
-    100% { transform: translateX(-380px) translateY(266px) scale(0) rotate(-35deg); opacity: 0; }
+
+/* 🌊 오로라가 일렁이며 이동하는 고유 물결 연산 */
+@keyframes auroraWave {
+    0% { transform: translate(0, 0) scale(1) rotate(0deg) skewX(0deg); opacity: 0.6; }
+    50% { transform: translate(-2%, 3%) scale(1.04) rotate(1.5deg) skewX(3deg); opacity: 0.85; }
+    100% { transform: translate(1%, -2%) scale(0.97) rotate(-1deg) skewX(-2deg); opacity: 0.7; }
+}
+
+/* 🌠 별똥별이 떨어지며 순간적으로 빛나고 꼬리가 흐려지는 애니메이션 */
+@keyframes shootingStarGlow {
+    0% { transform: translateX(0) translateY(0) scale(0); opacity: 0; width: 0px; }
+    1.5% { opacity: 1; width: 110px; scale: 1; }
+    8% { transform: translateX(-420px) translateY(294px) scale(0.8); opacity: 0; width: 0px; }
+    100% { transform: translateX(-420px) translateY(294px) scale(0); opacity: 0; }
 }
 
 .snowflake { position: fixed; top: -20px; color: #ffffff; opacity: 0.35; user-select: none; pointer-events: none; z-index: 10; animation: snowDown linear infinite; }
@@ -126,7 +137,7 @@ h1 {
    ========================================== */
 .post-card {
     position: relative; 
-    background: rgba(4, 7, 19, 0.86); /* 가독성을 저해하지 않도록 뒤판을 더 어둡고 무겁게 보정 */
+    background: rgba(4, 7, 19, 0.86); 
     border: 1px solid rgba(255, 255, 255, 0.09); 
     border-radius: 26px; 
     padding: 45px 40px; 
@@ -143,7 +154,6 @@ h1 {
 }
 .post-card:hover { transform: translateY(-4px); border-color: rgba(245, 230, 200, 0.35); }
 
-/* 상단 메타 인포 라인 (이름 | 날짜 형태 적용) */
 .post-date { color: #7F8EA3; font-size: 0.88rem; margin-bottom: 16px; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
 .author-tag { color: #F5E6C8; font-weight: bold; margin-right: 4px; }
 .pin-badge { color: #F5E6C8; font-weight: bold; }
@@ -170,7 +180,6 @@ h1 {
 .pagination { display: flex; justify-content: center; align-items: center; gap: 40px; margin-top: 50px; }
 #page-indicator { color: #F5E6C8; font-weight: bold; font-size: 1.2rem; text-shadow: 0 0 10px #F5E6C8; }
 
-/* 관리자 권한 미니 제어 단추 세트 (평소 숨김) */
 .admin-card-controls { position: absolute; top: 42px; right: 35px; display: none; gap: 6px; }
 .admin-mini-btn {
     background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #CBD5E0;
@@ -211,7 +220,6 @@ h1 {
 }
 .admin-submit-btn:hover { background: #ffffff !important; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245, 230, 200, 0.4); }
 
-/* 화살표 버튼 최적화 스타일 크기 */
 .admin-cancel-btn {
     background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 16px 22px; border-radius: 14px; font-size: 1.1rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
 }
