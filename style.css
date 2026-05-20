@@ -198,3 +198,86 @@ button.btn-base:hover { background: rgba(255, 255, 255, 0.12); border-color: rgb
     box-shadow: 0 0 12px #FFE6BA;
     border-color: #FFE6BA;
 }
+/* ===================================================
+   📬 우체통 헤더 및 단색 아이콘 배치 구역 (새로 붙여넣을 곳)
+   =================================================== */
+
+/* 우체통 상단 헤더 정렬 (타이틀과 아이콘을 가로로 정렬) */
+.mailbox-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px; /* 관리자 진입 버튼과 겹치지 않도록 마진 확보 */
+}
+
+/* 우체통 타이틀 스타일 고정 */
+.mailbox-status-text {
+    font-size: 1.1rem;
+    color: #FFE6BA;
+    font-weight: bold;
+    text-shadow: 0 0 8px rgba(255, 230, 186, 0.4);
+}
+
+/* 💡 단색 📨 우체통 모양 편지 아이콘 버튼 (단색 톤 정돈) */
+.secret-mail-icon-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 1.3rem;
+    padding: 5px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    color: #E2E8F0;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.secret-mail-icon-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+/* 우체통이 열렸을 때 활성화 상태 스타일 */
+.secret-mail-icon-btn.active {
+    background: #FFE6BA;
+    border-color: #FFE6BA;
+    color: #0d0e2d;
+    box-shadow: 0 0 10px rgba(255, 230, 186, 0.4);
+}
+
+/* 우체통 전체 컨테이너 (관리자 버튼 겹침 방지를 위해 렐러티브 및 패딩 조정) */
+.mailbox-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    margin-top: 35px; /* 관리자 진입 버튼 공간 확보 */
+}
+
+/* 관리자 창 가기 버튼 위치 조정 (우체통 영역과 절대 겹치지 않게 상단 배치) */
+.admin-entry-btn {
+    position: absolute;
+    top: -25px;
+    right: 5px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-decoration: underline;
+    z-index: 30;
+}
+.admin-entry-btn:hover {
+    color: #FFE6BA;
+}
+
+/* 💡 편지 카드 하단 중앙 정렬 날짜 스타일 */
+.post-center-date {
+    text-align: center;
+    color: #8A99AD;
+    font-size: 0.85rem;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+}
