@@ -34,7 +34,15 @@
     <div id="snow-container"></div>
 
     <div id="wrap">
-        <h1 style="line-height: 1.4;">나의 사랑하는<br>우주에게</h1>
+        <h1 style="line-height: 1.4; cursor: pointer; user-select: none;" onclick="triggerSpaceEasterEgg()">
+            나의 사랑하는<br>우주에게
+        </h1>
+
+        <div id="easter-egg-message" class="easter-message-box">
+            너는 나만의 빛나는 우주야
+        </div>
+
+        <div id="easter-stars-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; overflow: hidden;"></div>
 
         <div id="admin-wrapper" style="display: none;">
             <button id="admin-open-toggle" class="admin-write-toggle-btn" onclick="toggleAdminForm()">
