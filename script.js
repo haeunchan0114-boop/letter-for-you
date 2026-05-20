@@ -531,54 +531,50 @@ function toggleStarLetter(letterId, currentStarredStatus) {
     }).catch((e) => console.error("즐겨찾기 실패:", e));
 }
 // [추가] 타이틀 클릭 시 이스터에그 발동 함수
+// 타이틀 클릭 시 이스터에그 발동 함수 (단색 및 미니멀 버전)
 function triggerSpaceEasterEgg() {
     const msgBox = document.getElementById('easter-egg-message');
     const starContainer = document.getElementById('easter-stars-container');
     if (!msgBox || !starContainer) return;
 
-    // 이미 작동 중이면 중복 실행 방지
     if (msgBox.classList.contains('active')) return;
 
-    // 1. "너는 나만의 빛나는 우주야" 문구 등장
+    // 1. 문구 등장 및 자동 페이드아웃 (3초)
     msgBox.classList.add('active');
-
-    // 3.5초 뒤에 문구 스르륵 사라지게 설정
     setTimeout(() => {
         msgBox.classList.remove('active');
-    }, 3500);
+    }, 3000);
 
-    // 2. 파스텔톤 우주 별빛 쏟아지기 연출
-    const starShapes = ['✦', '★', '✨', '✧'];
-    const colors = ['#F5E6C8', '#FFD1DC', '#E2F0CB', '#BFFCC6', '#FFC6FF', '#9BF6FF', '#FFFFFC'];
-    const totalStars = 80; // 쏟아질 별의 개수
+    // 2. 단색 별빛 낙하 연출
+    const starShapes = ['✦', '★', '✧']; // 직관적이고 깔끔한 모양들
+    const totalStars = 60; // 화면이 지저분하지 않게 개수도 살짝 조절
 
     for (let i = 0; i < totalStars; i++) {
         const star = document.createElement('div');
         star.className = 'falling-easter-star';
         
-        // 모양 및 색상 무작위 조합
+        // 모양 무작위 선택 (색상은 CSS에서 #F5E6C8 단색 고정)
         star.innerHTML = starShapes[Math.floor(Math.random() * starShapes.length)];
-        star.style.color = colors[Math.floor(Math.random() * colors.length)];
         
-        // 가로축 배치 및 크기 다채롭게 설정
+        // 위치 및 크기 설정 (너무 크지 않게 조절)
         star.style.left = Math.random() * 100 + 'vw';
-        star.style.fontSize = (Math.random() * 14 + 12) + 'px'; // 12px ~ 26px
+        star.style.fontSize = (Math.random() * 6 + 10) + 'px'; // 10px ~ 16px 사이의 잔잔한 크기
         
-        // 떨어지는 속도와 타이밍 분산 (체증 현상 방지)
-        const duration = Math.random() * 2 + 2; // 2초 ~ 4초 동안 떨어짐
-        const delay = Math.random() * 1.5;      // 최대 1.5초 안에서 엇박자로 출발
+        // 속도 분산
+        const duration = Math.random() * 2.5 + 2; // 2초 ~ 4.5초
+        const delay = Math.random() * 1.2;
         star.style.animationDuration = duration + 's';
         star.style.animationDelay = delay + 's';
 
-        // CSS 변수를 이용해 떨어질 때의 회전각과 좌우 흔들림 거리 주입
-        const sway = (Math.random() * 160 - 80) + 'px'; // 좌우로 -80px ~ 80px 흔들림
-        const spin = (Math.random() * 720 - 360) + 'deg'; // 회전 각도
+        // 낙하 궤적 계산
+        const sway = (Math.random() * 100 - 50) + 'px'; // 좌우 흔들림 최소화
+        const spin = (Math.random() * 360 - 180) + 'deg';
         star.style.setProperty('--sway-distance', sway);
         star.style.setProperty('--spin-angle', spin);
 
         starContainer.appendChild(star);
 
-        // 애니메이션이 끝나 화면 밖으로 나간 별 객체는 메모리 보호를 위해 즉시 자동 삭제
+        // 타이머 종료 후 삭제
         setTimeout(() => {
             star.remove();
         }, (duration + delay) * 1000);
