@@ -3,62 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나의 사랑하는 우주에게</title>
+    <title>별빛 우체통 (Starry Mailbox)</title>
     <link rel="stylesheet" href="style.css">
-    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
 
-    <div class="space-background">
-        <div class="star-universe"></div>
-    </div>
-
     <div id="easter-stars-container"></div>
-    <div id="easter-message" class="easter-message-box">✨ 너는 나만의 소중한 우주야 ✨</div>
+    <div id="easter-message"></div>
 
-    <div id="wrap">
+    <div class="universe-bg">
+        <div class="stars"></div>
+        <div class="twinkling"></div>
         
-        <h1 class="main-title" onclick="triggerUniverseEasterEgg()">
-            <span>나의 사랑하는</span>
-            <span>우주에게</span>
-        </h1>
+        <div class="main-container">
+            <header class="main-header">
+                <h1 onclick="triggerUniverseEasterEgg()">🌌 STARRY SPACE</h1>
+                <p>우주의 파편 속에서 서로의 별빛을 찾아보세요</p>
+            </header>
 
-        <div class="ui-container">
-            <div class="triple-row">
-                <button class="btn-base active" id="sort-latest" onclick="changeSort('latest')">최신 순</button>
-                <button class="btn-base" id="sort-oldest" onclick="changeSort('oldest')">오래된 순</button>
-                <button class="btn-base" onclick="resetFilters()">초기화</button>
+            <div class="mailbox-container">
+                <button class="admin-entry-btn" onclick="openModal('adminAuthModal')">관리자 인증</button>
+
+                <div class="mailbox-header">
+                    <div class="mailbox-status-text" id="mailbox-status-title">🌌 별빛 우체통</div>
+                    <button id="secret-mailbox-icon" class="secret-mail-icon-btn" style="display: none;" onclick="toggleSecretLetters()">📨</button>
+                </div>
+
+                <div class="filter-box">
+                    <input type="text" id="search-title" placeholder="빛의 기록 제목 검색..." oninput="renderPosts()">
+                    <div class="filter-buttons">
+                        <button id="sort-latest" class="filter-btn active" onclick="changeSort('latest')">최신순</button>
+                        <button id="sort-oldest" class="filter-btn" onclick="changeSort('oldest')">오래된순</button>
+                        <button class="filter-btn reset-btn" onclick="resetFilters()">초기화</button>
+                    </div>
+                </div>
             </div>
 
-            <input type="text" id="search-title" class="btn-base search-input" placeholder="빛의 기록의 제목을 검색해보세요..." oninput="changePage(1)">
+            <main id="posts-mailbox-feed" class="feed-container"></main>
 
-            <button class="btn-base write-btn" id="user-write-btn" onclick="openModal('writeModal')">
-                🚀 하은이에게 편지 쓰기
-            </button>
+            <div id="pagination-control" class="pagination-container"></div>
 
-            <button class="btn-base write-btn" id="admin-write-btn" onclick="openModal('writeModal')" style="display: none; border-color: #FFE6BA; color: #FFE6BA;">
-                ✍️ 관리자 권한 글 쓰기
-            </button>
-        </div>
-
-        <div class="mailbox-container">
-            <div class="mailbox-header">
-                <div id="mailbox-status-title" class="mailbox-status-text">🌌 별빛 우체통</div>
-                
-                <button id="secret-mailbox-icon" class="secret-mail-icon-btn" onclick="toggleSecretLetters()" style="display: none;" title="수신된 비밀 편지함 열기">
-                    📨
-                </button>
+            <div class="action-trigger-area">
+                <button id="user-write-btn" class="write-trigger-btn" onclick="openModal('writeModal')">나의 우주에게 편지 쓰기</button>
+                <button id="admin-write-btn" class="write-trigger-btn admin-theme" style="display: none;" onclick="openModal('writeModal')">✍️ 관리자 공지 기록하기</button>
             </div>
-            
-            <button class="admin-entry-btn" onclick="openModal('adminAuthModal')">관리자 모드 진입</button>
-            
-            <div id="posts-mailbox-feed"></div>
         </div>
-
-        <div class="pagination" id="pagination-control"></div>
-
     </div>
 
     <div id="adminAuthModal" class="modal-overlay">
@@ -92,6 +83,19 @@
             <div class="modal-buttons">
                 <button class="submit-btn" onclick="submitPost()">보내기</button>
                 <button class="cancel-btn" onclick="closeModal('writeModal')">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="secretMailboxModal" class="modal-overlay">
+        <div class="modal-window secret-mailbox-window">
+            <h3>📬 도착한 비밀 편지함</h3>
+            <div class="secret-modal-meta">받은 편지 리스트를 확인할 수 있는 독립된 창입니다.</div>
+            
+            <div id="secret-letters-container" class="secret-letters-scroll-zone"></div>
+            
+            <div class="modal-buttons">
+                <button class="cancel-btn" onclick="closeModal('secretMailboxModal')">닫기</button>
             </div>
         </div>
     </div>
