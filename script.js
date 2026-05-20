@@ -54,7 +54,7 @@ function listenToFirebase() {
                     content: data[key].content || "",
                     date: data[key].date || "",
                     isPinned: data[key].isPinned || false,
-                    pinnedAt: data[key].pinnedAt || 0, // 💡 고정된 시간 추적 필드 추가
+                    pinnedAt: data[key].pinnedAt || 0,
                     isFavorite: data[key].isFavorite || false,
                     postPassword: data[key].postPassword || "" 
                 });
@@ -124,7 +124,7 @@ function toggleSecretLetters() {
     renderSecretMailboxWindow();
 }
 
-// 💡 도착한 별빛 편지함 내부 탭 전환 제어 함수
+// 도착한 별빛 편지함 내부 탭 전환 제어 함수
 function changeSecretTab(tab) {
     currentSecretTab = tab;
     document.getElementById('secret-tab-all').classList.toggle('active', tab === 'all');
@@ -132,7 +132,7 @@ function changeSecretTab(tab) {
     renderSecretMailboxWindow();
 }
 
-// 💡 독립 우체통 창 렌더러
+// 독립 우체통 창 렌더러
 function renderSecretMailboxWindow() {
     const container = document.getElementById('secret-letters-container');
     container.innerHTML = "";
@@ -193,18 +193,14 @@ function renderPosts() {
         return post.title.toLowerCase().includes(searchTitleVal);
     });
 
-    // 💡 [고정 버튼 누른 순서 정렬 반영 알고리즘]
     filtered.sort((a, b) => {
-        // 1. 둘 중 하나만 공지글(isPinned)일 경우, 공지글을 상단으로 올림
         if (a.isPinned && !b.isPinned) return -1;
         if (!a.isPinned && b.isPinned) return 1;
         
-        // 2. 둘 다 공지글일 경우: 고정 버튼을 누른 순서대로 정렬 (최신 고정글이 위로 가게 하려면 b.pinnedAt - a.pinnedAt)
         if (a.isPinned && b.isPinned) {
             return b.pinnedAt - a.pinnedAt; 
         }
         
-        // 3. 둘 다 일반 글일 경우: 기존 선택 정렬 기준(시간순)을 엄격히 적용
         const timeA = new Date(a.date).getTime() || 0;
         const timeB = new Date(b.date).getTime() || 0;
         
@@ -289,7 +285,6 @@ function renderPosts() {
     renderPaginationControls(totalPages);
 }
 
-// 사용자가 입력한 비번 검증 후 본문 열어주는 함수
 function unlockPost(firebaseKey, correctPassword) {
     const inputVal = document.getElementById(`unlock-pw-${firebaseKey}`).value;
     if (inputVal === correctPassword) {
@@ -300,7 +295,6 @@ function unlockPost(firebaseKey, correctPassword) {
     }
 }
 
-// 하단 페이지네이션 바 제어
 function renderPaginationControls(totalPages) {
     const container = document.getElementById('pagination-control');
     container.innerHTML = "";
@@ -337,8 +331,6 @@ function changePage(page) {
     currentPage = page;
     renderPosts();
 }
-
-// ... 중략 (나머지 필터 및 모달 핸들러 동일 유지) ...
 
 function changeSort(type) {
     currentSort = type;
@@ -406,16 +398,15 @@ function toggleFavorite(nodeType, firebaseKey, currentStatus, e) {
     });
 }
 
-// 💡 글 고정 토글 핸들러 수정 (고정 타임스탬프 기록)
 function togglePin(nodeType, firebaseKey, currentStatus) {
     const nextStatus = !currentStatus;
     database.ref(`${nodeType}/${firebaseKey}`).update({
         isPinned: nextStatus,
-        pinnedAt: nextStatus ? Date.now() : 0 // 고정할 때 현재 시간 기록, 해제할 때 0으로 리셋
+        pinnedAt: nextStatus ? Date.now() : 0 
     });
 }
 
-// 📡 파이어베이스에 작성 글 업로드 세션
+// 📡 🛠️ 파이어베이스 업로드 후 수동 창 닫힘 누락 버그 해결 완료 파트
 function submitPost() {
     const author = document.getElementById('post-author').value.trim() || "익명의 우주";
     const title = document.getElementById('post-title').value.trim();
@@ -447,7 +438,7 @@ function submitPost() {
             updateData.postPassword = postPassword; 
             updateData.isPinned = isPinned; 
             if(isPinned) {
-                updateData.pinnedAt = Date.now(); // 수정창에서 고정 체크했을 때도 반영
+                updateData.pinnedAt = Date.now(); 
             }
         }
         database.ref(`${editingTargetNode}/${editingPostId}`).update(updateData).then(() => {
@@ -456,6 +447,7 @@ function submitPost() {
         });
         
     } else if (replyingPostId) {
+        // 💡 [버그 수정] 관리자가 답장 작성 시 데이터 전송 후 즉시 모달이 닫히도록 바인딩
         database.ref('posts').push({
             id: Date.now(),
             author: currentAdminName || "관리자",
@@ -466,10 +458,13 @@ function submitPost() {
             pinnedAt: 0,
             isFavorite: false,
             postPassword: "" 
-        }).then(() => closeModal('writeModal'));
+        }).then(() => {
+            closeModal('writeModal');
+        });
         
     } else {
         if (isAdminMode) {
+            // 💡 [버그 수정] 관리자 모드에서 새 글을 업로드한 후 즉시 모달이 닫히도록 수정
             database.ref('posts').push({
                 id: Date.now(),
                 author: author,
@@ -480,8 +475,11 @@ function submitPost() {
                 pinnedAt: isPinned ? Date.now() : 0,
                 isFavorite: false,
                 postPassword: postPassword 
-            }).then(() => closeModal('writeModal'));
+            }).then(() => {
+                closeModal('writeModal');
+            });
         } else {
+            // 💡 [버그 수정] 일반 사용자가 하은이에게 편지를 보낸 후 즉시 모달이 닫히도록 수정
             database.ref('global_letters').push({
                 id: Date.now(),
                 writer: author,
@@ -491,7 +489,10 @@ function submitPost() {
                 isPinned: false,
                 pinnedAt: 0,
                 isFavorite: false
-            }).then(() => closeModal('writeModal'));
+            }).then(() => {
+                closeModal('writeModal');
+                alert("편지가 은하수를 건너 전달되었습니다.✨"); // 사용자 전송 성공 안내 추가
+            });
         }
     }
 }
@@ -508,7 +509,6 @@ function openReplyModal(nodeType, firebaseKey) {
     document.getElementById('post-content').value = "";
 }
 
-// 글 수정 기능 모달 바인딩 파트
 function openEditModal(nodeType, firebaseKey) {
     const pool = nodeType === 'posts' ? publicPosts : globalLetters;
     const post = pool.find(p => p.firebaseKey === firebaseKey);
