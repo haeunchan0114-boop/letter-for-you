@@ -570,107 +570,101 @@ html, body, .space-background {
     }
 }
 /* ==========================================
-   🌌 실시간 일렁이는 에메랄드-퍼플 오로라 배경
+   🌌 [실사풍] 강렬한 에메랄드 밤하늘 오로라 폭풍
    ========================================== */
 
-/* 밤하늘 베이스 레이어 (가장 어두운 딥 네이비) */
+/* 1. 밤하늘 기본 베이스 (사진 속 묵직하고 깊은 딥 네이비 고정) */
 .space-background {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100% !important;
-    background: #060b19; /* 사진 하단의 깊은 밤하늘색 */
+    background: #040814 !important; /* 바닥 검은색 방지를 위한 아주 어두운 남색 */
     overflow: hidden;
     z-index: -2;
 }
 
-/* 오로라 무리를 감싸는 컨테이너 (하드웨어 가속 및 블러 처리) */
+/* 2. 뒷배경 보랏빛 성운층 (사진의 왼쪽 어두운 보라색 구현) */
 .space-background::before {
     content: '';
-    position: absolute;
-    top: -20%;
-    left: -20%;
-    width: 140%;
-    height: 140%;
-    /* 가상 요소들을 부드럽게 뭉개서 오로라 기체 느낌을 내는 핵심 필터 */
-    filter: blur(80px); 
-    -webkit-filter: blur(80px);
-    mix-blend-mode: screen; /* 빛이 겹치면 더 밝아지도록 합성 */
-    background: 
-        /* 1. 보랏빛 은하수 레이어 (좌측 상단에서 우하향) */
-        radial-gradient(circle at 30% 30%, rgba(103, 58, 183, 0.25) 0%, transparent 60%),
-        /* 2. 사진 속 청록빛(Cyan) 베이스 오로라 레이어 */
-        radial-gradient(circle at 60% 40%, rgba(0, 150, 136, 0.2) 0%, transparent 50%);
-    opacity: 0.85;
-    z-index: -1;
-}
-
-/* 🟢 메인 에메랄드 그린 오로라 스트림 (움직이는 파도 레이어) */
-.aurora-green {
     position: absolute;
     top: -10%;
     left: -10%;
     width: 120%;
-    height: 80%;
-    /* 사진에서 가장 눈에 띄는 선명한 연두/초록빛 오로라 그라데이션 */
-    background: radial-gradient(ellipse at 50% 60%, 
-        rgba(46, 213, 115, 0.45) 0%,   /* 핵심 밝은 그린 */
-        rgba(0, 184, 148, 0.25) 40%,   /* 청록빛으로 번지는 구역 */
-        transparent 70%
-    );
-    filter: blur(60px);
+    height: 100%;
+    filter: blur(90px);
+    -webkit-filter: blur(90px);
+    background: radial-gradient(circle at 20% 30%, rgba(90, 45, 160, 0.4) 0%, transparent 60%);
+    opacity: 0.9;
+    z-index: -1;
+}
+
+/* 🟢 메인 강렬한 에메랄드 그린 오로라 (투명도를 낮춰 선명함 극대화) */
+.aurora-green {
+    position: absolute;
+    top: 10%;
+    left: -20%;
+    width: 150%;
+    height: 60%;
+    /* 선명도를 위해 블러를 기존 60px에서 35px로 줄여 오로라 선을 잡았습니다 */
+    filter: blur(35px);
+    -webkit-filter: blur(35px);
     mix-blend-mode: screen;
-    /* 대각선 형태로 비스듬히 흐르도록 설정 */
-    transform: rotate(-15deg); 
-    /* 좌우상하로 유기적으로 움직이는 애니메이션 부여 */
-    animation: aurora-flow-green 14s ease-in-out infinite alternate;
+    
+    /* 실제 사진처럼 가운데는 타들어 갈 듯 밝고, 테두리로 갈수록 선명한 초록빛이 나도록 설계 */
+    background: linear-gradient(135deg, 
+        transparent 15%,
+        rgba(0, 255, 120, 0.4) 25%,   /* 가장자리 선명한 그린 */
+        rgba(46, 254, 157, 0.75) 40%,  /* [핵심] 사진 속 중심부 강한 형광 에메랄드 */
+        rgba(0, 206, 201, 0.5) 60%,    /* 청록색(Cyan)으로 이어지는 구간 */
+        transparent 75%
+    );
+    
+    transform: rotate(-16deg);
+    animation: aurora-heavy-flow 11s ease-in-out infinite alternate;
     will-change: transform, opacity;
 }
 
-/* 🟣 서브 퍼플-블루 오로라 스트림 (그린 뒤에서 은은하게 받쳐주는 레이어) */
+/* 🟣 우측 하단 푸른빛 밤하늘 그라데이션 (사진 우측 밸런스 매칭) */
 .aurora-purple {
     position: absolute;
-    top: -20%;
+    bottom: -10%;
     right: -10%;
-    width: 100%;
-    height: 90%;
-    background: radial-gradient(ellipse at 40% 30%, 
-        rgba(112, 111, 211, 0.3) 0%,   /* 사진 좌측의 묘한 보라색 */
-        rgba(10, 60, 120, 0.2) 50%,    /* 깊은 푸른색 */
-        transparent 80%
-    );
-    filter: blur(70px);
+    width: 120%;
+    height: 70%;
+    filter: blur(80px);
+    -webkit-filter: blur(80px);
     mix-blend-mode: screen;
-    transform: rotate(20deg);
-    animation: aurora-flow-purple 18s ease-in-out infinite alternate;
+    background: radial-gradient(circle at 80% 80%, rgba(10, 70, 150, 0.45) 0%, transparent 70%);
+    animation: aurora-sub-pulse 15s ease-in-out infinite alternate;
     will-change: transform, opacity;
 }
 
-/* 🎬 그린 오로라 일렁임 애니메이션 함수 */
-@keyframes aurora-flow-green {
+/* 🎬 오로라 폭풍 일렁임 (실사처럼 거칠고 역동적으로 흐르도록 셋팅) */
+@keyframes aurora-heavy-flow {
     0% {
-        transform: rotate(-15deg) translate(0, 0) scale(1);
-        opacity: 0.45;
+        transform: rotate(-16deg) translate(0, 0) scaleY(1);
+        opacity: 0.85; /* 투명도를 대폭 낮춰(진하게) 상시 고정 */
     }
     50% {
-        transform: rotate(-12deg) translate(-30px, 40px) scale(1.1);
-        opacity: 0.6; /* 중간에 스르륵 더 밝아짐 */
+        transform: rotate(-14deg) translate(-25px, 15px) scaleY(1.15); /* 상하로 꿀렁이는 부피감 */
+        opacity: 1.0; /* 절정일 때 완전히 선명해짐 */
     }
     100% {
-        transform: rotate(-18deg) translate(20px, -20px) scale(0.95);
-        opacity: 0.4;
+        transform: rotate(-17deg) translate(15px, -10px) scaleY(0.9);
+        opacity: 0.8;
     }
 }
 
-/* 🎬 퍼플 오로라 일렁임 애니메이션 함수 (서로 엇박자로 움직여서 자연스러움) */
-@keyframes aurora-flow-purple {
+/* 보조 푸른 기류 일렁임 */
+@keyframes aurora-sub-pulse {
     0% {
-        transform: rotate(20deg) translate(0, 0);
-        opacity: 0.3;
+        transform: translate(0, 0) scale(1);
+        opacity: 0.6;
     }
     100% {
-        transform: rotate(25deg) translate(40px, -40px) scale(1.05);
-        opacity: 0.5;
+        transform: translate(30px, -20px) scale(1.08);
+        opacity: 0.9;
     }
 }
