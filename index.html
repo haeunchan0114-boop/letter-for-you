@@ -9,91 +9,119 @@
 </head>
 <body>
 
-    <div class="container">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; gap: 10px; flex-wrap: wrap;">
-            <button id="global-mailbox-btn" onclick="handleMailboxClick()" class="winter-btn visitor-mailbox-theme">
+    <div class="space-background">
+        <div class="space-moon"></div>
+        <div class="nebula-pink"></div>
+        <div class="nebula-blue"></div>
+        <div class="nebula-purple"></div>
+        <div class="aurora-green"></div>
+        <div class="aurora-purple"></div>
+        <div class="aurora-blue"></div>
+        <div class="star-universe"></div>
+        
+        <div class="star-bright star1">✦</div>
+        <div class="star-bright star2">✦</div>
+        <div class="star-bright star3">✦</div>
+        <div class="star-bright star4">✦</div>
+        <div class="star-bright star5">✦</div>
+        <div class="star-bright star6">✦</div>
+
+        <div class="shooting-star s-star1"></div>
+        <div class="shooting-star s-star2"></div>
+        <div class="shooting-star s-star3"></div>
+        <div class="shooting-star s-star4"></div>
+        <div class="shooting-star s-star5"></div>
+        <div class="shooting-star s-star6"></div>
+        <div class="shooting-star s-star7"></div>
+    </div>
+
+    <div id="wrap">
+        <h1>우주 기록소</h1>
+
+        <div class="controls">
+            <button id="global-mailbox-btn" onclick="handleMailboxClick()" class="winter-btn main-mailbox-trigger visitor-mailbox-theme">
                 <i class="fa-solid fa-paper-plane"></i> 하은이에게 편지 쓰기
             </button>
-            <button id="opt-toggle-btn" onclick="toggleOptimization()" class="winter-btn">
+            <button id="opt-toggle-btn" onclick="toggleOptimization()" class="winter-btn opt-btn">
                 <i class="fa-solid fa-gauge-high"></i> 최적화 모드: OFF
             </button>
         </div>
 
-        <div id="admin-wrapper" style="display: none; margin-bottom: 30px;">
-            <button id="admin-open-toggle" onclick="toggleAdminForm()" class="winter-btn" style="background: #2b6cb0; border-color: #2b6cb0; width:100%; justify-content: center;">
+        <div id="admin-wrapper" style="display: none;">
+            <button id="admin-open-toggle" onclick="toggleAdminForm()" class="admin-write-toggle-btn">
                 <i class="fa-solid fa-pen-to-square"></i> 기록자 글쓰기 판넬 열기
             </button>
 
-            <div id="admin-area" style="display: none; background: rgba(255,255,255,0.02); padding: 25px; border-radius: 14px; border: 1px solid #2b6cb0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);">
-                <h3 id="admin-panel-title" style="margin-top:0; color:#F5E6C8; font-size:1.2rem; margin-bottom:20px;"><i class="fa-solid fa-feather"></i> 우주에 새로운 빛의 기록 남기기</h3>
+            <div id="admin-area" style="display: none;">
+                <h3 id="admin-panel-title" class="admin-title"><i class="fa-solid fa-feather"></i> 우주에 새로운 빛의 기록 남기기</h3>
                 <input type="hidden" id="edit-id">
                 
                 <div style="margin-bottom: 16px;">
-                    <label style="display:block; margin-bottom:6px; font-size:0.88rem; color:#cbd5e0; font-weight:500;">글 제목</label>
-                    <input type="text" id="new-title" class="input-style" placeholder="기록할 제목을 입력하세요.">
+                    <input type="text" id="new-title" class="admin-input" placeholder="기록할 제목을 입력하세요.">
                 </div>
 
                 <div style="margin-bottom: 16px;">
-                    <label for="new-password" style="display:block; margin-bottom:6px; font-size:0.88rem; color:#cbd5e0; font-weight:500;">
-                        <i class="fa-solid fa-lock" style="color:#f6ad55;"></i> 글 비밀번호 설정 (선택)
-                    </label>
-                    <input type="password" id="new-password" class="input-style" maxlength="4" 
+                    <input type="password" id="new-password" class="admin-input" maxlength="4" 
                            oninput="this.value = this.value.replace(/[^0-9]/g, '');" 
-                           placeholder="숫자 4자리 입력 (비워두면 일반 공개글로 저장됩니다)">
+                           placeholder="🔒 숫자 4자리 암호 설정 (비워두면 일반 공개글)">
                 </div>
 
                 <div style="margin-bottom: 20px;">
-                    <label style="display:block; margin-bottom:6px; font-size:0.88rem; color:#cbd5e0; font-weight:500;">기록 내용</label>
-                    <textarea id="new-content" class="input-style" rows="7" placeholder="우주 너머에 남길 문장들을 입력하세요."></textarea>
+                    <textarea id="new-content" class="admin-input" rows="7" placeholder="우주 너머에 남길 문장들을 입력하세요."></textarea>
                 </div>
 
-                <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                    <button onclick="toggleAdminForm()" class="winter-btn" style="background:#4a5568;">취소</button>
-                    <button id="admin-main-btn" onclick="savePost()" class="winter-btn" style="background:#2b6cb0; border-color:#2b6cb0; font-weight:bold;">
+                <div class="admin-btn-group">
+                    <button onclick="toggleAdminForm()" class="admin-cancel-btn" style="flex:1;">취소</button>
+                    <button id="admin-main-btn" onclick="savePost()" class="admin-submit-btn" style="flex:2;">
                         <i class="fa-solid fa-feather"></i> 기록 새겨넣기
                     </button>
                 </div>
             </div>
         </div>
 
-        <hr style="border: 0; height: 1px; background: rgba(255,255,255,0.08); margin: 35px 0;">
+        <div class="search-container">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="search-input" class="winter-input search-input-field" placeholder="기록 제목 검색..." oninput="searchTitle(this.value)">
+            </div>
+        </div>
 
-        <div style="display: flex; gap: 10px; margin-bottom: 25px;">
-            <input type="text" id="search-input" class="input-style" placeholder="기록 제목 검색..." oninput="searchTitle(this.value)">
-            <button onclick="setSort('newest')" class="winter-btn" style="white-space: nowrap;">최신순</button>
-            <button onclick="setSort('oldest')" class="winter-btn" style="white-space: nowrap;">과거순</button>
-            <button onclick="resetFilter()" class="winter-btn" style="padding:10px 14px;"><i class="fa-solid fa-rotate-right"></i></button>
+        <div class="controls" style="margin-bottom: 25px;">
+            <button onclick="setSort('newest')" class="winter-btn">최신순</button>
+            <button onclick="setSort('oldest')" class="winter-btn">과거순</button>
+            <button onclick="resetFilter()" class="winter-btn" style="padding:11px 16px;"><i class="fa-solid fa-rotate-right"></i></button>
         </div>
 
         <div id="post-list"></div>
 
-        <div style="display: flex; justify-content: center; align-items: center; gap: 24px; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
-            <button onclick="prevPage()" class="winter-btn" style="padding: 8px 14px;"><i class="fa-solid fa-chevron-left"></i></button>
-            <span style="font-size:0.95rem; color:#cbd5e0;">페이지 <strong id="page-indicator" style="color:#fff; font-size:1.1rem;">1</strong></span>
-            <button onclick="nextPage()" class="winter-btn" style="padding: 8px 14px;"><i class="fa-solid fa-chevron-right"></i></button>
+        <div class="pagination">
+            <button onclick="prevPage()" class="page-btn"><i class="fa-solid fa-chevron-left"></i></button>
+            <span id="page-indicator">1</span>
+            <button onclick="nextPage()" class="page-btn"><i class="fa-solid fa-chevron-right"></i></button>
         </div>
     </div>
 
-    <div id="reply-modal" class="modal">
-        <div class="modal-content">
-            <h3 id="modal-form-title" style="margin-top:0; color:#F5E6C8; font-size:1.2rem;">하은이에게 편지 보내기</h3>
-            <p id="modal-form-desc" style="font-size:0.85rem; color:#a0aec0; margin-bottom:18px; line-height:1.4;"></p>
-            <div style="margin-bottom:12px;">
-                <input type="text" id="reply-author" class="input-style" placeholder="보내는 이 이름">
+    <div id="reply-modal" class="reply-modal-overlay" style="display: none;">
+        <div class="reply-modal-content" style="max-width: 440px; width: 90%;">
+            <h3 id="modal-form-title">하은이에게 편지 보내기</h3>
+            <p id="modal-form-desc" class="reply-target-info"></p>
+            
+            <div style="margin-top: 15px; margin-bottom: 12px;">
+                <input type="text" id="reply-author" class="admin-input" placeholder="보내는 이 이름" style="margin-bottom:0;">
             </div>
-            <div style="margin-bottom:18px;">
-                <textarea id="reply-content" class="input-style" rows="5" placeholder="마음을 실어 보낼 이야기를 채워주세요."></textarea>
+            <div style="margin-bottom: 18px;">
+                <textarea id="reply-content" class="admin-input" rows="5" placeholder="마음을 실어 보낼 이야기를 채워주세요." style="margin-bottom:0;"></textarea>
             </div>
-            <div style="display:flex; gap:10px; justify-content:flex-end;">
-                <button onclick="closeReplyModal()" class="winter-btn" style="background:#4a5568;">닫기</button>
-                <button onclick="submitLetterOrReply()" class="winter-btn" style="background:#2b6cb0; border-color:#2b6cb0; font-weight:bold;">전송하기</button>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button onclick="closeReplyModal()" class="winter-btn" style="margin:0; background:rgba(255,255,255,0.1);">닫기</button>
+                <button onclick="submitLetterOrReply()" class="winter-btn" style="margin:0; background:rgba(245,230,200,0.2); border-color:#F5E6C8; color:#F5E6C8; font-weight:bold;">전송하기</button>
             </div>
         </div>
     </div>
 
-    <div id="snow-container" style="position:fixed; top:0; left:0; width:100vw; height:100vh; pointer-events:none; z-index:99; overflow:hidden;"></div>
-    <div id="easter-stars-container" style="position:fixed; top:0; left:0; width:100vw; height:100vh; pointer-events:none; z-index:98; overflow:hidden;"></div>
-    <div id="easter-egg-message" style="position:fixed; top:20%; left:50%; transform:translate(-50%, -50%); background:rgba(0,0,0,0.85); padding:15px 30px; border-radius:30px; border:1px solid #F5E6C8; color:#F5E6C8; font-weight:bold; pointer-events:none; z-index:999; display:none; opacity:0; transition:all 0.5s;">🌌 우주의 별들이 당신을 축복합니다 🌌</div>
+    <div id="snow-container"></div>
+    <div id="easter-stars-container"></div>
+    <div id="easter-egg-message" class="easter-message-box">🌌 우주의 별들이 당신을 축복합니다 🌌</div>
 
     <script src="script.js"></script>
 </body>
