@@ -15,13 +15,12 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
 // 상태 제어 변수들
-let publicPosts = [];      // 'posts' 노드의 데이터
-let globalLetters = [];    // 'global_letters' 노드의 데이터
-let displayPosts = [];     // 화면에 최종 출력될 배열
+let publicPosts = [];      // 'posts' 노드의 데이터 (메인 피드용 공지글)
+let globalLetters = [];    // 'global_letters' 노드의 데이터 (독립 우체통 창 전용 편지)
+let displayPosts = [];     // 메인 피드 화면에 최종 출력될 배열
 
 let currentSort = 'latest';
 let isAdminMode = false;
-let isSecretMailboxOpen = false; // 우체통(📨) 아이콘 온/오프 스위치 플래그
 let currentAdminName = "";
 let editingPostId = null;
 let replyingPostId = null;
@@ -60,7 +59,7 @@ function listenToFirebase() {
         mergeAndRender();
     });
 
-    // 2. 💡 [구조 변경] global_letters 노드의 특수 Key 이름 (writer, text)을 안전하게 매핑 파싱
+    // 2. global_letters 데이터 파싱 (writer -> author, text -> content 완벽 매핑)
     database.ref('global_letters').on('value', (snapshot) => {
         const data = snapshot.val();
         globalLetters = [];
@@ -70,44 +69,38 @@ function listenToFirebase() {
                     firebaseKey: key,
                     nodeType: 'global_letters',
                     id: data[key].id || Date.now(),
-                    author: data[key].writer || "익명",  // 💡 파이어베이스 스키마 상 writer 항목 불러오기
+                    author: data[key].writer || "익명",  // writer 매핑
                     title: data[key].title || "비밀 편지 조각",
-                    content: data[key].text || "",       // 💡 파이어베이스 스키마 상 text 항목 불러오기
-                    date: data[key].date || "",         // date 매핑
+                    content: data[key].text || "",       // text 매핑
+                    date: data[key].date || "",         
                     isPinned: data[key].isPinned || false,
                     isFavorite: data[key].isFavorite || false
                 });
             }
         }
-        mergeAndRender();
+        // 💡 따로 열려있는 독립 팝업 창이 켜져 있는 상태라면 실시간으로 리스트를 자동 갱신해 줍니다.
+        if (document.getElementById('secretMailboxModal').classList.contains('active')) {
+            renderSecretMailboxWindow();
+        }
     });
 }
 
-// 🧩 데이터 통합 및 관리자 인터페이스 분리 구조
+// 🧩 데이터 통합 및 관리자 인터페이스 분리 구조 (메인 화면 피드 제어)
 function mergeAndRender() {
     const userWriteBtn = document.getElementById('user-write-btn');
     const adminWriteBtn = document.getElementById('admin-write-btn');
     const secretMailIcon = document.getElementById('secret-mailbox-icon');
 
-    // 타이틀은 고정 조건 준수
     document.getElementById('mailbox-status-title').innerText = `🌌 별빛 우체통`;
+
+    // 💡 이제 메인 피드에는 관리자 모드 여부와 관계없이 순수 공지글(posts 노드)만 깔끔히 로드됩니다.
+    displayPosts = [...publicPosts];
 
     if (isAdminMode) {
         userWriteBtn.style.display = 'none';
         adminWriteBtn.style.display = 'block';
-        secretMailIcon.style.display = 'inline-flex';
-
-        // 📨 우체통 모양 편지 아이콘 상태 토글 작동 연산
-        if (isSecretMailboxOpen) {
-            displayPosts = [...publicPosts, ...globalLetters];
-            secretMailIcon.classList.add('active');
-        } else {
-            displayPosts = [...publicPosts];
-            secretMailIcon.classList.remove('active');
-        }
+        secretMailIcon.style.display = 'inline-flex'; // 📨 아이콘 버튼 활성화
     } else {
-        // 일반 접근 모드
-        displayPosts = [...publicPosts];
         userWriteBtn.style.display = 'block';
         adminWriteBtn.style.display = 'none';
         secretMailIcon.style.display = 'none';
@@ -115,14 +108,58 @@ function mergeAndRender() {
     renderPosts();
 }
 
-// 📬 📨 우체통 아이콘 클릭 핸들러
+// 📬 📨 우체통 아이콘 클릭 시 전용 독립 창 모달 팝업 열기
 function toggleSecretLetters() {
-    isSecretMailboxOpen = !isSecretMailboxOpen;
-    currentPage = 1; 
-    mergeAndRender();
+    openModal('secretMailboxModal');
+    renderSecretMailboxWindow();
 }
 
-// 화면 렌더링 출력부
+// 💡 [독립 렌더러 함수] 따로 열린 팝업 창 내부에 비밀 편지만 모아서 빌드하는 로직
+function renderSecretMailboxWindow() {
+    const container = document.getElementById('secret-letters-container');
+    container.innerHTML = "";
+
+    if (globalLetters.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.85rem;">비밀 우체통에 도착한 편지가 없습니다.</div>`;
+        return;
+    }
+
+    // 최신 비밀 편지가 상단에 오도록 정렬
+    const sortedLetters = [...globalLetters].sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
+
+    sortedLetters.forEach(letter => {
+        // 💡 날짜 중간에 공백이 있거나 콜론(:)이 누락되어 있다면 자동으로 보정해 줍니다.
+        let formattedDate = letter.date ? letter.date.trim() : "";
+        if (/\d{4}-\d{2}-\d{2}\s\d{2}\s\d{2}/.test(formattedDate)) {
+            const parts = formattedDate.split(/\s+/);
+            if(parts.length >= 3) {
+                formattedDate = `${parts[0]} ${parts[1]}:${parts[2]}`;
+            }
+        }
+
+        const miniCard = document.createElement('div');
+        miniCard.className = 'secret-mini-card';
+        miniCard.innerHTML = `
+            <div class="mini-meta">
+                <span>✉️ 보낸 사람: <b>${letter.author}</b></span>
+                <button style="background:none; border:none; color:${letter.isFavorite ? '#FFE6BA' : 'rgba(255,255,255,0.2)'}; cursor:pointer;" onclick="toggleFavorite('${letter.nodeType}', '${letter.firebaseKey}', ${letter.isFavorite}, event)">★</button>
+            </div>
+            <div class="mini-title">${letter.title}</div>
+            <div class="mini-content">${letter.content}</div>
+            
+            <div class="mini-center-date">— ${formattedDate} —</div>
+            
+            <div class="mini-actions">
+                <button onclick="openReplyModal('${letter.nodeType}', '${letter.firebaseKey}')">답장</button>
+                <button onclick="openEditModal('${letter.nodeType}', '${letter.firebaseKey}')">수정</button>
+                <button style="color:#ff8b8b;" onclick="deletePost('${letter.nodeType}', '${letter.firebaseKey}')">삭제</button>
+            </div>
+        `;
+        container.appendChild(miniCard);
+    });
+}
+
+// 메인 화면 피드 렌더링 출력부 (공지 및 작성글 표시 전용)
 function renderPosts() {
     const feed = document.getElementById('posts-mailbox-feed');
     feed.innerHTML = "";
@@ -133,7 +170,6 @@ function renderPosts() {
         return post.title.toLowerCase().includes(searchTitleVal);
     });
 
-    // 상단 고정 유무 및 가변 정렬
     filtered.sort((a, b) => {
         if (a.isPinned && !b.isPinned) return -1;
         if (!a.isPinned && b.isPinned) return 1;
@@ -145,7 +181,6 @@ function renderPosts() {
         }
     });
 
-    // 페이징 연산 계산기
     const totalPosts = filtered.length;
     const totalPages = Math.ceil(totalPosts / postsPerPage) || 1;
     if (currentPage > totalPages) currentPage = totalPages;
@@ -155,22 +190,27 @@ function renderPosts() {
     const pagePosts = filtered.slice(startIndex, endIndex);
 
     if(pagePosts.length === 0) {
-        feed.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.9rem;">우체통이 고요합니다. 일치하는 편지가 없습니다.</div>`;
+        feed.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.9rem;">우체통이 고요합니다. 일치하는 공지글이 없습니다.</div>`;
         renderPaginationControls(totalPages);
         return;
     }
 
-    // 카드 내부 엘리먼트 동적 빌드업 구조
     pagePosts.forEach(post => {
+        let formattedDate = post.date ? post.date.trim() : "";
+        if (/\d{4}-\d{2}-\d{2}\s\d{2}\s\d{2}/.test(formattedDate)) {
+            const parts = formattedDate.split(/\s+/);
+            if(parts.length >= 3) {
+                formattedDate = `${parts[0]} ${parts[1]}:${parts[2]}`;
+            }
+        }
+
         const card = document.createElement('div');
-        card.className = `post-card ${post.isPinned ? 'pinned' : ''} ${post.nodeType === 'global_letters' ? 'secret-type' : ''}`;
+        card.className = `post-card ${post.isPinned ? 'pinned' : ''}`;
         
-        // 💡 요구사항 반영: 상단 메타 영역에서는 이름(writer)을 출력하고, 내용은 본문에 채운 뒤, 날짜(date)는 하단 중앙(.post-center-date)에 배치되도록 마크업을 리디자인했습니다.
         card.innerHTML = `
             <div class="post-meta">
                 <div class="meta-info">
                     ${post.isPinned ? '<span class="pin-tag">📌 고정됨</span> | ' : ''}
-                    ${post.nodeType === 'global_letters' ? '<span class="secret-tag">✉️ 수신 편지</span> | ' : ''}
                     <span>작성자: ${post.author}</span>
                 </div>
                 <button class="fav-btn ${post.isFavorite ? 'active' : ''}" onclick="toggleFavorite('${post.nodeType}', '${post.firebaseKey}', ${post.isFavorite}, event)">★</button>
@@ -178,7 +218,7 @@ function renderPosts() {
             <h2 class="post-title">${post.title}</h2>
             <div class="post-content">${post.content}</div>
             
-            <div class="post-center-date">— ${post.date} —</div>
+            <div class="post-center-date">— ${formattedDate} —</div>
             
             <div class="card-actions">
                 <button class="reply-btn" onclick="openReplyModal('${post.nodeType}', '${post.firebaseKey}')">답장 보내기</button>
@@ -284,7 +324,7 @@ function saveAdminProfile() {
     isAdminMode = true;
     
     closeModal('adminNameModal');
-    alert(`인증 성공! 우측 상단 단색 우체통 아이콘(📨)을 누르면 수신 편지들이 로드됩니다.`);
+    alert(`인증 성공! 우측 상단 단색 우체통 아이콘(📨)을 누르면 별도의 독립 창에서 수신 편지들을 열람할 수 있습니다.`);
     
     document.querySelector('.admin-entry-btn').innerText = `관리자 모드 (${currentAdminName})`;
     mergeAndRender();
@@ -308,19 +348,28 @@ function submitPost() {
         return;
     }
 
-    const today = new Date().toISOString().split('T')[0];
+    // 💡 신규 작성 시 현재 날짜를 처음부터 ":" 콜론이 확실하게 부착된 완벽한 포맷으로 제작합니다.
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const today = `${year}-${month}-${day} ${hours}:${minutes}`;
 
     if (editingPostId) {
-        // 기존 수정 사항 업데이트 처리시
         const updateData = {};
         if (editingTargetNode === 'global_letters') {
             updateData.title = title;
-            updateData.text = content; // 파이어베이스 실시간 동기화 명칭 보정 규칙 적용
+            updateData.text = content; 
         } else {
             updateData.title = title;
             updateData.content = content;
         }
-        database.ref(`${editingTargetNode}/${editingPostId}`).update(updateData).then(() => closeModal('writeModal'));
+        database.ref(`${editingTargetNode}/${editingPostId}`).update(updateData).then(() => {
+            closeModal('writeModal');
+            if(editingTargetNode === 'global_letters') renderSecretMailboxWindow();
+        });
         
     } else if (replyingPostId) {
         database.ref('posts').push({
@@ -334,7 +383,6 @@ function submitPost() {
         }).then(() => closeModal('writeModal'));
         
     } else {
-        // 신규 추가 작성시 데이터베이스 필드 바인딩 분기점 처리
         if (isAdminMode) {
             database.ref('posts').push({
                 id: Date.now(),
@@ -346,7 +394,6 @@ function submitPost() {
                 isFavorite: false
             }).then(() => closeModal('writeModal'));
         } else {
-            // 💡 사용자가 작성할 때는 스키마에 명시된 writer, text 파형 구조 그대로 축적해 보관합니다.
             database.ref('global_letters').push({
                 id: Date.now(),
                 writer: author,
@@ -396,7 +443,9 @@ function openEditModal(nodeType, firebaseKey) {
 
 function deletePost(nodeType, firebaseKey) {
     if (confirm("이 기록을 우주에서 영구히 삭제할까요?")) {
-        database.ref(`${nodeType}/${firebaseKey}`).remove();
+        database.ref(`${nodeType}/${firebaseKey}`).remove().then(() => {
+            if(nodeType === 'global_letters') renderSecretMailboxWindow();
+        });
     }
 }
 
