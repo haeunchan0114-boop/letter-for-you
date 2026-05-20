@@ -1,4 +1,3 @@
-// ✍️ [기록 데이터] 여기에 새 글 코드를 복사해서 붙여넣으세요.
 let myPosts = [
     { title: "첫 번째 우주의 기록", date: "2026-05-20", content: "여기는 아주 조용하고 평화로운 나만의 우주입니다." },
     { title: "겨울 밤바다의 소리", date: "2026-01-15", content: "차가운 파도가 하얗게 부서지는 소리가 들려옵니다." },
@@ -10,17 +9,19 @@ let currentPage = 1;
 const postsPerPage = 3; 
 let currentSort = 'newest';
 
-// 1. 눈 내리는 효과 함수 (로딩용, 본문용 공용)
+// 🔒 비밀번호 유출 방지를 위한 SHA-256 해시값 (원문: 0416haeunashi0416!*!26)
+// 타인이 코드를 보아도 이 해시값만 보이기 때문에 비밀번호 원문을 해킹할 수 없습니다.
+const SECRET_HASH = "b901b0f590fc92716a4e320d709218671607f2e03bf305a468d66df19672750e";
+
 function createSnow(targetId) {
     const container = document.getElementById(targetId);
     if(!container) return;
-    
     for (let i = 0; i < 40; i++) {
         const snowflake = document.createElement('div');
         snowflake.className = 'snowflake';
         snowflake.innerHTML = '❄';
         snowflake.style.left = Math.random() * 100 + 'vw';
-        snowflake.style.animationDuration = (Math.random() * 3 + 4) + 's'; // 4~7초 사이 천천히
+        snowflake.style.animationDuration = (Math.random() * 3 + 4) + 's';
         snowflake.style.animationDelay = Math.random() * 5 + 's';
         snowflake.style.opacity = Math.random();
         snowflake.style.fontSize = (Math.random() * 10 + 10) + 'px';
@@ -28,44 +29,50 @@ function createSnow(targetId) {
     }
 }
 
-// 2. 초기 로딩 시스템
 window.onload = function() {
-    // 로딩 화면과 본문에 눈 내리는 효과 적용
     createSnow('loading-snow');
     createSnow('snow-container');
 
-    // 관리자 모드 확인 (?mode=sea)
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('mode') === 'sea') {
-        document.getElementById('admin-area').style.display = 'block'; 
+        // 주소 뒤에 ?mode=sea를 치고 들어오면 팝업창으로 비밀번호를 요구합니다.
+        const passwordInput = prompt("관리자 비밀번호를 입력하세요:");
+        
+        if (passwordInput) {
+            // 입력한 비밀번호를 암호화하여 저장된 해시값과 비교합니다.
+            const inputHash = CryptoJS.SHA256(passwordInput).toString();
+            
+            if (inputHash === SECRET_HASH) {
+                document.getElementById('admin-area').style.style.display = 'block'; 
+                alert("관리자 인증에 성공했습니다.");
+            } else {
+                alert("비밀번호가 올바르지 않습니다.");
+                window.location.href = window.location.pathname; // 메인으로 강제 튕겨내기
+            }
+        } else {
+            window.location.href = window.location.pathname;
+        }
     }
 
-    // 2.5초 후 로딩 화면 해제
     setTimeout(() => {
         const loader = document.getElementById('loading-screen');
         if(loader) {
             loader.style.opacity = '0';
-            setTimeout(() => {
-                loader.style.display = 'none';
-            }, 1000);
+            setTimeout(() => { loader.style.display = 'none'; }, 1000);
         }
     }, 2500);
 
     render();
 };
 
-// 3. 화면 렌더링 함수
 function render() {
-    // 정렬 로직
     currentDisplayPosts.sort((a, b) => {
         return currentSort === 'newest' ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date);
     });
 
-    // 페이징 로직 (3개씩)
     const start = (currentPage - 1) * postsPerPage;
     const end = start + postsPerPage;
     const pagedPosts = currentDisplayPosts.slice(start, end);
-    
     const container = document.getElementById('post-list');
     container.innerHTML = '';
 
@@ -83,11 +90,9 @@ function render() {
         `;
         container.appendChild(card);
     });
-    
     document.getElementById('page-indicator').innerText = currentPage;
 }
 
-// 4. 기능 함수들
 function setSort(type) { currentSort = type; currentPage = 1; render(); }
 function filterDate(date) { 
     if(!date) return;
