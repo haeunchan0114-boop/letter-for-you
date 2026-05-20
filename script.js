@@ -36,7 +36,7 @@ const maxNavPages = 5;
 window.onload = function() {
     initBackgroundStars(); // ✨ 배경에 무수한 아기 별 대량 배치
     listenToFirebase();
-    startDynamicShootingStars(); // 🌠 강화된 별똥별 엔진 작동
+    startDynamicShootingStars(); // 🌠 변화된 새로운 별똥별 디자인 엔진 작동
 };
 
 // 📡 Firebase 실시간 리스너 작동부
@@ -717,7 +717,7 @@ function startDynamicShootingStars() {
         
         const randomLeft = Math.floor(Math.random() * 85) + 5; 
         const randomDelay = Math.random() * 1; 
-        const randomDuration = Math.random() * 3 + 5; 
+        const randomDuration = Math.random() * 2 + 4; // 더 가볍고 빠르게 떨어지도록 연출 속도 소폭 가속
 
         dynamicStar.style.left = `${randomLeft}%`;
         dynamicStar.style.animationDelay = `${randomDelay}s`;
