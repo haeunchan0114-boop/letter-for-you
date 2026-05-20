@@ -46,24 +46,29 @@ h1 {
     filter: blur(60px); animation: nebulaRotate 55s linear infinite;
 }
 
-/* 💚💜💙 넘실거리며 파도치는 오로라 애니메이션 */
+/* ==========================================
+   💚💜💙 신비롭게 빛나며 일렁이는 오로라 광원 시스템
+   ========================================== */
 .aurora-green {
-    position: absolute; width: 200%; height: 65%; top: -20%; left: -40%;
-    background: radial-gradient(circle at 25% 15%, rgba(16, 185, 129, 0.16) 0%, rgba(0, 0, 0, 0) 55%);
-    filter: blur(85px); animation: auroraWave 14s ease-in-out infinite alternate;
+    position: absolute; width: 200%; height: 75%; top: -25%; left: -50%;
+    background: radial-gradient(circle at 30% 20%, rgba(16, 185, 129, 0.28) 0%, rgba(16, 185, 129, 0.08) 35%, rgba(0, 0, 0, 0) 70%);
+    filter: blur(100px); mix-blend-mode: screen;
+    animation: auroraWave 16s ease-in-out infinite alternate, auroraPulse 8s ease-in-out infinite alternate;
 }
 .aurora-purple {
-    position: absolute; width: 180%; height: 55%; top: -15%; right: -30%;
-    background: radial-gradient(circle at 75% 25%, rgba(139, 92, 246, 0.15) 0%, rgba(0, 0, 0, 0) 60%);
-    filter: blur(95px); animation: auroraWave 19s ease-in-out infinite alternate-reverse;
+    position: absolute; width: 180%; height: 65%; top: -20%; right: -40%;
+    background: radial-gradient(circle at 70% 30%, rgba(139, 92, 246, 0.25) 0%, rgba(139, 92, 246, 0.06) 40%, rgba(0, 0, 0, 0) 75%);
+    filter: blur(110px); mix-blend-mode: screen;
+    animation: auroraWave 22s ease-in-out infinite alternate-reverse, auroraPulse 11s ease-in-out infinite alternate-reverse;
 }
 .aurora-blue {
-    position: absolute; width: 150%; height: 50%; bottom: 20%; left: -20%;
-    background: radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.09) 0%, rgba(0, 0, 0, 0) 50%);
-    filter: blur(90px); animation: auroraWave 25s ease-in-out infinite alternate;
+    position: absolute; width: 160%; height: 60%; bottom: 15%; left: -30%;
+    background: radial-gradient(circle at 25% 75%, rgba(59, 130, 246, 0.18) 0%, rgba(59, 130, 246, 0.04) 30%, rgba(0, 0, 0, 0) 65%);
+    filter: blur(100px); mix-blend-mode: screen;
+    animation: auroraWave 28s ease-in-out infinite alternate, auroraPulse 9s ease-in-out infinite alternate-reverse;
 }
 
-/* ✨ 자연스러운 은하수 잔별 (왼쪽 상단 세로 나열 별 좌표 전면 제거 수정) */
+/* ✨ 자연스러운 은하수 잔별 */
 .star-universe {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background-image: 
@@ -84,7 +89,7 @@ h1 {
     text-shadow: 0 0 8px #fff, 0 0 15px #F5E6C8;
     animation: starTwinkle 4s ease-in-out infinite;
 }
-.star1 { top: 15%; left: 25%; animation-delay: 0s; } /* 왼쪽 상단 구석에서 살짝 오른쪽으로 이동 조정 */
+.star1 { top: 15%; left: 25%; animation-delay: 0s; } 
 .star2 { top: 45%; right: 12%; animation-delay: 1.3s; font-size: 11px; }
 .star3 { bottom: 35%; left: 8%; animation-delay: 2.5s; font-size: 16px; }
 .star4 { top: 75%; right: 22%; animation-delay: 0.7s; }
@@ -97,7 +102,6 @@ h1 {
     background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
     border-radius: 50%; opacity: 0;
 }
-/* 각 별똥별마다 시작점, 크기, 각도, 애니메이션 속도를 모두 다르게 부여 */
 .shooting-star:nth-child(1) { top: 5%; left: 30%; width: 4px; height: 4px; transform: rotate(-30deg); animation: shootingStarGlow 8s linear infinite; animation-delay: 0s; }
 .shooting-star:nth-child(2) { top: 12%; left: 65%; width: 5px; height: 4px; transform: rotate(-35deg); animation: shootingStarGlow 11s linear infinite; animation-delay: 2.5s; }
 .shooting-star:nth-child(3) { top: -2%; left: 45%; width: 3px; height: 3px; transform: rotate(-28deg); animation: shootingStarGlow 7s linear infinite; animation-delay: 4.5s; }
@@ -114,14 +118,21 @@ h1 {
 @keyframes starPulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.8; } }
 @keyframes starTwinkle { 0%, 100% { opacity: 0; transform: scale(0.6); } 50% { opacity: 0.95; transform: scale(1.1); } }
 
-/* 🌊 오로라가 일렁이며 이동하는 고유 물결 연산 */
+/* 🌊 오로라가 일렁이며 움직이는 물결 애니메이션 */
 @keyframes auroraWave {
-    0% { transform: translate(0, 0) scale(1) rotate(0deg) skewX(0deg); opacity: 0.6; }
-    50% { transform: translate(-2%, 3%) scale(1.04) rotate(1.5deg) skewX(3deg); opacity: 0.85; }
-    100% { transform: translate(1%, -2%) scale(0.97) rotate(-1deg) skewX(-2deg); opacity: 0.7; }
+    0% { transform: translate(0, 0) scale(1) rotate(0deg) skewX(0deg); }
+    50% { transform: translate(-3%, 4%) scale(1.05) rotate(2deg) skewX(4deg); }
+    100% { transform: translate(2%, -3%) scale(0.95) rotate(-1.5deg) skewX(-3deg); }
 }
 
-/* 🌠 별똥별이 떨어지며 순간적으로 빛나고 꼬리가 흐려지는 애니메이션 */
+/* ✨ 오로라 빛이 은은하게 번지고 차오르는 하이라이트 애니메이션 (추가) */
+@keyframes auroraPulse {
+    0% { opacity: 0.5; filter: blur(100px) brightness(0.9); }
+    50% { opacity: 0.85; filter: blur(85px) brightness(1.2); }
+    100% { opacity: 0.6; filter: blur(105px) brightness(0.95); }
+}
+
+/* 🌠 별똥별 애니메이션 */
 @keyframes shootingStarGlow {
     0% { transform: translateX(0) translateY(0) scale(0); opacity: 0; width: 0px; }
     1.5% { opacity: 1; width: 110px; scale: 1; }
