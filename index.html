@@ -24,8 +24,10 @@
     <div class="wrapper">
         <header>
             <h1 id="mailbox-status-title" onclick="triggerUniverseEasterEgg()">🌌 별빛 우체통</h1>
+            
             <div class="header-buttons">
                 <button class="notice-open-btn" onclick="toggleNoticeLetters()">📢 공지사항 모아보기</button>
+                <button class="recent-open-btn" onclick="toggleRecentLetters()">🆕 최근 글 모아보기</button> 
                 <button class="admin-entry-btn" onclick="openModal('adminAuthModal')">관리자 인증</button>
             </div>
         </header>
@@ -124,6 +126,16 @@
                 <button class="close-btn" onclick="closeModal('noticeMailboxModal')">×</button>
             </div>
             <div id="notice-letters-container" class="secret-scroll-zone"></div>
+        </div>
+    </div>
+
+    <div id="recentMailboxModal" class="modal-overlay">
+        <div class="modal-content secret-window">
+            <div class="modal-header">
+                <h2>🆕 최근 도착한 별빛 기록 (5개)</h2>
+                <button class="close-btn" onclick="closeModal('recentMailboxModal')">×</button>
+            </div>
+            <div id="recent-letters-container" class="secret-scroll-zone"></div>
         </div>
     </div>
 
