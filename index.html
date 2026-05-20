@@ -44,7 +44,13 @@
         </div>
 
         <div class="mailbox-container">
-            <div id="mailbox-status-title" class="mailbox-status-text">🌌 별빛 우체통</div>
+            <div class="mailbox-header">
+                <div id="mailbox-status-title" class="mailbox-status-text">🌌 별빛 우체통</div>
+                
+                <button id="secret-mailbox-icon" class="secret-mail-icon-btn" onclick="toggleSecretLetters()" style="display: none;" title="수신된 비밀 편지함 열기">
+                    📬
+                </button>
+            </div>
             
             <button class="admin-entry-btn" onclick="openModal('adminAuthModal')">관리자 모드 진입</button>
             
