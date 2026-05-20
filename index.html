@@ -34,8 +34,12 @@
 
             <input type="text" id="search-title" class="btn-base search-input" placeholder="빛의 기록의 제목을 검색해보세요..." oninput="changePage(1)">
 
-            <button class="btn-base write-btn" onclick="openModal('writeModal')">
+            <button class="btn-base write-btn" id="user-write-btn" onclick="openModal('writeModal')">
                 🚀 하은이에게 편지 쓰기
+            </button>
+
+            <button class="btn-base write-btn" id="admin-write-btn" onclick="openModal('writeModal')" style="display: none; border-color: #FFE6BA; color: #FFE6BA;">
+                ✍️ 관리자 권한 글 쓰기
             </button>
         </div>
 
