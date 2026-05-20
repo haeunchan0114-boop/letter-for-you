@@ -34,8 +34,9 @@ const postsPerPage = 3;
 const maxNavPages = 5;
 
 window.onload = function() {
+    initBackgroundStars(); // ✨ 배경에 무수한 아기 별 대량 배치
     listenToFirebase();
-    startDynamicShootingStars(); 
+    startDynamicShootingStars(); // 🌠 강화된 별똥별 엔진 작동
 };
 
 // 📡 Firebase 실시간 리스너 작동부
@@ -489,7 +490,6 @@ function checkAdminPassword() {
     }
 }
 
-// 관리자 입장 완료
 function saveAdminProfile() {
     const nameInput = document.getElementById('admin-name-input').value.trim();
     currentAdminName = nameInput ? nameInput : "관리자";
@@ -680,20 +680,44 @@ function triggerUniverseEasterEgg() {
     }
 }
 
-// 🌠 밤하늘에 불규칙적인 속도로 은은한 별똥별을 실시간 생성해주는 엔진
+// ✨ 밤하늘 배경에 고정된 채 은은하게 반짝이는 아기 별 60개 생성 엔진
+function initBackgroundStars() {
+    const spaceBg = document.querySelector('.space-background');
+    if (!spaceBg) return;
+
+    for (let i = 0; i < 60; i++) {
+        const star = document.createElement('div');
+        star.className = 'background-star';
+        
+        const size = Math.random() * 2 + 1; // 1px ~ 3px 크기 차등 배분
+        const top = Math.random() * 100;
+        const left = Math.random() * 100;
+        const delay = Math.random() * 3;
+
+        star.style.width = `${size}px`;
+        star.style.height = `${size}px`;
+        star.style.top = `${top}%`;
+        star.style.left = `${left}%`;
+        star.style.animationDelay = `${delay}s`;
+
+        spaceBg.appendChild(star);
+    }
+}
+
+// 🌠 밤하늘에 한층 선명하고 잦은 빈도로 별똥별을 실시간 떨구는 엔진
 function startDynamicShootingStars() {
     const spaceBg = document.querySelector('.space-background');
     if (!spaceBg) return;
 
     setInterval(() => {
-        if (spaceBg.querySelectorAll('.dynamic-star').length > 10) return;
+        if (spaceBg.querySelectorAll('.dynamic-star').length > 15) return;
 
         const dynamicStar = document.createElement('div');
         dynamicStar.className = 'shooting-star dynamic-star';
         
-        const randomLeft = Math.floor(Math.random() * 80) + 10; 
-        const randomDelay = Math.random() * 2;
-        const randomDuration = Math.random() * 5 + 7; 
+        const randomLeft = Math.floor(Math.random() * 85) + 5; 
+        const randomDelay = Math.random() * 1; 
+        const randomDuration = Math.random() * 3 + 5; 
 
         dynamicStar.style.left = `${randomLeft}%`;
         dynamicStar.style.animationDelay = `${randomDelay}s`;
@@ -705,7 +729,7 @@ function startDynamicShootingStars() {
             dynamicStar.remove();
         }, (randomDuration + randomDelay) * 1000);
 
-    }, 3500); 
+    }, 1500); // 1.5초마다 빠르게 순환 판정하여 끊김 없이 별똥별 발사
 }
 
 // 🆕 최근 글 모아보기 창 열기
@@ -714,7 +738,7 @@ function toggleRecentLetters() {
     renderRecentLettersWindow();
 }
 
-// 🆕 최근 글 5개 전용 렌더러 (비밀번호 해제 연계 탑재)
+// 🆕 최근 글 5개 전용 렌더러
 function renderRecentLettersWindow() {
     const container = document.getElementById('recent-letters-container');
     if (!container) return;
