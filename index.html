@@ -5,45 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>사랑하는 나의 우주에게 ⭐</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
+
     <div id="loading-screen">
-        <div class="snow-container"></div>
-        <div class="loading-text">밤바다에 눈이 내리는 중...</div>
+        <div class="snow-area" id="loading-snow"></div>
+        <div class="loading-content">
+            <div class="star-icon">⭐</div>
+            <div class="loading-text">나의 우주에 눈이 내리는 중...</div>
+        </div>
     </div>
 
-    <div id="stars-background"></div>
-
-    <div id="wrap">
+    <div id="stars-container"></div>
+    <div id="snow-container"></div> <div id="wrap">
         <header>
             <h1>사랑하는 나의 우주에게 ⭐</h1>
             <div class="controls">
-                <button class="winter-btn" onclick="setSort('newest')">최신순</button>
-                <button class="winter-btn" onclick="setSort('oldest')">오래된순</button>
-                <input type="date" id="date-picker" class="winter-input" onchange="filterDate(this.value)">
-                <button class="winter-btn" onclick="resetFilter()">전체보기</button>
+                <button class="winter-btn" onclick="setSort('newest')"><i class="fa-solid fa-arrow-down-short-wide"></i> 최신순</button>
+                <button class="winter-btn" onclick="setSort('oldest')"><i class="fa-solid fa-arrow-up-wide-short"></i> 오래된순</button>
+                <div class="date-group">
+                    <input type="date" id="date-picker" class="winter-input" onchange="filterDate(this.value)">
+                    <button class="winter-btn" onclick="resetFilter()">전체보기</button>
+                </div>
             </div>
         </header>
 
         <div id="admin-area" style="display: none;">
-            <h3>✍️ 새로운 글 남기기 (관리자 전용)</h3>
-            <input type="text" id="new-title" placeholder="글 제목">
+            <h3>✍️ 새로운 우주의 기록 (관리자)</h3>
+            <input type="text" id="new-title" placeholder="기록의 제목">
             <input type="date" id="new-date">
-            <textarea id="new-content" placeholder="우주에게 전할 이야기..." rows="5"></textarea>
-            <button onclick="generateCode()" class="winter-btn admin-active">저장용 코드 생성</button>
+            <textarea id="new-content" placeholder="우주에게 전할 이야기를 적으세요..." rows="5"></textarea>
+            <button onclick="generateCode()" class="admin-submit-btn">시스템 코드 생성하기</button>
             <div id="code-output-box" style="display:none;">
+                <p>💡 아래 코드를 복사해서 script.js의 [myPosts] 안에 넣으세요.</p>
                 <textarea id="code-output" readonly></textarea>
             </div>
         </div>
 
-        <main id="post-list"></main>
+        <main id="post-list">
+            </main>
 
         <div class="pagination">
-            <button class="page-btn" onclick="prevPage()">⟨ 이전</button>
+            <button class="page-btn" onclick="prevPage()"><i class="fa-solid fa-chevron-left"></i> 이전</button>
             <span id="page-indicator">1</span>
-            <button class="page-btn" onclick="nextPage()">다음 ⟩</button>
+            <button class="page-btn" onclick="nextPage()">다음 <i class="fa-solid fa-chevron-right"></i></button>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
