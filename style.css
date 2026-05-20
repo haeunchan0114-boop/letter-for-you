@@ -564,3 +564,19 @@ header button:hover {
     background: rgba(255, 255, 255, 0.07) !important;
     box-shadow: 0 4px 15px rgba(255, 230, 186, 0.08);
 }
+.recent-open-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.recent-open-btn:hover {
+    background: #FFE6BA;
+    color: #0d0e2d;
+    border-color: #FFE6BA;
+}
