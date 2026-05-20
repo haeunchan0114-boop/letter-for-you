@@ -21,6 +21,7 @@ let displayPosts = [];     // 화면에 최종 출력될 배열
 
 let currentSort = 'latest';
 let isAdminMode = false;
+let isSecretMailboxOpen = false; // 💡 편지 아이콘 눌러서 비밀 편지 열었는지 여부 플래그
 let currentAdminName = "";
 let editingPostId = null;
 let replyingPostId = null;
@@ -80,28 +81,44 @@ function listenToFirebase() {
     });
 }
 
-// 🧩 권한별 데이터 결합 및 UI 버튼 제어 스위칭
+// 🧩 데이터 결합 및 UI 상태 스위칭 통제소
 function mergeAndRender() {
     const userWriteBtn = document.getElementById('user-write-btn');
     const adminWriteBtn = document.getElementById('admin-write-btn');
+    const secretMailIcon = document.getElementById('secret-mailbox-icon');
+
+    // 타이틀은 요구사항에 맞춰 무조건 '🌌 별빛 우체통' 고정
+    document.getElementById('mailbox-status-title').innerText = `🌌 별빛 우체통`;
 
     if (isAdminMode) {
-        // 관리자 모드: 수신 편지함 데이터까지 결합 노출
-        displayPosts = [...publicPosts, ...globalLetters];
-        document.getElementById('mailbox-status-title').innerText = `🔒 관리자 전용 비밀 우체통 (전체보기 중)`;
-        
-        // 💡 [요구사항] 하은이에게 편지쓰기를 숨기고 관리자용 글쓰기 버튼 활성화
+        // 💡 관리자 모드인 경우: 편지쓰기 숨기고 관리자 글쓰기 활성화 + 편지 아이콘 노출
         userWriteBtn.style.display = 'none';
         adminWriteBtn.style.display = 'block';
+        secretMailIcon.style.display = 'inline-flex';
+
+        // 📬 아이콘 활성화 유무에 따라 global_letters를 합쳐서 노출할지 결정
+        if (isSecretMailboxOpen) {
+            displayPosts = [...publicPosts, ...globalLetters];
+            secretMailIcon.classList.add('active');
+        } else {
+            displayPosts = [...publicPosts];
+            secretMailIcon.classList.remove('active');
+        }
     } else {
-        // 일반 사용자 모드
+        // 일반 유저 상태
         displayPosts = [...publicPosts];
-        document.getElementById('mailbox-status-title').innerText = `🌌 별빛 우체통`;
-        
         userWriteBtn.style.display = 'block';
         adminWriteBtn.style.display = 'none';
+        secretMailIcon.style.display = 'none';
     }
     renderPosts();
+}
+
+// 📬 편지 아이콘 클릭 시 비밀 편지함 개방 토글 함수
+function toggleSecretLetters() {
+    isSecretMailboxOpen = !isSecretMailboxOpen;
+    currentPage = 1; // 첫 페이지로 초기화해서 바뀐 결과 노출
+    mergeAndRender();
 }
 
 // 화면 렌더링 출력부
@@ -225,11 +242,10 @@ function resetFilters() {
     changeSort('latest');
 }
 
-// 모달 오픈 핸들러 최적화
+// 모달 오픈 핸들러
 function openModal(id) {
     if (id === 'writeModal') {
         if (!editingPostId && !replyingPostId) {
-            // 💡 관리자 유무에 따라 모달 양식을 유연하게 전환
             document.getElementById('write-modal-title').innerText = isAdminMode ? "✍️ 관리자 우주 조각 기록하기" : "나의 우주에게 편지 쓰기";
             document.getElementById('post-author').value = isAdminMode ? currentAdminName : "";
             document.getElementById('post-author').disabled = isAdminMode;
@@ -265,7 +281,7 @@ function saveAdminProfile() {
     isAdminMode = true;
     
     closeModal('adminNameModal');
-    alert(`인증 성공! 관리자 글쓰기 모드로 전환합니다.`);
+    alert(`인증 성공! 우측 상단의 편지 가방 아이콘(📬)을 눌러 global_letters의 편지들을 열람할 수 있습니다.`);
     
     document.querySelector('.admin-entry-btn').innerText = `관리자 모드 (${currentAdminName})`;
     mergeAndRender();
@@ -278,7 +294,7 @@ function toggleFavorite(nodeType, firebaseKey, currentStatus, e) {
     });
 }
 
-// 📡 Firebase 쓰기 엔진 최종 연산 함수
+// 📡 Firebase 데이터 쓰기
 function submitPost() {
     const author = document.getElementById('post-author').value.trim() || "익명의 우주";
     const title = document.getElementById('post-title').value.trim();
@@ -298,7 +314,6 @@ function submitPost() {
         }).then(() => closeModal('writeModal'));
         
     } else if (replyingPostId) {
-        // 관리자의 답장은 누구나 볼 수 있는 피드인 'posts'에 축적됩니다.
         database.ref('posts').push({
             id: Date.now(),
             author: currentAdminName || "관리자",
@@ -310,8 +325,6 @@ function submitPost() {
         }).then(() => closeModal('writeModal'));
         
     } else {
-        // [💡 신규 작성 저장 로직 분기]
-        // 관리자가 쓸 땐 전역 공지 피드인 'posts', 일반 유저가 쓸 땐 밀실 비밀함인 'global_letters'
         const targetNode = isAdminMode ? 'posts' : 'global_letters';
         
         database.ref(targetNode).push({
