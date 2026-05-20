@@ -15,18 +15,18 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
 // 상태 제어 변수들
-let publicPosts = [];      // 'posts' 노드의 데이터 (모든 사용자 대상 노출)
-let globalLetters = [];    // 'global_letters' 노드의 데이터 (관리자 전용 수신 보관함)
-let displayPosts = [];     // 조건에 따라 병합되어 실제 화면에 띄워질 타겟 배열
+let publicPosts = [];      // 'posts' 노드의 데이터
+let globalLetters = [];    // 'global_letters' 노드의 데이터
+let displayPosts = [];     // 화면에 최종 출력될 배열
 
 let currentSort = 'latest';
 let isAdminMode = false;
 let currentAdminName = "";
 let editingPostId = null;
 let replyingPostId = null;
-let editingTargetNode = 'posts'; // 어떤 노드의 글을 수정하는지 판별 ('posts' 또는 'global_letters')
+let editingTargetNode = 'posts'; 
 
-// 페이징 설정 규칙 (3개 단위 절삭, 인덱스 묶음 최대 5개 유지)
+// 페이징 설정 규칙 (3개 단위 절삭, 인덱스 최대 5개 제한)
 let currentPage = 1;
 const postsPerPage = 3;
 const maxNavPages = 5;
@@ -35,9 +35,8 @@ window.onload = function() {
     listenToFirebase();
 };
 
-// 📡 Firebase 동시 멀티 리스닝 가동 (posts와 global_letters 실시간 동기화)
+// 📡 Firebase 동시 멀티 리스닝 가동
 function listenToFirebase() {
-    // 1. 일반 공지 및 소통 보관함 (posts)
     database.ref('posts').on('value', (snapshot) => {
         const data = snapshot.val();
         publicPosts = [];
@@ -59,7 +58,6 @@ function listenToFirebase() {
         mergeAndRender();
     });
 
-    // 2. 🔒 [요구사항] '하은이에게 편지쓰기' 보관함 (global_letters)
     database.ref('global_letters').on('value', (snapshot) => {
         const data = snapshot.val();
         globalLetters = [];
@@ -82,15 +80,26 @@ function listenToFirebase() {
     });
 }
 
-// 🧩 권한에 따른 데이터 결합 핵심 로직 엔진
+// 🧩 권한별 데이터 결합 및 UI 버튼 제어 스위칭
 function mergeAndRender() {
-    // 관리자 모드인 경우 두 개의 데이터를 통째로 합치고, 일반 모드면 publicPosts만 노출!
+    const userWriteBtn = document.getElementById('user-write-btn');
+    const adminWriteBtn = document.getElementById('admin-write-btn');
+
     if (isAdminMode) {
+        // 관리자 모드: 수신 편지함 데이터까지 결합 노출
         displayPosts = [...publicPosts, ...globalLetters];
         document.getElementById('mailbox-status-title').innerText = `🔒 관리자 전용 비밀 우체통 (전체보기 중)`;
+        
+        // 💡 [요구사항] 하은이에게 편지쓰기를 숨기고 관리자용 글쓰기 버튼 활성화
+        userWriteBtn.style.display = 'none';
+        adminWriteBtn.style.display = 'block';
     } else {
+        // 일반 사용자 모드
         displayPosts = [...publicPosts];
         document.getElementById('mailbox-status-title').innerText = `🌌 별빛 우체통`;
+        
+        userWriteBtn.style.display = 'block';
+        adminWriteBtn.style.display = 'none';
     }
     renderPosts();
 }
@@ -107,7 +116,7 @@ function renderPosts() {
         return post.title.toLowerCase().includes(searchTitleVal);
     });
 
-    // 정렬 (고정글 최상단 배치 규칙)
+    // 정렬 (고정글 상단 우선)
     filtered.sort((a, b) => {
         if (a.isPinned && !b.isPinned) return -1;
         if (!a.isPinned && b.isPinned) return 1;
@@ -119,7 +128,7 @@ function renderPosts() {
         }
     });
 
-    // 🧩 페이징 연산 계산 처리 (3개 단위 분할)
+    // 페이징 연산
     const totalPosts = filtered.length;
     const totalPages = Math.ceil(totalPosts / postsPerPage) || 1;
     if (currentPage > totalPages) currentPage = totalPages;
@@ -134,10 +143,9 @@ function renderPosts() {
         return;
     }
 
-    // 카드 출력 생성 루프
+    // 카드 생성 루프
     pagePosts.forEach(post => {
         const card = document.createElement('div');
-        // global_letters에서 온 데이터는 디자인을 점선 스타일로 다르게 분리해 시인성을 향상함
         card.className = `post-card ${post.isPinned ? 'pinned' : ''} ${post.nodeType === 'global_letters' ? 'secret-type' : ''}`;
         
         card.innerHTML = `
@@ -166,7 +174,7 @@ function renderPosts() {
     renderPaginationControls(totalPages);
 }
 
-// 🧩 하단 페이지네이션 인덱서 컨트롤 바 가공 (최대 5개 제한 스코프)
+// 하단 페이지네이션 바
 function renderPaginationControls(totalPages) {
     const container = document.getElementById('pagination-control');
     container.innerHTML = "";
@@ -176,7 +184,6 @@ function renderPaginationControls(totalPages) {
     let endPage = startPage + maxNavPages - 1;
     if (endPage > totalPages) endPage = totalPages;
 
-    // 이전 화살표 (‹)
     const prevBtn = document.createElement('button');
     prevBtn.className = 'page-arrow';
     prevBtn.innerText = '‹';
@@ -184,7 +191,6 @@ function renderPaginationControls(totalPages) {
     prevBtn.onclick = () => changePage(currentPage - 1);
     container.appendChild(prevBtn);
 
-    // 숫자 버튼 최대 5개 목록
     for (let i = startPage; i <= endPage; i++) {
         const numBtn = document.createElement('button');
         numBtn.className = `page-num-btn ${i === currentPage ? 'active' : ''}`;
@@ -193,7 +199,6 @@ function renderPaginationControls(totalPages) {
         container.appendChild(numBtn);
     }
 
-    // 다음 화살표 (›)
     const nextBtn = document.createElement('button');
     nextBtn.className = 'page-arrow';
     nextBtn.innerText = '›';
@@ -220,11 +225,12 @@ function resetFilters() {
     changeSort('latest');
 }
 
-// 모달 제어 시스템
+// 모달 오픈 핸들러 최적화
 function openModal(id) {
     if (id === 'writeModal') {
         if (!editingPostId && !replyingPostId) {
-            document.getElementById('write-modal-title').innerText = isAdminMode ? "관리자 권한 글 작성" : "나의 우주에게 편지 쓰기";
+            // 💡 관리자 유무에 따라 모달 양식을 유연하게 전환
+            document.getElementById('write-modal-title').innerText = isAdminMode ? "✍️ 관리자 우주 조각 기록하기" : "나의 우주에게 편지 쓰기";
             document.getElementById('post-author').value = isAdminMode ? currentAdminName : "";
             document.getElementById('post-author').disabled = isAdminMode;
             document.getElementById('post-title').value = "";
@@ -259,13 +265,12 @@ function saveAdminProfile() {
     isAdminMode = true;
     
     closeModal('adminNameModal');
-    alert(`인증 성공! 관리자 전용 비밀 우체통이 활성화되어 'global_letters'를 포함한 모든 편지를 열람합니다.`);
+    alert(`인증 성공! 관리자 글쓰기 모드로 전환합니다.`);
     
     document.querySelector('.admin-entry-btn').innerText = `관리자 모드 (${currentAdminName})`;
-    mergeAndRender(); // 데이터 재결합 호출
+    mergeAndRender();
 }
 
-// 📡 Firebase 연동 수정: 타겟 노드 경로별 업데이트 대응
 function toggleFavorite(nodeType, firebaseKey, currentStatus, e) {
     e.stopPropagation();
     database.ref(`${nodeType}/${firebaseKey}`).update({
@@ -273,7 +278,7 @@ function toggleFavorite(nodeType, firebaseKey, currentStatus, e) {
     });
 }
 
-// 📡 Firebase 데이터 저장 전송 분기 엔진
+// 📡 Firebase 쓰기 엔진 최종 연산 함수
 function submitPost() {
     const author = document.getElementById('post-author').value.trim() || "익명의 우주";
     const title = document.getElementById('post-title').value.trim();
@@ -287,17 +292,16 @@ function submitPost() {
     const today = new Date().toISOString().split('T')[0];
 
     if (editingPostId) {
-        // [수정] 기존 식별 노드에 덮어쓰기 업데이트
         database.ref(`${editingTargetNode}/${editingPostId}`).update({
             title: title,
             content: content
         }).then(() => closeModal('writeModal'));
         
     } else if (replyingPostId) {
-        // [답장하기] 관리자의 답변 편지는 무조건 피드 노출을 위해 'posts'로 저장됨
+        // 관리자의 답장은 누구나 볼 수 있는 피드인 'posts'에 축적됩니다.
         database.ref('posts').push({
             id: Date.now(),
-            author: isAdminMode ? currentAdminName : author,
+            author: currentAdminName || "관리자",
             title: title.startsWith("Re:") ? title : `Re: ${title}`,
             content: content,
             date: today,
@@ -306,8 +310,8 @@ function submitPost() {
         }).then(() => closeModal('writeModal'));
         
     } else {
-        // [신규 편지 작성 분기점]
-        // 요구사항 적용: 관리자가 작성할 때는 일반 피드인 'posts', 일반 사용자가 편지쓸 때는 'global_letters'로 격리 수신 처리!
+        // [💡 신규 작성 저장 로직 분기]
+        // 관리자가 쓸 땐 전역 공지 피드인 'posts', 일반 유저가 쓸 땐 밀실 비밀함인 'global_letters'
         const targetNode = isAdminMode ? 'posts' : 'global_letters';
         
         database.ref(targetNode).push({
@@ -316,13 +320,12 @@ function submitPost() {
             title: title,
             content: content,
             date: today,
-            isPinned: isAdminMode, // 관리자가 쓰면 고정 상태 적용 가능
+            isPinned: isAdminMode, 
             isFavorite: false
         }).then(() => closeModal('writeModal'));
     }
 }
 
-// 답장 모달 바인딩 기동
 function openReplyModal(nodeType, firebaseKey) {
     const pool = nodeType === 'posts' ? publicPosts : globalLetters;
     const target = pool.find(p => p.firebaseKey === firebaseKey);
@@ -335,21 +338,19 @@ function openReplyModal(nodeType, firebaseKey) {
     document.getElementById('post-content').value = "";
 }
 
-// 관리자 기능 제어: 상단 고정 제어
 function togglePin(nodeType, firebaseKey, currentStatus) {
     database.ref(`${nodeType}/${firebaseKey}`).update({
         isPinned: !currentStatus
     });
 }
 
-// 관리자 기능 제어: 수정 세팅
 function openEditModal(nodeType, firebaseKey) {
     const pool = nodeType === 'posts' ? publicPosts : globalLetters;
     const post = pool.find(p => p.firebaseKey === firebaseKey);
     if (!post) return;
 
     editingPostId = firebaseKey;
-    editingTargetNode = nodeType; // 저장 노드 타입 백업 추적
+    editingTargetNode = nodeType;
     
     openModal('writeModal');
     document.getElementById('write-modal-title').innerText = "기록 수정하기";
@@ -359,14 +360,12 @@ function openEditModal(nodeType, firebaseKey) {
     document.getElementById('post-content').value = post.content;
 }
 
-// 관리자 기능 제어: 데이터 삭제
 function deletePost(nodeType, firebaseKey) {
     if (confirm("이 기록을 우주에서 영구히 삭제할까요?")) {
         database.ref(`${nodeType}/${firebaseKey}`).remove();
     }
 }
 
-// 타이틀 클릭 시 별빛 낙하 이스터에그 연출 효과
 function triggerUniverseEasterEgg() {
     const messageBox = document.getElementById('easter-message');
     messageBox.innerText = "✨ 너는 나만의 소중한 우주야 ✨";
