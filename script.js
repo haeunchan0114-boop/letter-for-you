@@ -275,12 +275,40 @@ function openMailboxModal() {
     document.getElementById('mailbox-modal').style.display = 'flex';
 }
 
+// 즐겨찾기 창 제어 변수 (기존 변수 목록 근처 혹은 함수 위에 두시면 됩니다)
+let currentMailboxTab = 'all'; 
+
+function switchMailboxTab(tabType) {
+    currentMailboxTab = tabType;
+    const btnAll = document.getElementById('tab-all');
+    const btnStarred = document.getElementById('tab-starred');
+    
+    if (tabType === 'starred') {
+        btnStarred.style.background = 'rgba(255,255,255,0.15)';
+        btnStarred.style.fontWeight = 'bold';
+        btnAll.style.background = 'none';
+        btnAll.style.fontWeight = 'normal';
+    } else {
+        btnAll.style.background = 'rgba(255,255,255,0.15)';
+        btnAll.style.fontWeight = 'bold';
+        btnStarred.style.background = 'none';
+        btnStarred.style.fontWeight = 'normal';
+    }
+    mailboxCurrentPage = 1;
+    filterMailbox();
+}
+
 function filterMailbox() {
     const searchVal = document.getElementById('mailbox-search').value.trim().toLowerCase();
     const dateVal = document.getElementById('mailbox-date').value;
     
     let indexed = [...globalLetters];
-    indexed.reverse(); 
+    indexed.reverse(); // 최신순 정렬
+
+    // [핵심] 즐겨찾기 창 선택 시 starred가 true인 것만 따로 걸러내기
+    if (currentMailboxTab === 'starred') {
+        indexed = indexed.filter(l => l.starred === true);
+    }
 
     if (searchVal) {
         indexed = indexed.filter(l => l.writer.toLowerCase().includes(searchVal));
@@ -310,7 +338,8 @@ function renderMailboxPosts() {
     }
 
     if (mailboxFilteredLetters.length === 0) {
-        listContainer.innerHTML = `<p style="text-align:center; color:#a0aec0; padding:40px 0;">검색 조건에 맞는 편지가 없습니다.</p>`;
+        const emptyMsg = currentMailboxTab === 'starred' ? '즐겨찾기한 편지가 없습니다.' : '검색 조건에 맞는 편지가 없습니다.';
+        listContainer.innerHTML = `<p style="text-align:center; color:#a0aec0; padding:40px 0;">${emptyMsg}</p>`;
         pageZone.style.display = 'none';
         return;
     }
@@ -323,13 +352,19 @@ function renderMailboxPosts() {
     paged.forEach(letter => {
         let originBadgeHTML = (letter.type === 'reply') 
             ? `<div class="mailbox-type-badge reply-type">글 답장 | 원문: ${letter.targetTitle}</div>`
-            : `<div class="mailbox-type-badge global-type">빛의 편지</div>`;
+            : `<div class="mailbox-type-badge global-type">우주 일반 편지</div>`;
 
+        const isStarred = letter.starred === true;
         const item = document.createElement('div');
-        item.className = 'mailbox-item';
+        item.className = `mailbox-item ${isStarred ? 'starred-letter' : ''}`;
         item.innerHTML = `
-            ${originBadgeHTML}
-            <div class="mailbox-item-meta">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; width:100%;">
+                ${originBadgeHTML}
+                <button class="star-btn ${isStarred ? 'active' : ''}" onclick="toggleStarLetter('${letter.id}', ${isStarred})">
+                    <i class="${isStarred ? 'fa-solid' : 'fa-regular'} fa-star"></i>
+                </button>
+            </div>
+            <div class="mailbox-item-meta" style="margin-top: 8px;">
                 <span style="color:#F5E6C8; font-weight:bold;">기록: ${letter.writer}</span>
                 <span style="font-size:0.8rem; color:#718096;">${letter.date}</span>
             </div>
