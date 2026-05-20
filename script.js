@@ -1,4 +1,4 @@
-// 📡 제공해주신 Firebase 리얼타임 데이터베이스 환경정보 연동 설정
+// 📡 Firebase 리얼타임 데이터베이스 설정
 const firebaseConfig = {
   apiKey: "AIzaSyAnaa6EtIpvtCxqGPVtbuclexr2agHJWP8",
   authDomain: "myloveletter-for-you.firebaseapp.com",
@@ -10,39 +10,42 @@ const firebaseConfig = {
   measurementId: "G-TM826Q76TT"
 };
 
-// Firebase 초기화 진행
+// Firebase 초기화
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-// 상태 관리 전역 변수
-let posts = [];            // DB에서 가져온 글들이 보관될 배열
+// 상태 제어 변수들
+let publicPosts = [];      // 'posts' 노드의 데이터 (모든 사용자 대상 노출)
+let globalLetters = [];    // 'global_letters' 노드의 데이터 (관리자 전용 수신 보관함)
+let displayPosts = [];     // 조건에 따라 병합되어 실제 화면에 띄워질 타겟 배열
+
 let currentSort = 'latest';
 let isAdminMode = false;
 let currentAdminName = "";
 let editingPostId = null;
 let replyingPostId = null;
+let editingTargetNode = 'posts'; // 어떤 노드의 글을 수정하는지 판별 ('posts' 또는 'global_letters')
 
-// 💡 페이징 조건 설정 (3개의 글마다 페이지 전환 / 내비게이션 최대 5개 노출)
+// 페이징 설정 규칙 (3개 단위 절삭, 인덱스 묶음 최대 5개 유지)
 let currentPage = 1;
 const postsPerPage = 3;
 const maxNavPages = 5;
 
-// 초기화 가동 및 데이터베이스 실시간 리스너 작동
 window.onload = function() {
     listenToFirebase();
 };
 
-// Firebase posts 경로 실시간 데이터 추적 리스너
+// 📡 Firebase 동시 멀티 리스닝 가동 (posts와 global_letters 실시간 동기화)
 function listenToFirebase() {
+    // 1. 일반 공지 및 소통 보관함 (posts)
     database.ref('posts').on('value', (snapshot) => {
         const data = snapshot.val();
-        posts = [];
-        
+        publicPosts = [];
         if (data) {
-            // Firebase 객체 데이터를 가공하여 내부 배열 구조로 변환
             for (let key in data) {
-                posts.push({
-                    firebaseKey: key, // 삭제/수정/즐겨찾기 관리를 위한 DB 고유 식별 키
+                publicPosts.push({
+                    firebaseKey: key,
+                    nodeType: 'posts',
                     id: data[key].id || Date.now(),
                     author: data[key].author || "익명",
                     title: data[key].title || "",
@@ -53,27 +56,58 @@ function listenToFirebase() {
                 });
             }
         }
-        // 데이터 전송 완료 후 자동 화면 갱신
-        renderPosts();
+        mergeAndRender();
+    });
+
+    // 2. 🔒 [요구사항] '하은이에게 편지쓰기' 보관함 (global_letters)
+    database.ref('global_letters').on('value', (snapshot) => {
+        const data = snapshot.val();
+        globalLetters = [];
+        if (data) {
+            for (let key in data) {
+                globalLetters.push({
+                    firebaseKey: key,
+                    nodeType: 'global_letters',
+                    id: data[key].id || Date.now(),
+                    author: data[key].author || "익명",
+                    title: data[key].title || "",
+                    content: data[key].content || "",
+                    date: data[key].date || "",
+                    isPinned: data[key].isPinned || false,
+                    isFavorite: data[key].isFavorite || false
+                });
+            }
+        }
+        mergeAndRender();
     });
 }
 
-// 데이터 계산 및 최종 화면 렌더링
+// 🧩 권한에 따른 데이터 결합 핵심 로직 엔진
+function mergeAndRender() {
+    // 관리자 모드인 경우 두 개의 데이터를 통째로 합치고, 일반 모드면 publicPosts만 노출!
+    if (isAdminMode) {
+        displayPosts = [...publicPosts, ...globalLetters];
+        document.getElementById('mailbox-status-title').innerText = `🔒 관리자 전용 비밀 우체통 (전체보기 중)`;
+    } else {
+        displayPosts = [...publicPosts];
+        document.getElementById('mailbox-status-title').innerText = `🌌 별빛 우체통`;
+    }
+    renderPosts();
+}
+
+// 화면 렌더링 출력부
 function renderPosts() {
     const feed = document.getElementById('posts-mailbox-feed');
     feed.innerHTML = "";
 
     const searchTitleVal = document.getElementById('search-title').value.toLowerCase();
-    const filterFavVal = document.getElementById('filter-fav').value;
 
-    // 1. 검색 및 즐겨찾기 필터 가공
-    let filtered = posts.filter(post => {
-        const matchTitle = post.title.toLowerCase().includes(searchTitleVal);
-        const matchFav = filterFavVal === 'fav' ? post.isFavorite : true;
-        return matchTitle && matchFav;
+    // 제목 필터링
+    let filtered = displayPosts.filter(post => {
+        return post.title.toLowerCase().includes(searchTitleVal);
     });
 
-    // 2. 정렬 규격 연산 (고정글 상단 우선)
+    // 정렬 (고정글 최상단 배치 규칙)
     filtered.sort((a, b) => {
         if (a.isPinned && !b.isPinned) return -1;
         if (!a.isPinned && b.isPinned) return 1;
@@ -85,10 +119,9 @@ function renderPosts() {
         }
     });
 
-    // 3. 🧩 페이징 구획 연산 (3개씩 분할 처리)
+    // 🧩 페이징 연산 계산 처리 (3개 단위 분할)
     const totalPosts = filtered.length;
     const totalPages = Math.ceil(totalPosts / postsPerPage) || 1;
-    
     if (currentPage > totalPages) currentPage = totalPages;
 
     const startIndex = (currentPage - 1) * postsPerPage;
@@ -101,49 +134,49 @@ function renderPosts() {
         return;
     }
 
-    // 조건 충족 타겟 카드 그리기
+    // 카드 출력 생성 루프
     pagePosts.forEach(post => {
         const card = document.createElement('div');
-        card.className = `post-card ${post.isPinned ? 'pinned' : ''}`;
+        // global_letters에서 온 데이터는 디자인을 점선 스타일로 다르게 분리해 시인성을 향상함
+        card.className = `post-card ${post.isPinned ? 'pinned' : ''} ${post.nodeType === 'global_letters' ? 'secret-type' : ''}`;
         
         card.innerHTML = `
             <div class="post-meta">
                 <div class="meta-info">
                     ${post.isPinned ? '<span class="pin-tag">📌 고정됨</span> | ' : ''}
+                    ${post.nodeType === 'global_letters' ? '<span class="secret-tag">✉️ 수신 편지</span> | ' : ''}
                     <span>${post.author}</span> | <span>${post.date}</span>
                 </div>
-                <button class="fav-btn ${post.isFavorite ? 'active' : ''}" onclick="toggleFavorite('${post.firebaseKey}', ${post.isFavorite}, event)">★</button>
+                <button class="fav-btn ${post.isFavorite ? 'active' : ''}" onclick="toggleFavorite('${post.nodeType}', '${post.firebaseKey}', ${post.isFavorite}, event)">★</button>
             </div>
             <h2 class="post-title">${post.title}</h2>
             <div class="post-content">${post.content}</div>
             <div class="card-actions">
-                <button class="reply-btn" onclick="openReplyModal('${post.firebaseKey}')">답장 보내기</button>
+                <button class="reply-btn" onclick="openReplyModal('${post.nodeType}', '${post.firebaseKey}')">답장 보내기</button>
                 ${isAdminMode ? `
-                    <button onclick="togglePin('${post.firebaseKey}', ${post.isPinned})">${post.isPinned ? '고정 해제' : '글 고정'}</button>
-                    <button onclick="openEditModal('${post.firebaseKey}')">수정</button>
-                    <button style="color:#ff8b8b;" onclick="deletePost('${post.firebaseKey}')">삭제</button>
+                    <button onclick="togglePin('${post.nodeType}', '${post.firebaseKey}', ${post.isPinned})">${post.isPinned ? '고정 해제' : '글 고정'}</button>
+                    <button onclick="openEditModal('${post.nodeType}', '${post.firebaseKey}')">수정</button>
+                    <button style="color:#ff8b8b;" onclick="deletePost('${post.nodeType}', '${post.firebaseKey}')">삭제</button>
                 ` : ''}
             </div>
         `;
         feed.appendChild(card);
     });
 
-    // 페이징 컨트롤 제어 바 렌더링 호출
     renderPaginationControls(totalPages);
 }
 
-// 🧩 요구사항: 5개씩 묶여 나오도록 동적 페이지네이션 바 처리 함수
+// 🧩 하단 페이지네이션 인덱서 컨트롤 바 가공 (최대 5개 제한 스코프)
 function renderPaginationControls(totalPages) {
     const container = document.getElementById('pagination-control');
     container.innerHTML = "";
 
-    // 현재 페이지 위치 기반으로 시작 그룹과 끝 그룹 계산 (5단위 블록 연산)
     const currentBlock = Math.ceil(currentPage / maxNavPages);
     const startPage = (currentBlock - 1) * maxNavPages + 1;
     let endPage = startPage + maxNavPages - 1;
     if (endPage > totalPages) endPage = totalPages;
 
-    // 이전 페이지 블록 버튼 (◀)
+    // 이전 화살표 (‹)
     const prevBtn = document.createElement('button');
     prevBtn.className = 'page-arrow';
     prevBtn.innerText = '‹';
@@ -151,7 +184,7 @@ function renderPaginationControls(totalPages) {
     prevBtn.onclick = () => changePage(currentPage - 1);
     container.appendChild(prevBtn);
 
-    // 순차적 숫자 버튼 표출 (최대 5개 노출)
+    // 숫자 버튼 최대 5개 목록
     for (let i = startPage; i <= endPage; i++) {
         const numBtn = document.createElement('button');
         numBtn.className = `page-num-btn ${i === currentPage ? 'active' : ''}`;
@@ -160,7 +193,7 @@ function renderPaginationControls(totalPages) {
         container.appendChild(numBtn);
     }
 
-    // 다음 페이지 블록 버튼 (▶)
+    // 다음 화살표 (›)
     const nextBtn = document.createElement('button');
     nextBtn.className = 'page-arrow';
     nextBtn.innerText = '›';
@@ -174,7 +207,6 @@ function changePage(page) {
     renderPosts();
 }
 
-// 정렬 설정 제어
 function changeSort(type) {
     currentSort = type;
     document.getElementById('sort-latest').classList.toggle('active', type === 'latest');
@@ -183,14 +215,12 @@ function changeSort(type) {
     renderPosts();
 }
 
-// 초기화 버튼 가동
 function resetFilters() {
     document.getElementById('search-title').value = "";
-    document.getElementById('filter-fav').value = "all";
     changeSort('latest');
 }
 
-// 모달창 여닫기 모듈
+// 모달 제어 시스템
 function openModal(id) {
     if (id === 'writeModal') {
         if (!editingPostId && !replyingPostId) {
@@ -213,7 +243,6 @@ function closeModal(id) {
     }
 }
 
-// 관리자 패스워드 검증
 function checkAdminPassword() {
     const pw = document.getElementById('admin-password-input').value;
     if (pw === 'haeunashi0416!') {
@@ -224,28 +253,27 @@ function checkAdminPassword() {
     }
 }
 
-// 관리자 닉네임 로컬 연동 선언 완료
 function saveAdminProfile() {
     const nameInput = document.getElementById('admin-name-input').value.trim();
     currentAdminName = nameInput ? nameInput : "관리자";
     isAdminMode = true;
     
     closeModal('adminNameModal');
-    alert(`인증 성공! 이제부터 모든 글은 '${currentAdminName}' 명의로 제어가 가능합니다.`);
+    alert(`인증 성공! 관리자 전용 비밀 우체통이 활성화되어 'global_letters'를 포함한 모든 편지를 열람합니다.`);
     
-    document.querySelector('.admin-entry-btn').innerText = `관리자 모드 활성화 중 (${currentAdminName})`;
-    renderPosts();
+    document.querySelector('.admin-entry-btn').innerText = `관리자 모드 (${currentAdminName})`;
+    mergeAndRender(); // 데이터 재결합 호출
 }
 
-// 📡 Firebase 연동 기능: 즐겨찾기 상태 실시간 DB 업데이트
-function toggleFavorite(firebaseKey, currentStatus, e) {
+// 📡 Firebase 연동 수정: 타겟 노드 경로별 업데이트 대응
+function toggleFavorite(nodeType, firebaseKey, currentStatus, e) {
     e.stopPropagation();
-    database.ref(`posts/${firebaseKey}`).update({
+    database.ref(`${nodeType}/${firebaseKey}`).update({
         isFavorite: !currentStatus
     });
 }
 
-// 📡 Firebase 연동 기능: 데이터 전송 및 수정 기능 처리부
+// 📡 Firebase 데이터 저장 전송 분기 엔진
 function submitPost() {
     const author = document.getElementById('post-author').value.trim() || "익명의 우주";
     const title = document.getElementById('post-title').value.trim();
@@ -259,48 +287,45 @@ function submitPost() {
     const today = new Date().toISOString().split('T')[0];
 
     if (editingPostId) {
-        // [수정] DB 전송 처리
-        database.ref(`posts/${editingPostId}`).update({
+        // [수정] 기존 식별 노드에 덮어쓰기 업데이트
+        database.ref(`${editingTargetNode}/${editingPostId}`).update({
             title: title,
             content: content
-        }).then(() => {
-            closeModal('writeModal');
-        });
-    } else if (replyingPostId) {
-        // [답장하기] 원본 객체 조회 후 DB 밀어넣기
-        const target = posts.find(p => p.firebaseKey === replyingPostId);
-        const replyTitle = title.startsWith("Re:") ? title : `Re: ${title}`;
+        }).then(() => closeModal('writeModal'));
         
+    } else if (replyingPostId) {
+        // [답장하기] 관리자의 답변 편지는 무조건 피드 노출을 위해 'posts'로 저장됨
         database.ref('posts').push({
             id: Date.now(),
             author: isAdminMode ? currentAdminName : author,
-            title: replyTitle,
-            content: `[원문 대댓글 대상: ${target.author}님의 글]\n\n${content}`,
+            title: title.startsWith("Re:") ? title : `Re: ${title}`,
+            content: content,
             date: today,
             isPinned: false,
             isFavorite: false
-        }).then(() => {
-            closeModal('writeModal');
-        });
+        }).then(() => closeModal('writeModal'));
+        
     } else {
-        // [신규 편지] DB 추가
-        database.ref('posts').push({
+        // [신규 편지 작성 분기점]
+        // 요구사항 적용: 관리자가 작성할 때는 일반 피드인 'posts', 일반 사용자가 편지쓸 때는 'global_letters'로 격리 수신 처리!
+        const targetNode = isAdminMode ? 'posts' : 'global_letters';
+        
+        database.ref(targetNode).push({
             id: Date.now(),
             author: author,
             title: title,
             content: content,
             date: today,
-            isPinned: isAdminMode,
+            isPinned: isAdminMode, // 관리자가 쓰면 고정 상태 적용 가능
             isFavorite: false
-        }).then(() => {
-            closeModal('writeModal');
-        });
+        }).then(() => closeModal('writeModal'));
     }
 }
 
-// 답장 창 활성화 바인딩
-function openReplyModal(firebaseKey) {
-    const target = posts.find(p => p.firebaseKey === firebaseKey);
+// 답장 모달 바인딩 기동
+function openReplyModal(nodeType, firebaseKey) {
+    const pool = nodeType === 'posts' ? publicPosts : globalLetters;
+    const target = pool.find(p => p.firebaseKey === firebaseKey);
     if (!target) return;
 
     replyingPostId = firebaseKey;
@@ -310,19 +335,22 @@ function openReplyModal(firebaseKey) {
     document.getElementById('post-content').value = "";
 }
 
-// 📡 Firebase 연동 기능: 관리자 전용 글 고정 토글
-function togglePin(firebaseKey, currentStatus) {
-    database.ref(`posts/${firebaseKey}`).update({
+// 관리자 기능 제어: 상단 고정 제어
+function togglePin(nodeType, firebaseKey, currentStatus) {
+    database.ref(`${nodeType}/${firebaseKey}`).update({
         isPinned: !currentStatus
     });
 }
 
-// 📡 Firebase 연동 기능: 관리자 전용 수정 셋업 호출
-function openEditModal(firebaseKey) {
-    const post = posts.find(p => p.firebaseKey === firebaseKey);
+// 관리자 기능 제어: 수정 세팅
+function openEditModal(nodeType, firebaseKey) {
+    const pool = nodeType === 'posts' ? publicPosts : globalLetters;
+    const post = pool.find(p => p.firebaseKey === firebaseKey);
     if (!post) return;
 
     editingPostId = firebaseKey;
+    editingTargetNode = nodeType; // 저장 노드 타입 백업 추적
+    
     openModal('writeModal');
     document.getElementById('write-modal-title').innerText = "기록 수정하기";
     document.getElementById('post-author').value = post.author;
@@ -331,14 +359,14 @@ function openEditModal(firebaseKey) {
     document.getElementById('post-content').value = post.content;
 }
 
-// 📡 Firebase 연동 기능: 관리자 전용 원격 데이터 영구 파괴
-function deletePost(firebaseKey) {
+// 관리자 기능 제어: 데이터 삭제
+function deletePost(nodeType, firebaseKey) {
     if (confirm("이 기록을 우주에서 영구히 삭제할까요?")) {
-        database.ref(`posts/${firebaseKey}`).remove();
+        database.ref(`${nodeType}/${firebaseKey}`).remove();
     }
 }
 
-// 💡 제목 클릭 시 연노랑 빛무리 별 쏟아내기 이스터에그 로직
+// 타이틀 클릭 시 별빛 낙하 이스터에그 연출 효과
 function triggerUniverseEasterEgg() {
     const messageBox = document.getElementById('easter-message');
     messageBox.innerText = "✨ 너는 나만의 소중한 우주야 ✨";
