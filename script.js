@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function initFirebaseListeners() {
-    // 파이어베이스 데이터 실시간 연동
+    // 1. 메인 게시글 데이터베이스 실시간 연동
     window.fbOnValue(window.fbRef(window.fbDB, 'posts'), (snapshot) => {
         const data = snapshot.val();
         myPosts = [];
@@ -83,9 +83,11 @@ function initFirebaseListeners() {
                 myPosts.push({ id: key, ...data[key] });
             });
         }
-        applyFilters();
+        // [복구 완료] 메인 화면에 기존 글과 공지사항을 정상적으로 그려주는 핵심 트리거입니다!
+        applyFilters(); 
     });
 
+    // 2. 우체통 편지/답장 데이터베이스 실시간 연동
     window.fbOnValue(window.fbRef(window.fbDB, 'global_letters'), (snapshot) => {
         const data = snapshot.val();
         globalLetters = [];
@@ -95,7 +97,7 @@ function initFirebaseListeners() {
             });
         }
         updateMailboxButtonUI();
-        // [수정] 우체통 모달창이 열려있든 닫혀있든, 데이터가 갱신되면 필터를 거쳐 별표 버튼을 새로 그리도록 강제합니다.
+        // 데이터 변경 시 우체통 안의 별표 버튼들과 정렬을 실시간 갱신합니다.
         filterMailbox();
     });
 }
