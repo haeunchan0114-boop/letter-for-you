@@ -14,7 +14,7 @@ h1 {
 }
 
 /* ==========================================
-   🔗 [추가 반영] 글 보는 공간 상단 유틸리티 바 디자인 
+   🔗 글 보는 공간 상단 유틸리티 바 디자인 
    ========================================== */
 .feed-utility-bar {
     display: flex;
@@ -40,6 +40,7 @@ h1 {
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
 }
 
 .admin-gate-link:hover {
@@ -132,20 +133,17 @@ h1 {
 .star5 { top: 28%; right: 35%; animation-delay: 1.9s; font-size: 13px; }
 .star6 { bottom: 15%; right: 45%; animation-delay: 3.1s; font-size: 15px; }
 
-/* 🎬 우주 애니메이션 타임라인 정의 (키프레임) */
+/* 🎬 우주 애니메이션 키프레임 */
 @keyframes moonFloat { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(-8px) rotate(-3deg); } }
 @keyframes nebulaRotate { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.08); } 100% { transform: rotate(360deg) scale(1); } }
 @keyframes starPulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.8; } }
 @keyframes starTwinkle { 0%, 100% { opacity: 0; transform: scale(0.6); } 50% { opacity: 0.95; transform: scale(1.1); } }
 
-/* 🌊 오로라 물결 일렁임 애니메이션 */
 @keyframes auroraWave {
     0% { transform: translate(0, 0) scale(1) rotate(0deg) skewX(0deg); }
     50% { transform: translate(-3%, 4%) scale(1.05) rotate(2deg) skewX(4deg); }
     100% { transform: translate(2%, -3%) scale(0.95) rotate(-1.5deg) skewX(-3deg); }
 }
-
-/* ✨ 오로라 발광 극대화 펄스 애니메이션 */
 @keyframes auroraPulse {
     0% { opacity: 0.5; filter: blur(100px) brightness(0.9); }
     50% { opacity: 0.85; filter: blur(85px) brightness(1.2); }
@@ -327,7 +325,7 @@ h1 {
     will-change: transform, opacity;
 }
 
-/* 안드로이드 입력창 보정 수치 패치 */
+/* 안드로이드 입력창 보정 패치 */
 html, body, .space-background { position: fixed; top: 0; left: 0; width: 100%; height: 100% !important; overflow-x: hidden; -webkit-text-size-adjust: none; }
 .space-background div, .space-background::before, .space-background::after { transform: translateZ(0); -webkit-transform: translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; perspective: 1000; -webkit-perspective: 1000; }
 .admin-input, .winter-input, textarea, input[type="text"] { -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important; -webkit-tap-highlight-color: transparent !important; outline: none !important; transform: translateZ(0); }
