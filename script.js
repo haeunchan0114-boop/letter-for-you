@@ -185,6 +185,7 @@ function changeSecretTab(tab) {
     renderSecretMailboxWindow();
 }
 
+// 🛠️ [수정] 비밀 우체통 내부에서 관리자일 때 답장 버튼 제거
 function renderSecretMailboxWindow() {
     const container = document.getElementById('secret-letters-container');
     container.innerHTML = "";
@@ -198,7 +199,7 @@ function renderSecretMailboxWindow() {
         if (currentSecretTab === 'fav') {
             container.innerHTML = `<div style="text-align:center; padding:60px 20px; color:#ffe6ba; font-size:1rem; font-weight:bold;">특별한 빛이 없어!</div>`;
         } else {
-            container.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.85rem;">별빛 우체통에 도착한 편지가 없어!</div>`;
+            container.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.85rem;">비밀 우체통에 도착한 편지가 없습니다.</div>`;
         }
         return;
     }
@@ -225,7 +226,7 @@ function renderSecretMailboxWindow() {
             <div class="mini-content">${letter.content}</div>
             <div class="mini-center-date">— ${formattedDate} —</div>
             <div class="mini-actions">
-                <button onclick="openReplyModal('${letter.nodeType}', '${letter.firebaseKey}')">답장</button>
+                ${!isAdminMode ? `<button onclick="openReplyModal('${letter.nodeType}', '${letter.firebaseKey}')">답장</button>` : ''}
                 <button onclick="openEditModal('${letter.nodeType}', '${letter.firebaseKey}')">수정</button>
                 <button style="color:#ff8b8b;" onclick="deletePost('${letter.nodeType}', '${letter.firebaseKey}')">삭제</button>
             </div>
@@ -239,6 +240,7 @@ function toggleNoticeLetters() {
     renderNoticeMailboxWindow();
 }
 
+// 🛠️ [수정] 공지사항 전체보기 모달에서 관리자일 때 답장 버튼 제거
 function renderNoticeMailboxWindow() {
     const container = document.getElementById('notice-letters-container');
     if (!container) return;
@@ -247,7 +249,7 @@ function renderNoticeMailboxWindow() {
     const noticePosts = publicPosts.filter(post => post.isPinned);
 
     if (noticePosts.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.85rem;">고정된 별빛 공지사항이 없어!</div>`;
+        container.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.85rem;">고정된 별빛 공지사항이 없습니다.</div>`;
         return;
     }
 
@@ -293,7 +295,7 @@ function renderNoticeMailboxWindow() {
             
             <div class="mini-center-date">— ${formattedDate} —</div>
             <div class="mini-actions">
-                <button onclick="openReplyModal('${post.nodeType}', '${post.firebaseKey}')" ${isLocked ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>답장</button>
+                ${!isAdminMode ? `<button onclick="openReplyModal('${post.nodeType}', '${post.firebaseKey}')" ${isLocked ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>답장</button>` : ''}
                 ${isAdminMode ? `
                     <button onclick="toggleMainNoticeStatus('${post.firebaseKey}', ${post.isMainNotice})">
                         ${post.isMainNotice ? '메인 공지 해제' : '메인 공지 지정'}
@@ -318,6 +320,7 @@ function unlockNoticePost(firebaseKey, correctPassword) {
     }
 }
 
+// 🛠 Ink [수정] 메인 타임라인 카드에서 관리자일 때 답장 보내기 버튼 가리기
 function renderPosts() {
     const feed = document.getElementById('posts-mailbox-feed');
     if(!feed) return;
@@ -410,7 +413,7 @@ function renderPosts() {
             <div class="post-center-date">— ${formattedDate} —</div>
             
             <div class="card-actions">
-                <button class="reply-btn" onclick="openReplyModal('${post.nodeType}', '${post.firebaseKey}')" ${isLocked ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>답장 보내기</button>
+                ${!isAdminMode ? `<button class="reply-btn" onclick="openReplyModal('${post.nodeType}', '${post.firebaseKey}')" ${isLocked ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>답장 보내기</button>` : ''}
                 ${isAdminMode ? `
                     <button onclick="toggleMainNoticeStatus('${post.firebaseKey}', ${post.isMainNotice})">${post.isMainNotice ? '메인 해제' : '메인 지정'}</button>
                     <button onclick="togglePin('${post.nodeType}', '${post.firebaseKey}', ${post.isPinned})">공지 해제</button>
@@ -429,7 +432,7 @@ function toggleMainNoticeStatus(firebaseKey, currentMainStatus) {
     if (!currentMainStatus) {
         const currentMainCount = publicPosts.filter(post => post.isPinned && post.isMainNotice).length;
         if (currentMainCount >= 3) {
-            alert("화면에 메인 공지가 다 찼어! 더 이상 지정할 수 없어!");
+            alert("화면에 메인 공지가 다 찼습니다! 더 이상 지정할 수 없습니다.");
             return;
         }
     }
@@ -545,7 +548,7 @@ function saveAdminProfile() {
     isAdminMode = true;
     
     closeModal('adminNameModal');
-    alert(`인증 성공! 제목 검색창 밑의 버튼을 통해 별빛 우체통을 열 수 있어!`);
+    alert(`인증 성공! 제목 검색창 밑의 버튼들을 통해 비밀 우체통을 열 수 있어!`);
     
     document.querySelector('.admin-entry-btn').innerText = `관리자 모드 (${currentAdminName})`;
     mergeAndRender();
@@ -571,7 +574,7 @@ function togglePin(nodeType, firebaseKey, currentStatus) {
 }
 
 function submitPost() {
-    const author = document.getElementById('post-author').value.trim() || "익명의 우주";
+    const author = document.getElementById('post-author').value.trim() || "익명의 별빛";
     const title = document.getElementById('post-title').value.trim();
     const content = document.getElementById('post-content').value.trim();
     const postPassword = document.getElementById('post-password').value.trim(); 
@@ -656,7 +659,7 @@ function submitPost() {
                 isFavorite: false
             }).then(() => {
                 closeModal('writeModal');
-                alert("편지가 별빛을 건너 전달되었습니다.✨"); 
+                alert("편지가 은하수를 건너 전달되었습니다.✨"); 
             });
         }
     }
@@ -789,6 +792,7 @@ function toggleRecentLetters() {
     renderRecentLettersWindow();
 }
 
+// 🛠️ [수정] 실시간 최근 등록 기록 모달에서 관리자일 때 답장 버튼 제거
 function renderRecentLettersWindow() {
     const container = document.getElementById('recent-letters-container');
     if (!container) return;
@@ -819,9 +823,9 @@ function renderRecentLettersWindow() {
             }
         }
 
-        let typeTag = "편지";
+        let typeTag = "✉️ 편지";
         if (post.nodeType === 'posts') {
-            typeTag = post.isPinned ? "📌 공지사항" : "🌌 별빛 기록";
+            typeTag = post.isPinned ? "📌 공지사항" : "📜 별빛 기록";
         }
 
         const isLocked = post.postPassword && !isAdminMode && !unlockedPostIds.includes(post.firebaseKey);
@@ -857,7 +861,7 @@ function renderRecentLettersWindow() {
             
             <div class="mini-center-date">— ${formattedDate} —</div>
             <div class="mini-actions">
-                <button onclick="openReplyModal('${post.nodeType}', '${post.firebaseKey}')" ${isLocked ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>답장</button>
+                ${!isAdminMode ? `<button onclick="openReplyModal('${post.nodeType}', '${post.firebaseKey}')" ${isLocked ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>답장</button>` : ''}
                 ${isAdminMode ? `
                     ${post.nodeType === 'posts' ? `<button onclick="toggleMainNoticeStatus('${post.firebaseKey}', ${post.isMainNotice})">${post.isMainNotice ? '메인 해제' : '메인 지정'}</button>` : ''}
                     <button onclick="openEditModal('${post.nodeType}', '${post.firebaseKey}')">수정</button>
