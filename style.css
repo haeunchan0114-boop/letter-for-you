@@ -16,14 +16,14 @@ body {
     position: relative;
 }
 
-/* 🌠 [레이어 변경] 별똥별이 버튼 위에 오도록 z-index 조절 */
+/* 🌠 [레이어 교정] 배경과 별똥별의 베이스 레이어 */
 .space-background {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 5; /* 배경 아기별과 별똥별의 기준 레이어를 버튼(z-index:1)보다는 높게 설정 */
+    z-index: 5; /* 별똥별이 위치하는 기준 레이어 */
     overflow: hidden;
     pointer-events: none;
 }
@@ -44,7 +44,7 @@ body {
     50% { opacity: 0.9; transform: scale(1.2); filter: drop-shadow(0 0 3px #fff); }
 }
 
-/* ☄️ [레이어 변경] 별똥별을 아기별보다 위에 배치하여 버튼들을 지나가게 만듦 */
+/* ☄️ [레이어 교정] 별똥별 레이어 */
 .shooting-star {
     position: absolute;
     top: -10px;
@@ -55,7 +55,7 @@ body {
     box-shadow: 0 0 10px #7fe7cc, 0 0 20px #ffe6ba, 0 0 30px rgba(127, 231, 204, 0.5);
     animation: newStarAnim 5s infinite cubic-bezier(0.25, 1, 0.5, 1);
     opacity: 0;
-    z-index: 6; /* 버튼 레이어(z-index:1)보다는 위에 위치하여 버튼을 통과함 */
+    z-index: 6; /* 배경 안에서 아기별보단 위 */
 }
 
 /* 먼지처럼 부드럽게 사라지는 잔상 꼬리 효과 */
@@ -76,7 +76,7 @@ body {
 /* 초기 정적 별똥별 배치 및 딜레이 설정 */
 .shooting-star:nth-child(1) { left: 20%; animation-delay: 0s; animation-duration: 4.5s; }
 .shooting-star:nth-child(2) { left: 45%; animation-delay: 1.2s; animation-duration: 5.5s; }
-.shooting-star:nth-child(3) { left: 70%; animation-delay: 2.8s; animation-duration: 4s; }
+.shooting-child:nth-child(3) { left: 70%; animation-delay: 2.8s; animation-duration: 4s; }
 .shooting-star:nth-child(4) { left: 10%; animation-delay: 3.8s; animation-duration: 6s; }
 .shooting-star:nth-child(5) { left: 85%; animation-delay: 5s; animation-duration: 5s; }
 
@@ -120,13 +120,13 @@ body {
     max-width: 600px;
     padding: 30px 20px 100px 20px;
     position: relative;
-    z-index: 1; /* 기본 wrapper 베이스 */
+    z-index: 10; /* 기본 요소들이 배치될 중심 베이스 축 */
 }
 
-/* 🎛️ [레이어 변경] 상단 컨트롤 구역 (별똥별보다 '아래' 배치하기 위해 투명 배경과 z-index 설정) */
+/* 🎛️ [레이어 교정] 상단 컨트롤 구역 (관리자인증, 최근글, 공지, 최적화, 검색, 글쓰기 버튼들) */
 .top-control-zone {
     position: relative;
-    z-index: 1; /* 별똥별(z-index: 6)보다 낮게 주어 별똥별이 위로 지나가도록 유도 */
+    z-index: 15; /* ★ 중요: 별똥별(z-index:6)보다 높게 잡아서 별똥별이 버튼 '밑'으로 통과하게 만듭니다. */
 }
 
 header {
@@ -155,13 +155,14 @@ header h1 {
 }
 
 header button, .recent-open-btn {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(25, 23, 61, 0.6); /* 별똥별이 뒤로 지나갈 때 보일 수 있도록 투명도 처리된 우주색 배경 */
     border: 1px solid rgba(255, 255, 255, 0.15);
     color: #fff;
     padding: 6px 14px;
     border-radius: 20px;
     font-size: 0.8rem;
     cursor: pointer;
+    backdrop-filter: blur(4px);
     transition: all 0.2s ease;
 }
 
@@ -183,7 +184,7 @@ header button:hover, .recent-open-btn:hover {
 /* 최적화 온오프 토글 스위치용 스타일 */
 .optimize-toggle-btn {
     width: 100%;
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(25, 23, 61, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.15);
     color: rgba(255, 255, 255, 0.8);
     padding: 14px;
@@ -194,6 +195,7 @@ header button:hover, .recent-open-btn:hover {
     justify-content: center;
     align-items: center;
     gap: 6px;
+    backdrop-filter: blur(4px);
     transition: background 0.2s, border-color 0.2s;
 }
 .optimize-toggle-btn:hover {
@@ -208,7 +210,7 @@ header button:hover, .recent-open-btn:hover {
 
 .sort-buttons button {
     flex: 1;
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(25, 23, 61, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.15);
     color: rgba(255, 255, 255, 0.7);
     padding: 12px;
@@ -216,6 +218,7 @@ header button:hover, .recent-open-btn:hover {
     font-size: 0.9rem;
     cursor: pointer;
     text-align: center;
+    backdrop-filter: blur(4px);
     transition: all 0.2s ease;
 }
 
@@ -227,7 +230,7 @@ header button:hover, .recent-open-btn:hover {
 
 .filter-zone input {
     width: 100%;
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(25, 23, 61, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.15);
     padding: 14px 20px;
     border-radius: 30px;
@@ -235,6 +238,7 @@ header button:hover, .recent-open-btn:hover {
     font-size: 0.95rem;
     outline: none;
     text-align: center;
+    backdrop-filter: blur(4px);
     transition: all 0.2s ease;
 }
 .filter-zone input::placeholder {
@@ -252,7 +256,7 @@ header button:hover, .recent-open-btn:hover {
 
 #user-write-btn, #admin-write-btn, #secret-mailbox-icon {
     width: 100%;
-    background: transparent;
+    background: rgba(25, 23, 61, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: #FFE6BA;
     padding: 14px;
@@ -264,11 +268,12 @@ header button:hover, .recent-open-btn:hover {
     justify-content: center;
     align-items: center;
     gap: 8px;
+    backdrop-filter: blur(4px);
     transition: all 0.2s ease;
 }
 
 #user-write-btn:hover, #admin-write-btn:hover, #secret-mailbox-icon:hover {
-    background: rgba(255, 230, 186, 0.08);
+    background: rgba(255, 230, 186, 0.15);
     border-color: #FFE6BA;
 }
 
@@ -277,21 +282,21 @@ header button:hover, .recent-open-btn:hover {
     border-color: rgba(127, 231, 204, 0.3);
 }
 
-/* 📜 [레이어 변경] 게시글 피드 전체를 별똥별보다 무조건 위로 올림 */
+/* 📜 [레이어 교정] 게시글 피드 전체를 최상위권으로 올림 */
 .main-feed-zone {
     position: relative;
-    z-index: 20; /* 별똥별(z-index: 6)보다 확실하게 높여서 글 올린 카드 밑으로 숨게 함 */
+    z-index: 30; /* ★ 중요: 버튼 레이어(15)보다 높여서 무조건 별똥별이 이 밑으로 깔리게 만듭니다. */
 }
 
 /* 게시글 카드 */
 .post-card {
-    background: rgba(25, 23, 61, 0.85); /* 뒤쪽 별빛이 완벽히 가려지도록 불투명도 보강 */
+    background: rgba(25, 23, 61, 0.95); /* 카드는 불투명도를 아주 높여 뒤쪽 별똥별을 확실하게 가려줍니다. */
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
     padding: 24px;
     margin-bottom: 20px;
     backdrop-filter: blur(8px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -302,7 +307,7 @@ header button:hover, .recent-open-btn:hover {
 
 .post-card.pinned {
     border: 1px solid rgba(255, 230, 186, 0.3);
-    background: linear-gradient(180deg, rgba(255, 230, 186, 0.1) 0%, rgba(25, 23, 61, 0.95) 100%);
+    background: linear-gradient(180deg, rgba(255, 230, 186, 0.1) 0%, rgba(25, 23, 61, 0.98) 100%);
 }
 
 .pin-tag {
@@ -370,7 +375,7 @@ header button:hover, .recent-open-btn:hover {
 /* 페이지네이션 */
 .pagination-container {
     position: relative;
-    z-index: 21;
+    z-index: 35; /* 피드와 동일한 상위 레이어 그룹 배치 */
     display: flex;
     justify-content: center;
     align-items: center;
