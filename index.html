@@ -19,42 +19,44 @@
     </div>
 
     <div class="wrapper">
-        <header>
-            <h1 onclick="triggerUniverseEasterEgg()">나의 사랑하는<br>우주에게</h1>
-            <div class="header-buttons">
-                <button class="admin-entry-btn" onclick="openModal('adminAuthModal')">관리자 인증</button>
-                <button class="recent-open-btn" onclick="toggleRecentLetters()">최근 글</button>
-                <button class="recent-open-btn" onclick="toggleNoticeLetters()">📌 공지 모음</button>
-            </div>
-        </header>
+        <div class="top-control-zone">
+            <header>
+                <h1 onclick="triggerUniverseEasterEgg()">나의 사랑하는<br>우주에게</h1>
+                <div class="header-buttons">
+                    <button class="admin-entry-btn" onclick="openModal('adminAuthModal')">관리자 인증</button>
+                    <button class="recent-open-btn" onclick="toggleRecentLetters()">최근 글</button>
+                    <button class="recent-open-btn" onclick="toggleNoticeLetters()">📌 공지 모음</button>
+                </div>
+            </header>
 
-        <div class="filter-zone">
-            <button id="optimize-btn" class="optimize-toggle-btn" onclick="toggleOptimizationMode()">
-                ⚙️ 최적화 모드: OFF (애니메이션 켜짐)
-            </button>
-            
-            <div class="sort-buttons">
-                <button id="sort-latest" class="active" onclick="changeSort('latest')">최신 순</button>
-                <button id="sort-oldest" onclick="changeSort('oldest')">오래된 순</button>
-                <button id="sort-reset" onclick="resetFilters()">초기화</button>
-            </div>
-            
-            <input type="text" id="search-title" placeholder="빛의 기록의 제목을 검색해보세요..." oninput="renderPosts()">
+            <div class="filter-zone">
+                <button id="optimize-btn" class="optimize-toggle-btn" onclick="toggleOptimizationMode()">
+                    ⚙️ 최적화 모드: OFF (애니메이션 켜짐)
+                </button>
+                
+                <div class="sort-buttons">
+                    <button id="sort-latest" class="active" onclick="changeSort('latest')">최신 순</button>
+                    <button id="sort-oldest" onclick="changeSort('oldest')">오래된 순</button>
+                    <button id="sort-reset" onclick="resetFilters()">초기화</button>
+                </div>
+                
+                <input type="text" id="search-title" placeholder="빛의 기록의 제목을 검색해보세요..." oninput="renderPosts()">
 
-            <div class="moved-actions-zone">
-                <button id="user-write-btn" onclick="openModal('writeModal')">
-                    🚀 하은이에게 편지 쓰기
-                </button>
-                <button id="admin-write-btn" style="display:none;" onclick="openModal('writeModal')">
-                    ✍️ 새 공지사항 및 글 기록하기
-                </button>
-                <div id="secret-mailbox-icon" style="display:none;" onclick="toggleSecretLetters()">
-                    📨 비밀 우체통 열기
+                <div class="moved-actions-zone">
+                    <button id="user-write-btn" onclick="openModal('writeModal')">
+                        🚀 하은이에게 편지 쓰기
+                    </button>
+                    <button id="admin-write-btn" style="display:none;" onclick="openModal('writeModal')">
+                        ✍️ 새 공지사항 및 글 기록하기
+                    </button>
+                    <div id="secret-mailbox-icon" style="display:none;" onclick="toggleSecretLetters()">
+                        📨 비밀 우체통 열기
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div id="posts-mailbox-feed"></div>
+        <div id="posts-mailbox-feed" class="main-feed-zone"></div>
 
         <div id="pagination-control" class="pagination-container"></div>
     </div>
