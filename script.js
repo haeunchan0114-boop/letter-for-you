@@ -14,13 +14,14 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-// 상태 제어 변수들 완전 유지
+// 상태 제어 변수들 완전 유지 (우체통 정렬 변수만 안전하게 추가)
 let publicPosts = [];      
 let globalLetters = [];    
 let displayPosts = [];     
 let unlockedPostIds = [];  
 
 let currentSort = 'latest';
+let currentSecretSort = 'latest'; // ★ [추가] 비밀 우체통 전용 정렬 상태 변수
 let currentSecretTab = 'all'; 
 let isAdminMode = false;
 let currentAdminName = "";
@@ -174,6 +175,7 @@ function mergeAndRender() {
 
 function toggleSecretLetters() {
     currentSecretTab = 'all'; 
+    currentSecretSort = 'latest'; // 우체통 열 때 항상 최신순 초기화
     openModal('secretMailboxModal');
     renderSecretMailboxWindow();
 }
@@ -185,10 +187,39 @@ function changeSecretTab(tab) {
     renderSecretMailboxWindow();
 }
 
-// 🛠️ [수정] 비밀 우체통 내부에서 관리자일 때 답장 버튼 제거
+// ★ [추가] 비밀 우체통 내부 정렬 변경 함수
+function changeSecretSort(sortType) {
+    currentSecretSort = sortType;
+    document.getElementById('secret-sort-latest').classList.toggle('active', sortType === 'latest');
+    document.getElementById('secret-sort-oldest').classList.toggle('active', sortType === 'oldest');
+    renderSecretMailboxWindow();
+}
+
+// 🛠️ [수정] 비밀 우체통 내부 렌더링에 [최신순/오래된순] 정렬 필터 연산 적용
 function renderSecretMailboxWindow() {
     const container = document.getElementById('secret-letters-container');
     container.innerHTML = "";
+
+    // 1. 상단 정렬 바 UI 유지를 위한 동적 생성 또는 체크 (HTML 변경 최소화를 위해 상단에 삽입)
+    let secretSortZone = document.getElementById('secret-sort-zone');
+    if (!secretSortZone) {
+        secretSortZone = document.createElement('div');
+        secretSortZone.id = 'secret-sort-zone';
+        secretSortZone.className = 'sort-buttons';
+        secretSortZone.style.marginBottom = '15px';
+        secretSortZone.style.display = 'flex';
+        secretSortZone.style.gap = '8px';
+        
+        secretSortZone.innerHTML = `
+            <button id="secret-sort-latest" class="${currentSecretSort === 'latest' ? 'active' : ''}" onclick="changeSecretSort('latest')" style="padding: 8px; font-size: 0.8rem; border-radius: 20px;">최신순</button>
+            <button id="secret-sort-oldest" class="${currentSecretSort === 'oldest' ? 'active' : ''}" onclick="changeSecretSort('oldest')" style="padding: 8px; font-size: 0.8rem; border-radius: 20px;">오래된 순</button>
+        `;
+        container.parentNode.insertBefore(secretSortZone, container);
+    } else {
+        // 이미 존재한다면 상태에 맞춰 클래스 토글 유효화
+        document.getElementById('secret-sort-latest').classList.toggle('active', currentSecretSort === 'latest');
+        document.getElementById('secret-sort-oldest').classList.toggle('active', currentSecretSort === 'oldest');
+    }
 
     let targetLetters = [...globalLetters];
     if (currentSecretTab === 'fav') {
@@ -204,7 +235,19 @@ function renderSecretMailboxWindow() {
         return;
     }
 
-    const sortedLetters = targetLetters.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
+    // 2. [수정] 사용자가 고른 정렬 조건(currentSecretSort)에 맞춰 데이터 정렬 연산 처리
+    const sortedLetters = targetLetters.sort((a, b) => {
+        const timeA = new Date(a.date).getTime() || 0;
+        const timeB = new Date(b.date).getTime() || 0;
+        
+        if (currentSecretSort === 'latest') {
+            if (timeB !== timeA) return timeB - timeA;
+            return b.id - a.id;
+        } else {
+            if (timeA !== timeB) return timeA - timeB;
+            return a.id - b.id;
+        }
+    });
 
     sortedLetters.forEach(letter => {
         let formattedDate = letter.date ? letter.date.trim() : "";
@@ -240,7 +283,7 @@ function toggleNoticeLetters() {
     renderNoticeMailboxWindow();
 }
 
-// 🛠️ [수정] 공지사항 전체보기 모달에서 관리자일 때 답장 버튼 제거
+// 🛠️ 공지사항 전체보기 모달 관리자일 때 답장 버튼 제거 상태 유지
 function renderNoticeMailboxWindow() {
     const container = document.getElementById('notice-letters-container');
     if (!container) return;
@@ -320,7 +363,7 @@ function unlockNoticePost(firebaseKey, correctPassword) {
     }
 }
 
-// 🛠 Ink [수정] 메인 타임라인 카드에서 관리자일 때 답장 보내기 버튼 가리기
+// 🛠 메인 타임라인 카드 렌더링 유지
 function renderPosts() {
     const feed = document.getElementById('posts-mailbox-feed');
     if(!feed) return;
@@ -699,7 +742,7 @@ function openEditModal(nodeType, firebaseKey) {
 
 // 본문 삭제 리스너
 function deletePost(nodeType, firebaseKey) {
-    if (confirm("이 별빛을 우주에서 영구히 삭제할까요?")) {
+    if (confirm("이 별빛 기록을 우주에서 영구히 삭제할까요?")) {
         database.ref(`${nodeType}/${firebaseKey}`).remove().then(() => {
             if(nodeType === 'global_letters') renderSecretMailboxWindow();
         });
@@ -792,7 +835,7 @@ function toggleRecentLetters() {
     renderRecentLettersWindow();
 }
 
-// 🛠️ [수정] 실시간 최근 등록 기록 모달에서 관리자일 때 답장 버튼 제거
+// 실시간 최근 등록 기록 모달 유지
 function renderRecentLettersWindow() {
     const container = document.getElementById('recent-letters-container');
     if (!container) return;
