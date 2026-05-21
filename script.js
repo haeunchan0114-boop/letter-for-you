@@ -198,7 +198,7 @@ function renderSecretMailboxWindow() {
         if (currentSecretTab === 'fav') {
             container.innerHTML = `<div style="text-align:center; padding:60px 20px; color:#ffe6ba; font-size:1rem; font-weight:bold;">특별한 빛이 없어!</div>`;
         } else {
-            container.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.85rem;">비밀 우체통에 도착한 편지가 없습니다.</div>`;
+            container.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.85rem;">별빛 우체통에 도착한 편지가 없어!</div>`;
         }
         return;
     }
@@ -247,7 +247,7 @@ function renderNoticeMailboxWindow() {
     const noticePosts = publicPosts.filter(post => post.isPinned);
 
     if (noticePosts.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.85rem;">고정된 별빛 공지사항이 없습니다.</div>`;
+        container.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.85rem;">고정된 별빛 공지사항이 없어!</div>`;
         return;
     }
 
@@ -429,7 +429,7 @@ function toggleMainNoticeStatus(firebaseKey, currentMainStatus) {
     if (!currentMainStatus) {
         const currentMainCount = publicPosts.filter(post => post.isPinned && post.isMainNotice).length;
         if (currentMainCount >= 3) {
-            alert("화면에 메인 공지가 다 찼어! 더 이상 지정할 수 없습니다.");
+            alert("화면에 메인 공지가 다 찼어! 더 이상 지정할 수 없어!");
             return;
         }
     }
@@ -502,7 +502,7 @@ function resetFilters() {
 function openModal(id) {
     if (id === 'writeModal') {
         if (!editingPostId && !replyingPostId) {
-            document.getElementById('write-modal-title').innerText = isAdminMode ? "별빛 기록 기록하기" : "하은이에게 편지 쓰기";
+            document.getElementById('write-modal-title').innerText = isAdminMode ? "새 별빛의 기록 작성하기" : "하은이에게 편지 쓰기";
             document.getElementById('post-author').value = isAdminMode ? currentAdminName : "";
             document.getElementById('post-author').disabled = isAdminMode;
             document.getElementById('post-title').value = "";
@@ -545,7 +545,7 @@ function saveAdminProfile() {
     isAdminMode = true;
     
     closeModal('adminNameModal');
-    alert(`인증 성공! 제목 검색창 밑의 버튼들을 통해 비밀 우체통을 열 수 있어!`);
+    alert(`인증 성공! 제목 검색창 밑의 버튼을 통해 별빛 우체통을 열 수 있어!`);
     
     document.querySelector('.admin-entry-btn').innerText = `관리자 모드 (${currentAdminName})`;
     mergeAndRender();
@@ -656,7 +656,7 @@ function submitPost() {
                 isFavorite: false
             }).then(() => {
                 closeModal('writeModal');
-                alert("편지가 은하수를 건너 전달되었습니다.✨"); 
+                alert("편지가 별빛을 건너 전달되었습니다.✨"); 
             });
         }
     }
@@ -696,7 +696,7 @@ function openEditModal(nodeType, firebaseKey) {
 
 // 본문 삭제 리스너
 function deletePost(nodeType, firebaseKey) {
-    if (confirm("이 기록을 우주에서 영구히 삭제할까요?")) {
+    if (confirm("이 별빛을 우주에서 영구히 삭제할까요?")) {
         database.ref(`${nodeType}/${firebaseKey}`).remove().then(() => {
             if(nodeType === 'global_letters') renderSecretMailboxWindow();
         });
@@ -819,9 +819,9 @@ function renderRecentLettersWindow() {
             }
         }
 
-        let typeTag = "✉️ 편지";
+        let typeTag = "편지";
         if (post.nodeType === 'posts') {
-            typeTag = post.isPinned ? "📌 공지사항" : "📜 일반 기록";
+            typeTag = post.isPinned ? "📌 공지사항" : "🌌 별빛 기록";
         }
 
         const isLocked = post.postPassword && !isAdminMode && !unlockedPostIds.includes(post.firebaseKey);
