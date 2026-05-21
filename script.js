@@ -14,14 +14,14 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-// 상태 제어 변수들 완전 유지 (우체통 정렬 변수만 안전하게 추가)
+// 상태 제어 변수들 완전 유지
 let publicPosts = [];      
 let globalLetters = [];    
 let displayPosts = [];     
 let unlockedPostIds = [];  
 
 let currentSort = 'latest';
-let currentSecretSort = 'latest'; // ★ [추가] 비밀 우체통 전용 정렬 상태 변수
+let currentSecretSort = 'latest'; 
 let currentSecretTab = 'all'; 
 let isAdminMode = false;
 let currentAdminName = "";
@@ -38,10 +38,32 @@ let currentPage = 1;
 const postsPerPage = 3;
 const maxNavPages = 5;
 
+// 📱 ★ [수정] 모달 로드 시 모바일 기기를 감지하여 최적화 모드 기본 작동
 window.onload = function() {
-    initBackgroundStars(); // ✨ 배경 아기 별 대량 배치
+    // 테일윈드나 모바일 보편 규격인 768px 미만이거나 모바일 UserAgent일 때 작동
+    const isMobileDevice = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+
+    if (isMobileDevice) {
+        // 모바일일 경우 최적화 모드를 강제로 ON 상태로 전환
+        isOptimizationOn = true;
+        document.body.classList.add('performance-mode');
+        
+        // DOM이 생성된 직후 버튼 텍스트 조정을 위해 간격을 둠
+        setTimeout(() => {
+            const btn = document.getElementById('optimize-btn');
+            if (btn) {
+                btn.innerText = "⚙️ 최적화 모드: ON (애니메이션 꺼짐)";
+                btn.style.borderColor = "#7fe7cc";
+                btn.style.color = "#7fe7cc";
+            }
+        }, 50);
+    } else {
+        // PC 접속 환경일 때만 배경 아기 별과 실시간 별똥별 생성 엔진 작동
+        initBackgroundStars(); 
+        startDynamicShootingStars(); 
+    }
+
     listenToFirebase();
-    startDynamicShootingStars(); // 🌠 기본 그래픽 구동 엔진 작동
 };
 
 // ⌨️ 관리자 비밀코드창에서 엔터 입력 감지
@@ -175,7 +197,7 @@ function mergeAndRender() {
 
 function toggleSecretLetters() {
     currentSecretTab = 'all'; 
-    currentSecretSort = 'latest'; // 우체통 열 때 항상 최신순 초기화
+    currentSecretSort = 'latest'; 
     openModal('secretMailboxModal');
     renderSecretMailboxWindow();
 }
@@ -187,7 +209,6 @@ function changeSecretTab(tab) {
     renderSecretMailboxWindow();
 }
 
-// ★ [추가] 비밀 우체통 내부 정렬 변경 함수
 function changeSecretSort(sortType) {
     currentSecretSort = sortType;
     document.getElementById('secret-sort-latest').classList.toggle('active', sortType === 'latest');
@@ -195,12 +216,10 @@ function changeSecretSort(sortType) {
     renderSecretMailboxWindow();
 }
 
-// 🛠️ [수정] 비밀 우체통 내부 렌더링에 [최신순/오래된순] 정렬 필터 연산 적용
 function renderSecretMailboxWindow() {
     const container = document.getElementById('secret-letters-container');
     container.innerHTML = "";
 
-    // 1. 상단 정렬 바 UI 유지를 위한 동적 생성 또는 체크 (HTML 변경 최소화를 위해 상단에 삽입)
     let secretSortZone = document.getElementById('secret-sort-zone');
     if (!secretSortZone) {
         secretSortZone = document.createElement('div');
@@ -216,7 +235,6 @@ function renderSecretMailboxWindow() {
         `;
         container.parentNode.insertBefore(secretSortZone, container);
     } else {
-        // 이미 존재한다면 상태에 맞춰 클래스 토글 유효화
         document.getElementById('secret-sort-latest').classList.toggle('active', currentSecretSort === 'latest');
         document.getElementById('secret-sort-oldest').classList.toggle('active', currentSecretSort === 'oldest');
     }
@@ -235,7 +253,6 @@ function renderSecretMailboxWindow() {
         return;
     }
 
-    // 2. [수정] 사용자가 고른 정렬 조건(currentSecretSort)에 맞춰 데이터 정렬 연산 처리
     const sortedLetters = targetLetters.sort((a, b) => {
         const timeA = new Date(a.date).getTime() || 0;
         const timeB = new Date(b.date).getTime() || 0;
@@ -283,7 +300,6 @@ function toggleNoticeLetters() {
     renderNoticeMailboxWindow();
 }
 
-// 🛠️ 공지사항 전체보기 모달 관리자일 때 답장 버튼 제거 상태 유지
 function renderNoticeMailboxWindow() {
     const container = document.getElementById('notice-letters-container');
     if (!container) return;
@@ -363,7 +379,6 @@ function unlockNoticePost(firebaseKey, correctPassword) {
     }
 }
 
-// 🛠 메인 타임라인 카드 렌더링 유지
 function renderPosts() {
     const feed = document.getElementById('posts-mailbox-feed');
     if(!feed) return;
@@ -617,7 +632,7 @@ function togglePin(nodeType, firebaseKey, currentStatus) {
 }
 
 function submitPost() {
-    const author = document.getElementById('post-author').value.trim() || "익명의 별빛";
+    const author = document.getElementById('post-author').value.trim() || "익명의 우주";
     const title = document.getElementById('post-title').value.trim();
     const content = document.getElementById('post-content').value.trim();
     const postPassword = document.getElementById('post-password').value.trim(); 
@@ -740,16 +755,14 @@ function openEditModal(nodeType, firebaseKey) {
     }
 }
 
-// 본문 삭제 리스너
 function deletePost(nodeType, firebaseKey) {
-    if (confirm("이 별빛 기록을 우주에서 영구히 삭제할까요?")) {
+    if (confirm("이 별빛을 우주에서 영구히 삭제할까요?")) {
         database.ref(`${nodeType}/${firebaseKey}`).remove().then(() => {
             if(nodeType === 'global_letters') renderSecretMailboxWindow();
         });
     }
 }
 
-// 제목 이스터에그 작동부
 function triggerUniverseEasterEgg() {
     if (isOptimizationOn) return; 
     const messageBox = document.getElementById('easter-message');
@@ -835,7 +848,6 @@ function toggleRecentLetters() {
     renderRecentLettersWindow();
 }
 
-// 실시간 최근 등록 기록 모달 유지
 function renderRecentLettersWindow() {
     const container = document.getElementById('recent-letters-container');
     if (!container) return;
