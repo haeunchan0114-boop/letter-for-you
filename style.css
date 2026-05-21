@@ -103,7 +103,7 @@ body {
     }
 }
 
-/* 🛠️ [신규 기능] 최적화 모드(ON) 활성화 시 화면 내 무거운 연산 원천 차단 */
+/* 🛠️ 최적화 모드(ON) 활성화 시 화면 내 무거운 연산 원천 차단 */
 .performance-mode .background-star,
 .performance-mode .shooting-star,
 .performance-mode .falling-easter-star {
@@ -169,7 +169,7 @@ header button:hover, .recent-open-btn:hover {
     border-color: #FFE6BA;
 }
 
-/* 🎛️ [요청 반영] 이미지 형태의 검색 및 정렬 구역 재배치 */
+/* 🎛️ 검색 및 정렬, 그리고 글쓰기 버튼 통합 관리 구역 */
 .filter-zone {
     display: flex;
     flex-direction: column;
@@ -237,6 +237,42 @@ header button:hover, .recent-open-btn:hover {
 }
 .filter-zone input::placeholder {
     color: rgba(255, 255, 255, 0.3);
+}
+
+/* ✍️ [위치 변경에 따른 신규 스타일] 검색창 바로 밑으로 들어온 액션 버튼 구역 디자인 */
+.moved-actions-zone {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    margin-top: 4px;
+}
+
+#user-write-btn, #admin-write-btn, #secret-mailbox-icon {
+    width: 100%;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #FFE6BA;
+    padding: 14px;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+#user-write-btn:hover, #admin-write-btn:hover, #secret-mailbox-icon:hover {
+    background: rgba(255, 230, 186, 0.08);
+    border-color: #FFE6BA;
+}
+
+#secret-mailbox-icon {
+    color: #7fe7cc;
+    border-color: rgba(127, 231, 204, 0.3);
 }
 
 /* 게시글 카드 */
@@ -356,56 +392,6 @@ header button:hover, .recent-open-btn:hover {
 .page-arrow:disabled {
     opacity: 0.3;
     cursor: not-allowed;
-}
-
-/* 하단 고정 바 및 버튼 디자인 스크린샷 동기화 */
-.bottom-actions {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 600px;
-    padding: 20px;
-    display: flex;
-    gap: 10px;
-    background: linear-gradient(to top, #090a1e 80%, transparent);
-    align-items: center;
-    z-index: 90;
-}
-
-#user-write-btn, #admin-write-btn {
-    flex: 1;
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #FFE6BA;
-    padding: 14px;
-    border-radius: 30px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-}
-#user-write-btn:hover, #admin-write-btn:hover {
-    background: rgba(255, 230, 186, 0.08);
-    border-color: #FFE6BA;
-}
-
-#secret-mailbox-icon {
-    width: 50px;
-    height: 50px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 50%;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.3rem;
-    cursor: pointer;
 }
 
 /* 모달 시스템 */
