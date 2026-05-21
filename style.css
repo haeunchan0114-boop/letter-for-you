@@ -7,6 +7,7 @@
 }
 
 body {
+    /* 🔮 은은한 오로라 보랏빛을 머금은 심해 우주색 그라데이션 */
     background: linear-gradient(135deg, #090a1e 0%, #151133 35%, #221442 70%, #060714 100%);
     color: #ffffff;
     min-height: 100vh;
@@ -16,7 +17,7 @@ body {
     position: relative;
 }
 
-/* 🌠 실시간 배경 레이어 */
+/* 🌠 실시간 별똥별과 배경 별들을 뒤쪽에 자연스럽게 깔아줄 배경 레이어 */
 .space-background {
     position: fixed;
     top: 0;
@@ -37,6 +38,7 @@ body {
     opacity: 0.3;
 }
 
+/* 아기 별 반짝임 애니메이션 */
 @keyframes twinkleStar {
     0%, 100% { opacity: 0.2; transform: scale(0.8); }
     50% { opacity: 0.9; transform: scale(1.2); filter: drop-shadow(0 0 3px #fff); }
@@ -48,13 +50,16 @@ body {
     top: -10px;
     width: 6px; 
     height: 6px;
+    /* 에메랄드 그린에서 부드러운 황금빛으로 이어지는 신비로운 색감 */
     background: linear-gradient(45deg, #7fe7cc, #ffe6ba);
     border-radius: 50%;
+    /* 신비로운 우주 가스 느낌의 이중 네온 블러 처리 */
     box-shadow: 0 0 10px #7fe7cc, 0 0 20px #ffe6ba, 0 0 30px rgba(127, 231, 204, 0.5);
     animation: newStarAnim 5s infinite cubic-bezier(0.25, 1, 0.5, 1);
     opacity: 0;
 }
 
+/* 먼지처럼 부드럽게 사려지는 잔상 꼬리 효과 */
 .shooting-star::before {
     content: '';
     position: absolute;
@@ -62,27 +67,43 @@ body {
     left: 0;
     width: 140px; 
     height: 2px;
+    /* 본체 뒤로 길게 뻗어나가며 투명해지는 소프트 그라데이션 */
     background: linear-gradient(to left, rgba(127, 231, 204, 0.8), rgba(255, 230, 186, 0.3), transparent);
+    /* 꼬리가 본체 뒤쪽 중심에서 시작되도록 축 고정 */
     transform: translateY(-50%) rotate(0deg);
     transform-origin: left center;
     border-radius: 999px;
     filter: blur(0.5px);
 }
 
+/* 초기 정적 별똥별 배치 및 딜레이 설정 */
 .shooting-star:nth-child(1) { left: 20%; animation-delay: 0s; animation-duration: 4.5s; }
 .shooting-star:nth-child(2) { left: 45%; animation-delay: 1.2s; animation-duration: 5.5s; }
 .shooting-star:nth-child(3) { left: 70%; animation-delay: 2.8s; animation-duration: 4s; }
 .shooting-star:nth-child(4) { left: 10%; animation-delay: 3.8s; animation-duration: 6s; }
 .shooting-star:nth-child(5) { left: 85%; animation-delay: 5s; animation-duration: 5s; }
 
+/* 사선으로 더 부드럽고 시원하게 그어지는 궤적 */
 @keyframes newStarAnim {
-    0% { transform: translate3d(200px, -80px, 0) rotate(-35deg) scale(0.6); opacity: 0; }
-    8% { opacity: 1; }
-    30% { transform: translate3d(-350px, 450px, 0) rotate(-35deg) scale(1.1); opacity: 0; }
-    100% { transform: translate3d(-350px, 450px, 0) rotate(-35deg) scale(1.1); opacity: 0; }
+    0% {
+        transform: translate3d(200px, -80px, 0) rotate(-35deg) scale(0.6);
+        opacity: 0;
+    }
+    8% {
+        opacity: 1; /* 등장할 때 확 밝아짐 */
+    }
+    30% {
+        /* 대각선 아래로 길게 떨어지며 크기가 자연스럽게 커짐 */
+        transform: translate3d(-350px, 450px, 0) rotate(-35deg) scale(1.1);
+        opacity: 0;
+    }
+    100% {
+        transform: translate3d(-350px, 450px, 0) rotate(-35deg) scale(1.1);
+        opacity: 0;
+    }
 }
 
-/* 🛠️ [중요] 최적화 모드(ON) 활성화 시 적용되는 강제 정적 스타일 구역 */
+/* 🛠️ [신규 기능] 최적화 모드(ON) 활성화 시 화면 내 무거운 연산 원천 차단 */
 .performance-mode .background-star,
 .performance-mode .shooting-star,
 .performance-mode .falling-easter-star {
@@ -131,7 +152,7 @@ header h1 {
     margin-top: 10px;
 }
 
-.admin-entry-btn, .recent-open-btn {
+header button, .recent-open-btn {
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.15);
     color: #fff;
@@ -139,9 +160,16 @@ header h1 {
     border-radius: 20px;
     font-size: 0.8rem;
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-/* 🎛️ 스크린샷 맞춤형 필터 존 레이아웃 개편 */
+header button:hover, .recent-open-btn:hover {
+    background: #FFE6BA;
+    color: #0d0e2d;
+    border-color: #FFE6BA;
+}
+
+/* 🎛️ [요청 반영] 이미지 형태의 검색 및 정렬 구역 재배치 */
 .filter-zone {
     display: flex;
     flex-direction: column;
@@ -150,7 +178,7 @@ header h1 {
     width: 100%;
 }
 
-/* 최적화 토글 버튼 스타일 */
+/* 최적화 온오프 토글 스위치용 스타일 */
 .optimize-toggle-btn {
     width: 100%;
     background: rgba(255, 255, 255, 0.06);
@@ -164,7 +192,7 @@ header h1 {
     justify-content: center;
     align-items: center;
     gap: 6px;
-    transition: background 0.2s;
+    transition: background 0.2s, border-color 0.2s;
 }
 .optimize-toggle-btn:hover {
     background: rgba(255, 255, 255, 0.12);
@@ -186,6 +214,7 @@ header h1 {
     font-size: 0.9rem;
     cursor: pointer;
     text-align: center;
+    transition: all 0.2s ease;
 }
 
 .sort-buttons button.active, .sort-buttons button:hover {
@@ -204,6 +233,7 @@ header h1 {
     font-size: 0.95rem;
     outline: none;
     text-align: center;
+    transition: all 0.2s ease;
 }
 .filter-zone input::placeholder {
     color: rgba(255, 255, 255, 0.3);
@@ -218,6 +248,12 @@ header h1 {
     margin-bottom: 20px;
     backdrop-filter: blur(8px);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.post-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(255, 230, 186, 0.07);
 }
 
 .post-card.pinned {
@@ -225,11 +261,39 @@ header h1 {
     background: linear-gradient(180deg, rgba(255, 230, 186, 0.06) 0%, rgba(25, 23, 61, 0.5) 100%);
 }
 
-.pin-tag { color: #FFE6BA; font-weight: bold; }
-.post-meta { font-size: 0.8rem; color: rgba(255, 255, 255, 0.4); margin-bottom: 12px; }
-.post-title { font-size: 1.25rem; color: #fff; margin-bottom: 14px; font-weight: 600; }
-.post-content { font-size: 0.95rem; color: rgba(255, 255, 255, 0.85); line-height: 1.6; white-space: pre-wrap; margin-bottom: 20px; }
-.post-center-date { text-align: center; font-size: 0.75rem; color: rgba(255, 255, 255, 0.25); letter-spacing: 1px; margin-bottom: 15px; }
+.pin-tag {
+    color: #FFE6BA;
+    font-weight: bold;
+}
+
+.post-meta {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 12px;
+}
+
+.post-title {
+    font-size: 1.25rem;
+    color: #fff;
+    margin-bottom: 14px;
+    font-weight: 600;
+}
+
+.post-content {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    margin-bottom: 20px;
+}
+
+.post-center-date {
+    text-align: center;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.25);
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+}
 
 .card-actions {
     display: flex;
@@ -238,22 +302,63 @@ header h1 {
     border-top: 1px solid rgba(255, 255, 255, 0.06);
     padding-top: 14px;
 }
+
 .card-actions button {
-    background: none; border: none; color: rgba(255, 255, 255, 0.4); font-size: 0.8rem; cursor: pointer; padding: 4px 8px; border-radius: 4px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
 }
-.card-actions button:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
-.card-actions .reply-btn { color: #FFE6BA; font-weight: bold; }
+
+.card-actions button:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.card-actions .reply-btn {
+    color: #FFE6BA;
+    font-weight: bold;
+}
 
 /* 페이지네이션 */
-.pagination-container { display: flex; justify-content: center; align-items: center; gap: 5px; margin-top: 20px; }
-.page-arrow, .page-num-btn {
-    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); color: #fff;
-    width: 32px; height: 32px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; display: flex; justify-content: center; align-items: center;
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin-top: 20px;
 }
-.page-num-btn.active { background: #FFE6BA; color: #0d0e2d; border-color: #FFE6BA; font-weight: bold; }
-.page-arrow:disabled { opacity: 0.3; cursor: not-allowed; }
 
-/* ✍️ 하단 편지 쓰기 메인 액션 버튼 */
+.page-arrow, .page-num-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.page-num-btn.active {
+    background: #FFE6BA;
+    color: #0d0e2d;
+    border-color: #FFE6BA;
+    font-weight: bold;
+}
+
+.page-arrow:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* 하단 고정 바 및 버튼 디자인 스크린샷 동기화 */
 .bottom-actions {
     position: fixed;
     bottom: 0;
@@ -283,6 +388,7 @@ header h1 {
     justify-content: center;
     align-items: center;
     gap: 8px;
+    transition: all 0.2s ease;
 }
 #user-write-btn:hover, #admin-write-btn:hover {
     background: rgba(255, 230, 186, 0.08);
@@ -290,52 +396,252 @@ header h1 {
 }
 
 #secret-mailbox-icon {
-    width: 50px; height: 50px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-size: 1.3rem; cursor: pointer;
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.3rem;
+    cursor: pointer;
 }
 
-/* 모달 시스템 기본 */
+/* 모달 시스템 */
 .modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 6, 21, 0.85);
-    backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; z-index: 1000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(5, 6, 21, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
 }
-.modal-overlay.active { opacity: 1; pointer-events: auto; }
-.modal-content { background: #14163c; border: 1px solid rgba(255, 255, 255, 0.1); width: 90%; max-width: 500px; border-radius: 20px; padding: 25px; }
-.mini-modal { max-width: 360px; }
-.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.modal-header h2 { font-size: 1.2rem; color: #FFE6BA; }
-.close-btn { background: none; border: none; color: rgba(255, 255, 255, 0.4); font-size: 1.5rem; cursor: pointer; }
-.modal-body input, .modal-body textarea { width: 100%; background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; color: #fff; padding: 10px 12px; margin-bottom: 12px; font-size: 0.9rem; }
-.modal-body textarea { height: 160px; resize: none; line-height: 1.5; }
-.submit-btn { width: 100%; background: #FFE6BA; border: none; color: #0d0e2d; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-/* 비밀창 슬라이드 및 내부 카드 */
-.secret-window { max-width: 520px; height: 80vh; display: flex; flex-direction: column; }
-.secret-tabs { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 10px; }
-.secret-tabs button { background: none; border: none; color: rgba(255, 255, 255, 0.4); padding: 6px 12px; font-size: 0.85rem; cursor: pointer; }
-.secret-tabs button.active { color: #FFE6BA; font-weight: bold; }
-.secret-scroll-zone { flex: 1; overflow-y: auto; padding-right: 5px; }
-.secret-scroll-zone::-webkit-scrollbar { width: 4px; }
-.secret-scroll-zone::-webkit-scrollbar-thumb { background: rgba(255, 230, 186, 0.15); border-radius: 10px; }
-.secret-mini-card { background: rgba(0, 0, 0, 0.15); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
-.mini-meta { font-size: 0.75rem; color: rgba(255, 255, 255, 0.3); margin-bottom: 6px; display: flex; justify-content: space-between; }
-.mini-title { font-size: 0.95rem; font-weight: bold; margin-bottom: 6px; }
-.mini-content { font-size: 0.85rem; color: rgba(255, 255, 255, 0.7); line-height: 1.4; white-space: pre-wrap; margin-bottom: 10px; }
-.mini-center-date { text-align: center; font-size: 0.7rem; color: rgba(255, 255, 255, 0.15); margin-bottom: 8px; }
-.mini-actions { display: flex; justify-content: flex-end; gap: 10px; }
-.mini-actions button { background: none; border: none; color: rgba(255, 255, 255, 0.3); font-size: 0.75rem; cursor: pointer; }
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content {
+    background: #14163c;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 90%;
+    max-width: 500px;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.mini-modal {
+    max-width: 360px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header h2 {
+    font-size: 1.2rem;
+    color: #FFE6BA;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.modal-body input, .modal-body textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: #fff;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+}
+
+.modal-body textarea {
+    height: 160px;
+    resize: none;
+    line-height: 1.5;
+}
+
+.submit-btn {
+    width: 100%;
+    background: #FFE6BA;
+    border: none;
+    color: #0d0e2d;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* 스크롤 가능한 독립 모달 창 구역 */
+.secret-window {
+    max-width: 520px;
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.secret-tabs {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding-bottom: 10px;
+}
+
+.secret-tabs button {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.secret-tabs button.active {
+    color: #FFE6BA;
+    font-weight: bold;
+}
+
+.secret-scroll-zone {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.secret-scroll-zone::-webkit-scrollbar {
+    width: 4px;
+}
+
+.secret-scroll-zone::-webkit-scrollbar-thumb {
+    background: rgba(255, 230, 186, 0.15);
+    border-radius: 10px;
+}
+
+.secret-mini-card {
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+}
+
+.mini-meta {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.3);
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.mini-title {
+    font-size: 0.95rem;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.mini-content {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.4;
+    white-space: pre-wrap;
+    margin-bottom: 10px;
+}
+
+.mini-center-date {
+    text-align: center;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.15);
+    margin-bottom: 8px;
+}
+
+.mini-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.mini-actions button {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.75rem;
+    cursor: pointer;
+}
 
 /* 이스터에그 연출 */
 #easter-message {
-    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); color: #FFE6BA; font-size: 1.3rem; font-weight: bold;
-    text-shadow: 0 0 15px #ffe6ba; z-index: 9999; opacity: 0; pointer-events: none; transition: all 0.5s;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    color: #FFE6BA;
+    font-size: 1.3rem;
+    font-weight: bold;
+    text-shadow: 0 0 15px #ffe6ba, 0 0 30px rgba(255,230,186,0.5);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-#easter-message.active { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-#easter-stars-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9998; }
-.falling-easter-star { position: absolute; top: -20px; color: #FFE6BA; opacity: 0.8; animation: fallAnimation linear forwards; }
+
+#easter-message.active {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+#easter-stars-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9998;
+}
+
+.falling-easter-star {
+    position: absolute;
+    top: -20px;
+    color: #FFE6BA;
+    opacity: 0.8;
+    animation: fallAnimation linear forwards;
+}
+
 @keyframes fallAnimation {
     0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
     100% { transform: translateY(105vh) translateX(var(--sway)) rotate(var(--angle)); opacity: 0; }
 }
 
-.notice-mini-card { background: rgba(255, 255, 255, 0.04) !important; border-radius: 12px; padding: 15px; margin-bottom: 12px; }
+.notice-mini-card {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 12px;
+    transition: all 0.25s ease;
+}
+
+.notice-mini-card:hover {
+    background: rgba(255, 255, 255, 0.07) !important;
+    box-shadow: 0 4px 15px rgba(255, 230, 186, 0.08);
+}
