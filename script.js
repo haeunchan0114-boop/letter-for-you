@@ -28,7 +28,7 @@ let editingPostId = null;
 let replyingPostId = null;
 let editingTargetNode = 'posts'; 
 
-// 🛠️ [기능 추가] 성능 최적화 제어용 인터벌 트래커
+// 성능 최적화 제어용 인터벌 트래커
 let isOptimizationOn = false;
 let shootingStarIntervalId = null;
 
@@ -43,33 +43,42 @@ window.onload = function() {
     startDynamicShootingStars(); // 🌠 기본 그래픽 구동 엔진 작동
 };
 
-// 🎛️ [기능 추가] 최적화 껐다 켜는 다이내믹 변환 제어 엔진
+// ⌨️ [신규 기능] 관리자 비밀코드창에서 엔터 입력 감지
+function handleAdminAuthEnter(event) {
+    if (event.key === 'Enter') {
+        checkAdminPassword();
+    }
+}
+
+// ⌨️ [신규 기능] 호칭 입력창에서 엔터 입력 감지
+function handleAdminNameEnter(event) {
+    if (event.key === 'Enter') {
+        saveAdminProfile();
+    }
+}
+
+// 🎛️ 최적화 껐다 켜는 다이내믹 변환 제어 엔진
 function toggleOptimizationMode() {
     isOptimizationOn = !isOptimizationOn;
     const btn = document.getElementById('optimize-btn');
 
     if (isOptimizationOn) {
-        // 최적화 활성화 (정적 화면으로 고정)
         document.body.classList.add('performance-mode');
         btn.innerText = "⚙️ 최적화 모드: ON (애니메이션 꺼짐)";
         btn.style.borderColor = "#7fe7cc";
         btn.style.color = "#7fe7cc";
 
-        // 백그라운드 무한 반복 연산을 원천 차단하여 모바일/구형 PC 과열 방지
         if (shootingStarIntervalId) {
             clearInterval(shootingStarIntervalId);
             shootingStarIntervalId = null;
         }
-        // 화면에 잔류 중인 그래픽 유닛들을 깨끗하게 청소해 CPU/GPU 반환
         document.querySelectorAll('.dynamic-star, .background-star').forEach(el => el.remove());
     } else {
-        // 최적화 비활성화 (부드러운 연출 재생)
         document.body.classList.remove('performance-mode');
         btn.innerText = "⚙️ 최적화 모드: OFF (애니메이션 켜짐)";
         btn.style.borderColor = "rgba(255, 255, 255, 0.15)";
         btn.style.color = "rgba(255, 255, 255, 0.8)";
 
-        // 밤하늘 특수효과 시스템 원복 가동
         initBackgroundStars();
         startDynamicShootingStars();
     }
@@ -150,7 +159,7 @@ function mergeAndRender() {
     if (isAdminMode) {
         userWriteBtn.style.display = 'none';
         adminWriteBtn.style.display = 'block';
-        secretMailIcon.style.display = 'inline-flex'; 
+        secretMailIcon.style.display = 'flex'; 
         passwordInput.style.display = 'block'; 
         noticeZone.style.display = 'flex'; 
     } else {
@@ -503,6 +512,13 @@ function openModal(id) {
         }
     }
     document.getElementById(id).classList.add('active');
+    
+    // 모달이 열리면 입력창에 자동 포커스 주기 (사용성 증대)
+    if (id === 'adminAuthModal') {
+        setTimeout(() => document.getElementById('admin-password-input').focus(), 50);
+    } else if (id === 'adminNameModal') {
+        setTimeout(() => document.getElementById('admin-name-input').focus(), 50);
+    }
 }
 
 function closeModal(id) {
@@ -530,7 +546,7 @@ function saveAdminProfile() {
     isAdminMode = true;
     
     closeModal('adminNameModal');
-    alert(`인증 성공! 📨 버튼을 누르면 비밀 편지들을 읽을 수 있어!`);
+    alert(`인증 성공! 제목 검색창 밑의 버튼들을 통해 비밀 우체통을 열 수 있어!`);
     
     document.querySelector('.admin-entry-btn').innerText = `관리자 모드 (${currentAdminName})`;
     mergeAndRender();
@@ -688,7 +704,7 @@ function deletePost(nodeType, firebaseKey) {
 }
 
 function triggerUniverseEasterEgg() {
-    if (isOptimizationOn) return; // 최적화 작동 시 무거운 효과 제한 규칙 작동
+    if (isOptimizationOn) return; 
     const messageBox = document.getElementById('easter-message');
     messageBox.innerText = "✨ 너는 나만의 소중한 우주야 ✨";
     messageBox.classList.add('active');
@@ -716,7 +732,7 @@ function triggerUniverseEasterEgg() {
 }
 
 function initBackgroundStars() {
-    if (isOptimizationOn) return; // 최적화 모드 켜져있으면 배치 생략
+    if (isOptimizationOn) return; 
     const spaceBg = document.querySelector('.space-background');
     if (!spaceBg) return;
 
@@ -740,7 +756,7 @@ function initBackgroundStars() {
 }
 
 function startDynamicShootingStars() {
-    if (isOptimizationOn) return; // 최적화 모드 시 인터벌 실행 방지
+    if (isOptimizationOn) return; 
     const spaceBg = document.querySelector('.space-background');
     if (!spaceBg) return;
 
