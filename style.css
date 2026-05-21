@@ -7,7 +7,6 @@
 }
 
 body {
-    /* 🔮 은은한 오로라 보랏빛을 머금은 심해 우주색 그라데이션 */
     background: linear-gradient(135deg, #090a1e 0%, #151133 35%, #221442 70%, #060714 100%);
     color: #ffffff;
     min-height: 100vh;
@@ -17,14 +16,14 @@ body {
     position: relative;
 }
 
-/* 🌠 실시간 별똥별과 배경 별들을 뒤쪽에 자연스럽게 깔아줄 배경 레이어 */
+/* 🌠 [레이어 변경] 별똥별이 버튼 위에 오도록 z-index 조절 */
 .space-background {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: -1;
+    z-index: 5; /* 배경 아기별과 별똥별의 기준 레이어를 버튼(z-index:1)보다는 높게 설정 */
     overflow: hidden;
     pointer-events: none;
 }
@@ -36,6 +35,7 @@ body {
     border-radius: 50%;
     animation: twinkleStar 3s infinite ease-in-out;
     opacity: 0.3;
+    z-index: 1; /* 아기 별은 가장 바닥에 배치 */
 }
 
 /* 아기 별 반짝임 애니메이션 */
@@ -44,22 +44,21 @@ body {
     50% { opacity: 0.9; transform: scale(1.2); filter: drop-shadow(0 0 3px #fff); }
 }
 
-/* ☄️ 몽환적인 오로라 네온 빛의 별똥별 본체 */
+/* ☄️ [레이어 변경] 별똥별을 아기별보다 위에 배치하여 버튼들을 지나가게 만듦 */
 .shooting-star {
     position: absolute;
     top: -10px;
     width: 6px; 
     height: 6px;
-    /* 에메랄드 그린에서 부드러운 황금빛으로 이어지는 신비로운 색감 */
     background: linear-gradient(45deg, #7fe7cc, #ffe6ba);
     border-radius: 50%;
-    /* 신비로운 우주 가스 느낌의 이중 네온 블러 처리 */
     box-shadow: 0 0 10px #7fe7cc, 0 0 20px #ffe6ba, 0 0 30px rgba(127, 231, 204, 0.5);
     animation: newStarAnim 5s infinite cubic-bezier(0.25, 1, 0.5, 1);
     opacity: 0;
+    z-index: 6; /* 버튼 레이어(z-index:1)보다는 위에 위치하여 버튼을 통과함 */
 }
 
-/* 먼지처럼 부드럽게 사려지는 잔상 꼬리 효과 */
+/* 먼지처럼 부드럽게 사라지는 잔상 꼬리 효과 */
 .shooting-star::before {
     content: '';
     position: absolute;
@@ -67,9 +66,7 @@ body {
     left: 0;
     width: 140px; 
     height: 2px;
-    /* 본체 뒤로 길게 뻗어나가며 투명해지는 소프트 그라데이션 */
     background: linear-gradient(to left, rgba(127, 231, 204, 0.8), rgba(255, 230, 186, 0.3), transparent);
-    /* 꼬리가 본체 뒤쪽 중심에서 시작되도록 축 고정 */
     transform: translateY(-50%) rotate(0deg);
     transform-origin: left center;
     border-radius: 999px;
@@ -90,10 +87,9 @@ body {
         opacity: 0;
     }
     8% {
-        opacity: 1; /* 등장할 때 확 밝아짐 */
+        opacity: 1;
     }
     30% {
-        /* 대각선 아래로 길게 떨어지며 크기가 자연스럽게 커짐 */
         transform: translate3d(-350px, 450px, 0) rotate(-35deg) scale(1.1);
         opacity: 0;
     }
@@ -124,7 +120,13 @@ body {
     max-width: 600px;
     padding: 30px 20px 100px 20px;
     position: relative;
-    z-index: 10;
+    z-index: 1; /* 기본 wrapper 베이스 */
+}
+
+/* 🎛️ [레이어 변경] 상단 컨트롤 구역 (별똥별보다 '아래' 배치하기 위해 투명 배경과 z-index 설정) */
+.top-control-zone {
+    position: relative;
+    z-index: 1; /* 별똥별(z-index: 6)보다 낮게 주어 별똥별이 위로 지나가도록 유도 */
 }
 
 header {
@@ -169,7 +171,7 @@ header button:hover, .recent-open-btn:hover {
     border-color: #FFE6BA;
 }
 
-/* 🎛️ 검색 및 정렬, 그리고 글쓰기 버튼 통합 관리 구역 */
+/* 검색 및 정렬, 그리고 글쓰기 버튼 통합 관리 구역 */
 .filter-zone {
     display: flex;
     flex-direction: column;
@@ -239,7 +241,7 @@ header button:hover, .recent-open-btn:hover {
     color: rgba(255, 255, 255, 0.3);
 }
 
-/* ✍️ [위치 변경에 따른 신규 스타일] 검색창 바로 밑으로 들어온 액션 버튼 구역 디자인 */
+/* 검색창 바로 밑으로 들어온 액션 버튼 구역 디자인 */
 .moved-actions-zone {
     display: flex;
     flex-direction: column;
@@ -275,9 +277,15 @@ header button:hover, .recent-open-btn:hover {
     border-color: rgba(127, 231, 204, 0.3);
 }
 
+/* 📜 [레이어 변경] 게시글 피드 전체를 별똥별보다 무조건 위로 올림 */
+.main-feed-zone {
+    position: relative;
+    z-index: 20; /* 별똥별(z-index: 6)보다 확실하게 높여서 글 올린 카드 밑으로 숨게 함 */
+}
+
 /* 게시글 카드 */
 .post-card {
-    background: rgba(25, 23, 61, 0.45);
+    background: rgba(25, 23, 61, 0.85); /* 뒤쪽 별빛이 완벽히 가려지도록 불투명도 보강 */
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
     padding: 24px;
@@ -294,7 +302,7 @@ header button:hover, .recent-open-btn:hover {
 
 .post-card.pinned {
     border: 1px solid rgba(255, 230, 186, 0.3);
-    background: linear-gradient(180deg, rgba(255, 230, 186, 0.06) 0%, rgba(25, 23, 61, 0.5) 100%);
+    background: linear-gradient(180deg, rgba(255, 230, 186, 0.1) 0%, rgba(25, 23, 61, 0.95) 100%);
 }
 
 .pin-tag {
@@ -361,6 +369,8 @@ header button:hover, .recent-open-btn:hover {
 
 /* 페이지네이션 */
 .pagination-container {
+    position: relative;
+    z-index: 21;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -409,7 +419,7 @@ header button:hover, .recent-open-btn:hover {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
-    z-index: 1000;
+    z-index: 1000; /* 모달창은 화면 최상위 고정 */
 }
 
 .modal-overlay.active {
