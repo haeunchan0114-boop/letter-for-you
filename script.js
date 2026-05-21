@@ -43,14 +43,14 @@ window.onload = function() {
     startDynamicShootingStars(); // 🌠 기본 그래픽 구동 엔진 작동
 };
 
-// ⌨️ [신규 기능] 관리자 비밀코드창에서 엔터 입력 감지
+// ⌨️ 관리자 비밀코드창에서 엔터 입력 감지
 function handleAdminAuthEnter(event) {
     if (event.key === 'Enter') {
         checkAdminPassword();
     }
 }
 
-// ⌨️ [신규 기능] 호칭 입력창에서 엔터 입력 감지
+// ⌨️ 호칭 입력창에서 엔터 입력 감지
 function handleAdminNameEnter(event) {
     if (event.key === 'Enter') {
         saveAdminProfile();
@@ -84,7 +84,7 @@ function toggleOptimizationMode() {
     }
 }
 
-// 📡 Firebase 실시간 리스너 작동부 (디테일 완전 유지)
+// 📡 Firebase 실시간 리스너 작동부
 function listenToFirebase() {
     database.ref('posts').on('value', (snapshot) => {
         const data = snapshot.val();
@@ -513,7 +513,6 @@ function openModal(id) {
     }
     document.getElementById(id).classList.add('active');
     
-    // 모달이 열리면 입력창에 자동 포커스 주기 (사용성 증대)
     if (id === 'adminAuthModal') {
         setTimeout(() => document.getElementById('admin-password-input').focus(), 50);
     } else if (id === 'adminNameModal') {
@@ -695,6 +694,7 @@ function openEditModal(nodeType, firebaseKey) {
     }
 }
 
+// 본문 삭제 리스너
 function deletePost(nodeType, firebaseKey) {
     if (confirm("이 기록을 우주에서 영구히 삭제할까요?")) {
         database.ref(`${nodeType}/${firebaseKey}`).remove().then(() => {
@@ -703,6 +703,7 @@ function deletePost(nodeType, firebaseKey) {
     }
 }
 
+// 제목 이스터에그 작동부
 function triggerUniverseEasterEgg() {
     if (isOptimizationOn) return; 
     const messageBox = document.getElementById('easter-message');
