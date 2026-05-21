@@ -38,17 +38,17 @@ let currentPage = 1;
 const postsPerPage = 3;
 const maxNavPages = 5;
 
-// 📱 ★ [수정] 모달 로드 시 모바일 기기를 감지하여 최적화 모드 기본 작동
+// 📱 ★ [수정] window.onload 시점에 모바일 환경만 한정하여 최적화 모드 디폴트 ON 처리
 window.onload = function() {
-    // 테일윈드나 모바일 보편 규격인 768px 미만이거나 모바일 UserAgent일 때 작동
+    // 1. 모바일 브라우저 식별(UserAgent) 및 일반적인 모바일 화면 너비(768px 미만) 조건 체크
     const isMobileDevice = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
 
     if (isMobileDevice) {
-        // 모바일일 경우 최적화 모드를 강제로 ON 상태로 전환
+        // [모바일 한정] 최적화 모드 즉시 가동 (애니메이션 트래커 차단 및 클래스 주입)
         isOptimizationOn = true;
         document.body.classList.add('performance-mode');
         
-        // DOM이 생성된 직후 버튼 텍스트 조정을 위해 간격을 둠
+        // DOM 렌더링 스케줄을 고려하여 버튼 텍스트와 UI 색상을 매끄럽게 동기화
         setTimeout(() => {
             const btn = document.getElementById('optimize-btn');
             if (btn) {
@@ -58,7 +58,7 @@ window.onload = function() {
             }
         }, 50);
     } else {
-        // PC 접속 환경일 때만 배경 아기 별과 실시간 별똥별 생성 엔진 작동
+        // [PC 환경 한정] 디폴트로 애니메이션 엔진 활성화
         initBackgroundStars(); 
         startDynamicShootingStars(); 
     }
@@ -80,7 +80,7 @@ function handleAdminNameEnter(event) {
     }
 }
 
-// 🎛️ 최적화 껐다 켜는 다이내믹 변환 제어 엔진
+// 🎛️ 최적화 껐다 켜는 다이내믹 변환 제어 엔진 (수동 토글 가능 상태 유지)
 function toggleOptimizationMode() {
     isOptimizationOn = !isOptimizationOn;
     const btn = document.getElementById('optimize-btn');
@@ -246,9 +246,9 @@ function renderSecretMailboxWindow() {
 
     if (targetLetters.length === 0) {
         if (currentSecretTab === 'fav') {
-            container.innerHTML = `<div style="text-align:center; padding:60px 20px; color:#ffe6ba; font-size:1rem; font-weight:bold;">특별한 빛이 없어!</div>`;
+            container.innerHTML = `<div style="text-align:center; padding:60px 20px; color:#ffe6ba; font-size:1rem; font-weight:bold;">특별한 별빛이 없어!</div>`;
         } else {
-            container.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.85rem;">비밀 우체통에 도착한 편지가 없습니다.</div>`;
+            container.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.85rem;">별빛 우체통에 도착한 편지가 없습니다.</div>`;
         }
         return;
     }
@@ -422,7 +422,7 @@ function renderPosts() {
     feed.innerHTML = "";
 
     if(pagePosts.length === 0) {
-        feed.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.9rem;">우체통이 고요합니다. 일치하는 글이 없습니다.</div>`;
+        feed.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.9rem;">우체통이 조용합니다. 일치하는 글이 없습니다.</div>`;
         renderPaginationControls(totalPages);
         return;
     }
@@ -619,6 +619,7 @@ function toggleFavorite(nodeType, firebaseKey, currentStatus, e) {
     });
 }
 
+// 공지 지정 및 해제 연산 핸들러
 function togglePin(nodeType, firebaseKey, currentStatus) {
     const nextStatus = !currentStatus;
     const updatePayload = {
@@ -632,7 +633,7 @@ function togglePin(nodeType, firebaseKey, currentStatus) {
 }
 
 function submitPost() {
-    const author = document.getElementById('post-author').value.trim() || "익명의 우주";
+    const author = document.getElementById('post-author').value.trim() || "익명의 별빛";
     const title = document.getElementById('post-title').value.trim();
     const content = document.getElementById('post-content').value.trim();
     const postPassword = document.getElementById('post-password').value.trim(); 
@@ -856,7 +857,7 @@ function renderRecentLettersWindow() {
     let allCombinedPosts = [...publicPosts, ...globalLetters];
 
     if (allCombinedPosts.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.85rem;">우주에 새겨진 기록이 전혀 없습니다.</div>`;
+        container.innerHTML = `<div style="text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:0.85rem;">우주에 새겨진 별빛이 하나도 없습니다.</div>`;
         return;
     }
 
