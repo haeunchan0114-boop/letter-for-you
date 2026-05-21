@@ -44,13 +44,13 @@
 
                 <div class="moved-actions-zone">
                     <button id="user-write-btn" onclick="openModal('writeModal')">
-                        🚀 하은이에게 편지 쓰기
+                        하은이에게 편지 쓰기
                     </button>
                     <button id="admin-write-btn" style="display:none;" onclick="openModal('writeModal')">
-                        ✍️ 새 공지사항 및 글 기록하기
+                        새 별빛의 기록 작성하기
                     </button>
                     <div id="secret-mailbox-icon" style="display:none;" onclick="toggleSecretLetters()">
-                        📨 비밀 우체통 열기
+                        별빛 우체통 열기
                     </div>
                 </div>
             </div>
@@ -69,16 +69,16 @@
             </div>
             <div class="modal-body">
                 <input type="text" id="post-author" placeholder="닉네임을 적어주세요 (미입력시 익명)">
-                <input type="text" id="post-title" placeholder="반짝이는 제목을 입력하세요">
-                <textarea id="post-content" placeholder="우주 너머 전하고 싶은 소중한 이야기를 담아보세요..."></textarea>
+                <input type="text" id="post-title" placeholder="빛의 제목을 입력하세요">
+                <textarea id="post-content" placeholder="우주 너머 전하고 싶은 소중한 말들을 담아보세요..."></textarea>
                 
-                <input type="password" id="post-password" placeholder="🔒 게시글 비밀번호 설정 (선택)" style="display:none;">
+                <input type="password" id="post-password" placeholder="게시글 비밀번호 설정 (선택)" style="display:none;">
                 <div id="admin-notice-zone" style="display:none; align-items:center; gap:8px; margin-bottom:12px; font-size:0.85rem; color:#FFE6BA;">
                     <input type="checkbox" id="post-is-pinned" style="width:auto; margin-bottom:0; cursor:pointer;">
-                    <label for="post-is-pinned" style="cursor:pointer; user-select:none;">📌 고정 공지사항으로 등록하기</label>
+                    <label for="post-is-pinned" style="cursor:pointer; user-select:none;">고정 공지사항으로 등록하기</label>
                 </div>
 
-                <button class="submit-btn" onclick="submitPost()">은하수로 띄우기</button>
+                <button class="submit-btn" onclick="submitPost()">별빛 넘어로 보내기</button>
             </div>
         </div>
     </div>
@@ -86,12 +86,12 @@
     <div id="adminAuthModal" class="modal-overlay">
         <div class="modal-content mini-modal">
             <div class="modal-header">
-                <h2>관리자 우주 주파수 맞추기</h2>
+                <h2>별빛 관리자들의 비밀번호 맞추기!</h2>
                 <button class="close-btn" onclick="closeModal('adminAuthModal')">&times;</button>
             </div>
             <div class="modal-body">
-                <input type="password" id="admin-password-input" placeholder="비밀 코드를 입력하세요" onkeydown="handleAdminAuthEnter(event)">
-                <button class="submit-btn" onclick="checkAdminPassword()">주파수 연결</button>
+                <input type="password" id="admin-password-input" placeholder="비밀 번호를 입력하세요!" onkeydown="handleAdminAuthEnter(event)">
+                <button class="submit-btn" onclick="checkAdminPassword()">별빛 연결하기</button>
             </div>
         </div>
     </div>
@@ -99,11 +99,11 @@
     <div id="adminNameModal" class="modal-overlay">
         <div class="modal-content mini-modal">
             <div class="modal-header">
-                <h2>식별 호칭 등록</h2>
+                <h2>별빛 관리자 이름 등록</h2>
             </div>
             <div class="modal-body">
                 <input type="text" id="admin-name-input" placeholder="화면에 표시될 관리자 이름" onkeydown="handleAdminNameEnter(event)">
-                <button class="submit-btn" onclick="saveAdminProfile()">프로필 저장</button>
+                <button class="submit-btn" onclick="saveAdminProfile()">이름 저장</button>
             </div>
         </div>
     </div>
@@ -116,7 +116,7 @@
             </div>
             <div class="secret-tabs">
                 <button id="secret-tab-all" class="active" onclick="changeSecretTab('all')">받은 편지 전체</button>
-                <button id="secret-tab-fav" onclick="changeSecretTab('fav')">별표 소중한 기록 (★)</button>
+                <button id="secret-tab-fav" onclick="changeSecretTab('fav')">소중한 별빛 기록 (★)</button>
             </div>
             <div id="secret-letters-container" class="secret-scroll-zone"></div>
         </div>
@@ -135,7 +135,7 @@
     <div id="recentMailboxModal" class="modal-overlay">
         <div class="modal-content secret-window">
             <div class="modal-header">
-                <h2>📜 실시간 최근 등록 기록 (5개)</h2>
+                <h2> 최근 별빛 기록 (5개)</h2>
                 <button class="close-btn" onclick="closeModal('recentMailboxModal')">&times;</button>
             </div>
             <div id="recent-letters-container" class="secret-scroll-zone" style="margin-top:10px;"></div>
